@@ -3,7 +3,6 @@ using UnityEngine;
 public class StateExplore : CreatureState
 {
     private float exploreRange = 5f;
-
     public StateExplore(CreatureAI creature) : base(creature) { }
 
     public override void Enter()
@@ -25,8 +24,7 @@ public class StateExplore : CreatureState
 
     private void SetNewDestination()
     {
-        Vector2 randomOffset = Random.insideUnitCircle * exploreRange;
-        Vector2 destination = (Vector2)creature.transform.position + randomOffset;
+
         creature.controller.SetDestination(destination);
     }
 

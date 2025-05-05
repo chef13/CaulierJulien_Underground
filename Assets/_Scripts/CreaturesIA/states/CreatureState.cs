@@ -1,7 +1,10 @@
+
+using UnityEngine;
+
 public abstract class CreatureState
 {
     protected CreatureAI creature;
-
+    public Vector2 destination;
     public CreatureState(CreatureAI creature)
     {
         this.creature = creature;

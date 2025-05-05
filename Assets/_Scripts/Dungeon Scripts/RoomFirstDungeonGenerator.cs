@@ -20,6 +20,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private bool randomWalkRooms = false;
     public int deadEndLength = 5;
     public List<Vector2Int> deadEnds = new List<Vector2Int>();
+    [SerializeField]
     public List<Vector2Int> deadEndsBorders = new List<Vector2Int>();
     public  List<Vector2Int> floorList = new List<Vector2Int>();
     private HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
