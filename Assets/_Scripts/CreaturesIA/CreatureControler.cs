@@ -4,14 +4,17 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class CreatureController : MonoBehaviour
 {
-    public float stoppingDistance = 0.1f;
-
+    public NavMeshPlus.Components.NavMeshSurface surface;
+    public float stoppingDistance = 1f;
+    public Vector2 destination;
     protected NavMeshAgent agent;
-    protected bool hasDestination = false;
+    public bool hasDestination = false;
 
     protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
 
         // Important pour la 2D
         agent.updateRotation = false;
@@ -20,11 +23,14 @@ public class CreatureController : MonoBehaviour
 
     protected virtual void Update()
     {
+        Debug.Log(agent.isOnNavMesh);
+        Debug.Log(agent.Raycast(agent.transform.position, out NavMeshHit hit));
         if (hasDestination && agent.remainingDistance <= stoppingDistance)
         {
             hasDestination = false;
             OnDestinationReached();
         }
+
     }
 
     public virtual void SetDestination(Vector2 destination)
@@ -40,6 +46,6 @@ public class CreatureController : MonoBehaviour
 
     protected virtual void OnDestinationReached()
     {
-        // À override dans les classes enfants
+        agent.SetDestination(destination);
     }
 }

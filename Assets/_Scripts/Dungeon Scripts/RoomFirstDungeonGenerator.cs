@@ -25,6 +25,13 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public  List<Vector2Int> floorList = new List<Vector2Int>();
     private HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
     private HashSet<Vector2Int> water = new HashSet<Vector2Int>();
+    private HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
+
+    [SerializeField]
+    private GameObject spawnPointPrefab; // Assign a prefab in the Inspector
+    [SerializeField]
+    public List<GameObject> dgRoomslist = new List<GameObject>();
+    public List<GameObject> spawnPoints = new List<GameObject>();
     protected override void RunProceduralGeneration()
     {
         CreateRooms();
@@ -59,7 +66,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         (deadEnds, deadEndsBorders) = FindAllDeadEnds(floor.ToList(), deadEndLength);
         water = CreateWaterRandomly(roomsList);
         CreateMainRoom();
-       
+        RegisterSpawnPointsAndRooms(roomsList);
         tilemapVisualizer.PaintWaterTiles(floor, water);
         tilemapVisualizer.PaintFloorTiles(floor);
         WallGenerator.CreateWalls(floor, tilemapVisualizer);
@@ -102,7 +109,24 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         }
         return water;
     }
-
+    
+    private HashSet<Vector2Int> CreateNatureRandomly(List<BoundsInt> roomsList)
+    {
+        HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
+        foreach (var natureFloor in water)
+        {
+            var roomCenter = new Vector2Int(Mathf.RoundToInt(natureFloor.x), Mathf.RoundToInt(natureFloor.y));
+            var waterFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(roomCenter, Random.Range(0, 30));
+            foreach (var position in waterFloor)
+            {
+                if (floor.Contains(position) && !water.Contains(position))
+                {
+                    nature.Add(position);
+                }
+            }
+        }
+        return nature;
+    }
     private List<Vector2Int> ConnectRooms(List<Vector2Int> roomCenters)
     {
         HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
@@ -313,4 +337,42 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
     }
+
+    public void RegisterSpawnPointsAndRooms(List<BoundsInt> roomsList)
+{
+    
+    for (int i = spawnPoints.Count - 1; i >= 0; i--)
+    {
+        DestroyImmediate(spawnPoints[i].gameObject);
+    }
+    for (int i = dgRoomslist.Count - 1; i >= 0; i--)
+    {
+        DestroyImmediate(dgRoomslist[i].gameObject);
+    }
+    spawnPoints.Clear();
+    dgRoomslist.Clear();
+    foreach (var position in deadEndsBorders)
+    {
+        // Convert Vector2Int to Vector3 for world position
+        Vector3 worldPosition = new Vector2(position.x+0.5f, position.y+0.5f);
+
+        // Instantiate the spawn point prefab at the position
+        GameObject spawnPoint = Instantiate(spawnPointPrefab, worldPosition, Quaternion.identity);
+        spawnPoint.transform.SetParent(transform); // Set the parent to the current object for organization
+        spawnPoint.transform.localScale = new Vector3(1, 1, 1); // Reset scale to 1,1,1
+        // Add the Transform of the spawn point to the list
+        spawnPoints.Add(spawnPoint);
+    }
+    for (int i = 0; i < roomsList.Count; i++)
+    {
+        var roomBounds = roomsList[i];
+        roomBounds.position = new Vector3Int(roomBounds.position.x, roomBounds.position.y, 0);
+        roomsList[i] = roomBounds;
+        Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
+        GameObject roomObject = new GameObject("Room");
+        roomObject.transform.position = new Vector3(roomCenter.x, roomCenter.y, 0);
+        dgRoomslist.Add(roomObject);
+        roomObject.transform.SetParent(transform); // Set the parent to the current object for organization
+    }
+}
 }

@@ -21,13 +21,13 @@ public class GameManager : MonoBehaviour
     public IEnumerator SpawnTraversingMobs()
     {
         
-            Vector2Int deadEndBorder = roomGenerator.deadEndsBorders[Random.Range(0, roomGenerator.deadEndsBorders.Count)];
-            Vector2 spawnPosition = new Vector2(deadEndBorder.x, deadEndBorder.y);
+            
+            Vector3 spawnPosition = roomGenerator.spawnPoints[Random.Range(0, roomGenerator.deadEndsBorders.Count)].transform.position;
             GameObject mob = Instantiate(mobPrefab, spawnPosition, Quaternion.identity);
-            Vector2Int deadEndBorderDestination = roomGenerator.deadEndsBorders[Random.Range(0, roomGenerator.deadEndsBorders.Count)];
-            Vector2 destinationEnd = new Vector2(deadEndBorderDestination.x, deadEndBorderDestination.y);
-            mob.GetComponent<CreatureState>().destination = destinationEnd;
-            yield return new WaitForSeconds(1f); // Attendre 1 seconde entre chaque spawn
-        
+            Debug.Log("Spawned mob at: " + spawnPosition + "at spawnPoint: " + roomGenerator.spawnPoints[Random.Range(0, roomGenerator.deadEndsBorders.Count)].transform.position);
+            yield return new WaitForSeconds(5f); // Attendre 1 seconde entre chaque spawn
+            StartCoroutine(SpawnTraversingMobs());
+            
     }
+
 }

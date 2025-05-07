@@ -67,6 +67,17 @@ public static class WallGenerator
                     wallPositions.Add(neighbourPosition);
             }
         }
+        HashSet<Vector2Int> newWallPositions = new HashSet<Vector2Int>();
+        foreach (var position in wallPositions)
+        {
+            foreach (var direction in directionList)
+            {
+                var neighbourPosition = position + direction;
+                if (floorPositions.Contains(neighbourPosition) == false)
+                    newWallPositions.Add(neighbourPosition);
+            }
+        }
+        wallPositions.UnionWith(newWallPositions);
         return wallPositions;
     }
 }

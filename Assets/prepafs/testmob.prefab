@@ -14,7 +14,9 @@ GameObject:
   - component: {fileID: 3884655852169907879}
   - component: {fileID: 8621514609750838602}
   - component: {fileID: 2382739966660156435}
-  m_Layer: 0
+  - component: {fileID: 8246874898353823281}
+  - component: {fileID: 4947912926643513776}
+  m_Layer: 7
   m_Name: testmob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +118,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &3884655852169907879
 MonoBehaviour:
@@ -130,7 +132,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  surface: {fileID: 0}
   stoppingDistance: 0.1
+  destination: {x: 0, y: 0}
+  hasDestination: 0
 --- !u!114 &8621514609750838602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,6 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2a35308086e4841ad9de1307ae568b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomGenerator: {fileID: 0}
   controller: {fileID: 0}
 --- !u!195 &2382739966660156435
 NavMeshAgent:
@@ -153,9 +159,9 @@ NavMeshAgent:
   m_GameObject: {fileID: 3563372129752578921}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Radius: 0.2
+  m_Speed: 2
+  m_Acceleration: 5
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
@@ -166,3 +172,52 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 1
   m_ObstacleAvoidanceType: 4
+--- !u!58 &8246874898353823281
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3563372129752578921}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
+--- !u!114 &4947912926643513776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3563372129752578921}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d25042c6a4e107546a6d38124cdf1180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  surface: {fileID: 0}
