@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -7,12 +6,15 @@ using UnityEngine.Tilemaps;
 public class TilemapVisualizer : MonoBehaviour
 {
     [SerializeField]
-    private Tilemap floorTilemap, wallTilemap, waterTilemap;
+    private Tilemap floorTilemap, wallTilemap, waterTilemap, natureTilemap;
     [SerializeField]
     private TileBase floorTile, wallTop, wallSideRight, wallSiderLeft, wallBottom, wallFull, 
         wallInnerCornerDownLeft, wallInnerCornerDownRight, 
         wallDiagonalCornerDownRight, wallDiagonalCornerDownLeft, wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
-        water;
+        water,
+        natureTile, natureTop, natureSideRight, natureSiderLeft, natureBottom, natureFull, 
+        natureInnerCornerDownLeft, natureInnerCornerDownRight, 
+        natureDiagonalCornerDownRight, natureDiagonalCornerDownLeft, natureDiagonalCornerUpRight, natureDiagonalCornerUpLeft;
 
     public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions)
     {
@@ -32,6 +34,15 @@ public class TilemapVisualizer : MonoBehaviour
         
     }
 
+        public void PaintNatureTiles(IEnumerable<Vector2Int> naturePositions)
+    {
+        PaintTiles(naturePositions, natureTilemap, natureTile);
+    }
+
+    internal void PaintSingleNatureTile(Vector2Int position)
+    {
+        PaintSingleTile(natureTilemap, natureTile, position);
+    }
     private void PaintTiles(IEnumerable<Vector2Int> positions, Tilemap tilemap, TileBase tile)
     {
         foreach (var position in positions)
@@ -79,6 +90,7 @@ public class TilemapVisualizer : MonoBehaviour
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
         waterTilemap.ClearAllTiles();
+        natureTilemap.ClearAllTiles();
     }
 
     internal void PaintSingleCornerWall(Vector2Int position, string binaryType)
@@ -121,5 +133,75 @@ public class TilemapVisualizer : MonoBehaviour
 
         if (tile != null)
             PaintSingleTile(wallTilemap, tile, position);
+    }
+
+    internal void PaintSingleCornerNature(Vector2Int position, string binaryType)
+    {
+        int typeASInt = Convert.ToInt32(binaryType, 2);
+        TileBase tile = null;
+
+        if (WallTypesHelper.wallInnerCornerDownLeft.Contains(typeASInt))
+        {
+            tile = natureInnerCornerDownLeft;
+        }
+        else if (WallTypesHelper.wallInnerCornerDownRight.Contains(typeASInt))
+        {
+            tile = natureInnerCornerDownRight;
+        }
+        else if (WallTypesHelper.wallDiagonalCornerDownLeft.Contains(typeASInt))
+        {
+            tile = natureDiagonalCornerDownLeft;
+        }
+        else if (WallTypesHelper.wallDiagonalCornerDownRight.Contains(typeASInt))
+        {
+            tile = natureDiagonalCornerDownRight;
+        }
+        else if (WallTypesHelper.wallDiagonalCornerUpRight.Contains(typeASInt))
+        {
+            tile = natureDiagonalCornerUpRight;
+        }
+        else if (WallTypesHelper.wallDiagonalCornerUpLeft.Contains(typeASInt))
+        {
+            tile = natureDiagonalCornerUpLeft;
+        }
+        else if (WallTypesHelper.wallFullEightDirections.Contains(typeASInt))
+        {
+            tile = natureFull;
+        }
+        else if (WallTypesHelper.wallBottmEightDirections.Contains(typeASInt))
+        {
+            tile = natureBottom;
+        }
+
+        if (tile != null)
+            PaintSingleTile(natureTilemap, tile, position);
+    }
+
+    internal void PaintSingleBasicNature(Vector2Int position, string binaryType)
+    {
+        int typeAsInt = Convert.ToInt32(binaryType, 2);
+        TileBase tile = null;
+        if (WallTypesHelper.wallTop.Contains(typeAsInt))
+        {
+            tile = natureTop;
+        }else if (WallTypesHelper.wallSideRight.Contains(typeAsInt))
+        {
+            tile = natureSideRight;
+        }
+        else if (WallTypesHelper.wallSideLeft.Contains(typeAsInt))
+        {
+            tile = natureSiderLeft;
+        }
+        else if (WallTypesHelper.wallBottm.Contains(typeAsInt))
+        {
+            tile = natureBottom;
+        }
+        else if (WallTypesHelper.wallFull.Contains(typeAsInt))
+        {
+            tile = natureFull;
+        }
+
+        if (tile!=null)
+            PaintSingleTile(natureTilemap, tile, position);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class CreatureAI : MonoBehaviour
 {
     private CreatureState currentState;
-     public RoomFirstDungeonGenerator roomGenerator;
+    public NavMeshPlus.Components.NavMeshSurface surface;
     [HideInInspector] public CreatureController controller;
 
     void Awake()

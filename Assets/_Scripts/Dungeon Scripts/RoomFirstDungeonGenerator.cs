@@ -6,9 +6,12 @@ using UnityEngine;
 using System.Linq;
 using Random = UnityEngine.Random;
 using UnityEngine.UIElements;
+using UnityEngine.AI;
+using NavMeshPlus.Components;
 
 public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
+    public NavMeshSurface surface;
     [SerializeField]
     private int minRoomWidth = 4, minRoomHeight = 4;
     [SerializeField]
@@ -38,7 +41,10 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     }
 
     private void CreateRooms()
+    
     {
+        surface.RemoveData();
+        tilemapVisualizer.Clear();
         var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minRoomWidth, minRoomHeight);
 
 
@@ -54,9 +60,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
         List<Vector2Int> roomCenters = new List<Vector2Int>();
         foreach (var room in roomsList)
-        {
             roomCenters.Add((Vector2Int)Vector3Int.RoundToInt(room.center));
-        }
 
         List<Vector2Int> corridors = ConnectRooms(roomCenters);
         floor.UnionWith(corridors);
@@ -64,14 +68,24 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         RegisterFloors(floor);
          CropFloorOnBorder(floor);
         (deadEnds, deadEndsBorders) = FindAllDeadEnds(floor.ToList(), deadEndLength);
-        water = CreateWaterRandomly(roomsList);
         CreateMainRoom();
+        water = CreateWaterRandomly(roomsList);
+        nature = CreateNatureRandomly(water.ToList());
+        
         RegisterSpawnPointsAndRooms(roomsList);
         tilemapVisualizer.PaintWaterTiles(floor, water);
         tilemapVisualizer.PaintFloorTiles(floor);
         WallGenerator.CreateWalls(floor, tilemapVisualizer);
+        NatureGenerator.CreateNature(nature, tilemapVisualizer);
+        
+        StartCoroutine(BuildNavMeshAfterDelay());
     }
 
+    private IEnumerator BuildNavMeshAfterDelay()
+{
+    yield return new WaitForSeconds(1); // Wait for one frame to ensure tilemap updates are complete
+    surface.BuildNavMesh();
+}
     private HashSet<Vector2Int> CreateRoomsRandomly(List<BoundsInt> roomsList)
     {
         HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
@@ -93,7 +107,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     private HashSet<Vector2Int> CreateWaterRandomly(List<BoundsInt> roomsList)
     {
-        HashSet<Vector2Int> water = new HashSet<Vector2Int>();
+        
         for (int i = 0; i < roomsList.Count/4; i++)
         {
             var roomBounds = roomsList[Random.Range(0, roomsList.Count)];
@@ -110,14 +124,14 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         return water;
     }
     
-    private HashSet<Vector2Int> CreateNatureRandomly(List<BoundsInt> roomsList)
+    private HashSet<Vector2Int> CreateNatureRandomly(List<Vector2Int> water)
     {
         HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
-        foreach (var natureFloor in water)
+        foreach (var waterFloor in water)
         {
-            var roomCenter = new Vector2Int(Mathf.RoundToInt(natureFloor.x), Mathf.RoundToInt(natureFloor.y));
-            var waterFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(roomCenter, Random.Range(0, 30));
-            foreach (var position in waterFloor)
+            var roomCenter = new Vector2Int(Mathf.RoundToInt(waterFloor.x), Mathf.RoundToInt(waterFloor.y));
+            var natureFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(roomCenter, Random.Range(0, 30));
+            foreach (var position in natureFloor)
             {
                 if (floor.Contains(position) && !water.Contains(position))
                 {
@@ -323,7 +337,6 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
                 water.Add(pos);
             }
         }
-       
     }
 
     private void CropFloorOnBorder(HashSet<Vector2Int> floorPositions)

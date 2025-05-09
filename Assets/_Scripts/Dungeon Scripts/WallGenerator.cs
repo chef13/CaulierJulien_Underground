@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -80,4 +80,6 @@ public static class WallGenerator
         wallPositions.UnionWith(newWallPositions);
         return wallPositions;
     }
+
+    
 }
