@@ -25,6 +25,7 @@ public class StateExplore : CreatureState
         // Exemple de transition vers un autre état
         if (DetectEnemy(out GameObject target))
         {
+            Debug.Log("Enemy detected, switching to StateAttack!");
             creature.SwitchState(new StateAttack(creature, target));
         }
     }
@@ -39,9 +40,9 @@ public class StateExplore : CreatureState
             
                 var potentialDestination = neighboringRooms[Random.Range(0, neighboringRooms.Count)];
                 // Check if the destination is walkable using NavMesh
-                if (IsWalkable(potentialDestination))
+                if (creature.IsWalkable(potentialDestination))
                 {
-                    Debug.Log($"Setting destination to neighboring room: {potentialDestination}");
+                    
                     creature.controller.SetDestination(potentialDestination);
                     return; // Exit after setting a valid destination
                 }
@@ -57,7 +58,7 @@ public class StateExplore : CreatureState
                 Random.Range(-exploreRange, exploreRange)
             );
 
-            if (IsWalkable(randomDestination))
+            if (creature.IsWalkable(randomDestination))
             {
                 Debug.Log($"Setting random destination: {randomDestination}");
                 creature.controller.SetDestination(randomDestination);
@@ -75,7 +76,7 @@ public class StateExplore : CreatureState
         foreach (var room in roomGenerator.dgRoomslist)
         {
             Vector2 roomPosition = room.transform.position;
-            if (Vector2.Distance(creature.transform.position, roomPosition) <= exploreRange && IsWalkable(roomPosition))
+            if (Vector2.Distance(creature.transform.position, roomPosition) <= exploreRange && creature.IsWalkable(roomPosition))
             {
                 neighboringRooms.Add(roomPosition); // Add the room position to the list
             }
@@ -86,22 +87,25 @@ public class StateExplore : CreatureState
         
     }
 
-    private bool DetectEnemy(out GameObject target)
+    private GameObject DetectEnemy(out GameObject target)
     {
-        // Simulation de détection — remplace par ton vrai système
+        // Example: detect enemies within a radius using Physics.OverlapSphereNonAlloc
+        float detectionRadius = 10f;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(creature.transform.position, detectionRadius);
+        int hitCount = hits.Length; // Get the number of hits
+        Debug.Log($"Hit count: {hitCount}"); // Log the hit count
+
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Blop"))
+            {
+                target = hit.gameObject;
+                return target;
+            }
+        }
         target = null;
-        return false;
+        return target;
     }
 
-    private bool IsWalkable(Vector3 position)
-    {
-        NavMeshHit hit;
-    // Check if the position is on the NavMesh within a small distance
-        if (NavMesh.SamplePosition(position, out hit, 1.0f, NavMesh.AllAreas))
-        {
-            // Ensure the sampled position is close to the original position
-            return Vector3.Distance(position, hit.position) < 0.5f;
-        }
-    return false;
-    }
+    
 }

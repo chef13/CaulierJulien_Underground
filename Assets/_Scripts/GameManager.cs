@@ -15,7 +15,18 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetButtonDown("Fire1"))
+        {Vector2 moussePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            if (BlopSpawner.Instance != null)
+            {
+                BlopSpawner.Instance.SpawnBlop(moussePosition);
+            }
+            else
+            {
+                Debug.LogWarning("BlopSpawner.Instance is null!");
+            }
+            
+        }
     }
 
     public IEnumerator SpawnTraversingMobs()

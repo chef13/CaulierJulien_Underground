@@ -26,9 +26,9 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     [SerializeField]
     public List<Vector2Int> deadEndsBorders = new List<Vector2Int>();
     public  List<Vector2Int> floorList = new List<Vector2Int>();
-    private HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
-    private HashSet<Vector2Int> water = new HashSet<Vector2Int>();
-    private HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
+    public HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
+    public HashSet<Vector2Int> water = new HashSet<Vector2Int>();
+    public HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
 
     [SerializeField]
     private GameObject spawnPointPrefab; // Assign a prefab in the Inspector
@@ -388,4 +388,17 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         roomObject.transform.SetParent(transform); // Set the parent to the current object for organization
     }
 }
+
+
+private bool IsWalkable(Vector3 position)
+    {
+        NavMeshHit hit;
+    // Check if the position is on the NavMesh within a small distance
+        if (NavMesh.SamplePosition(position, out hit, 1.0f, NavMesh.AllAreas))
+        {
+            // Ensure the sampled position is close to the original position
+            return Vector3.Distance(position, hit.position) < 0.5f;
+        }
+    return false;
+    }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 public class StateAttack : CreatureState
 {
     private GameObject target;
-    private float attackRange = 1.5f;
+    private float attackRange = .5f;
 
     public StateAttack(CreatureAI creature, GameObject target) : base(creature)
     {
@@ -39,7 +39,12 @@ public class StateAttack : CreatureState
 
     private void Attack()
     {
-        // Logique d’attaque
+        var targetComponent = target.GetComponent<BlopBehaviour>();
+        if (targetComponent != null)
+        {
+            targetComponent.OnDeath();
+            target = null;
+        }
     }
 
     private bool LowHealth()

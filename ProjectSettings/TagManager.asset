@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Wall
+  - Water
+  - Nature
+  - Blop
   layers:
   - Default
   - TransparentFX
@@ -15,9 +18,9 @@ TagManager:
   - ground
   - mobs
   - wall
-  - 
-  - 
-  - 
+  - water
+  - nature
+  - lava
   - 
   - 
   - 

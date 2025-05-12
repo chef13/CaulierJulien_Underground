@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
 public class TilemapVisualizer : MonoBehaviour
 {
+    static public TilemapVisualizer Instance;
     [SerializeField]
-    private Tilemap floorTilemap, wallTilemap, waterTilemap, natureTilemap;
+    static public Tilemap floorTilemap, wallTilemap, waterTilemap, natureTilemap;
     [SerializeField]
-    private TileBase floorTile, wallTop, wallSideRight, wallSiderLeft, wallBottom, wallFull, 
+    public TileBase floorTile, wallTop, wallSideRight, wallSiderLeft, wallBottom, wallFull, 
         wallInnerCornerDownLeft, wallInnerCornerDownRight, 
         wallDiagonalCornerDownRight, wallDiagonalCornerDownLeft, wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
         water,
@@ -16,6 +18,17 @@ public class TilemapVisualizer : MonoBehaviour
         natureInnerCornerDownLeft, natureInnerCornerDownRight, 
         natureDiagonalCornerDownRight, natureDiagonalCornerDownLeft, natureDiagonalCornerUpRight, natureDiagonalCornerUpLeft;
 
+    void Start()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions)
     {
         PaintTiles(floorPositions, floorTilemap, floorTile);

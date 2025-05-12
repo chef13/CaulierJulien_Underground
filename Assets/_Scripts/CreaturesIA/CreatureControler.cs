@@ -23,8 +23,6 @@ public class CreatureController : MonoBehaviour
 
     protected virtual void Update()
     {
-        Debug.Log(agent.isOnNavMesh);
-        Debug.Log(agent.Raycast(agent.transform.position, out NavMeshHit hit));
         if (hasDestination && agent.remainingDistance <= stoppingDistance)
         {
             hasDestination = false;
