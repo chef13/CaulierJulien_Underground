@@ -8,7 +8,7 @@ public class TilemapVisualizer : MonoBehaviour
 {
     static public TilemapVisualizer Instance;
     [SerializeField]
-    static public Tilemap floorTilemap, wallTilemap, waterTilemap, natureTilemap;
+    public Tilemap floorTilemap, wallTilemap, waterTilemap, natureTilemap;
     [SerializeField]
     public TileBase floorTile, wallTop, wallSideRight, wallSiderLeft, wallBottom, wallFull, 
         wallInnerCornerDownLeft, wallInnerCornerDownRight, 

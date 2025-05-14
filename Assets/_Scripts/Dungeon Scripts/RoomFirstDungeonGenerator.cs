@@ -47,8 +47,16 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     {
         surface.RemoveData();
         tilemapVisualizer.Clear();
-        var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minRoomWidth, minRoomHeight);
+        var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 1)), minRoomWidth, minRoomHeight);
 
+
+        foreach (var room in roomsList)
+        {
+            foreach (var pos in room.allPositionsWithin)
+            {
+                Debug.Log($"Room position: {pos}");
+            }
+        }
 
         if (randomWalkRooms)
         {
@@ -74,13 +82,14 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         water = CreateWaterRandomly(roomsList);
         nature = CreateNatureRandomly(water.ToList());
         
-        RegisterSpawnPointsAndRooms(roomsList);
+        
         tilemapVisualizer.PaintWaterTiles(floor, water);
         tilemapVisualizer.PaintFloorTiles(floor);
         WallGenerator.CreateWalls(floor, tilemapVisualizer);
         NatureGenerator.CreateNature(nature, tilemapVisualizer);
         RegisterTileInfo();
         StartCoroutine(BuildNavMeshAfterDelay());
+        RegisterSpawnPointsAndRooms(roomsList);
     }
 
     private IEnumerator BuildNavMeshAfterDelay()
@@ -381,22 +390,23 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     for (int i = 0; i < roomsList.Count; i++)
     {
         var roomBounds = roomsList[i];
-        roomBounds.position = new Vector3Int(roomBounds.position.x, roomBounds.position.y, 0);
-        roomsList[i] = roomBounds;
-        List<TileInfo> tilesInfos = new List<TileInfo>();
-        foreach (var pos in roomBounds.allPositionsWithin)
+        List<TileInfo> roomTilesInfos = new List<TileInfo>();
+        foreach (Vector3Int pos in roomBounds.allPositionsWithin)
         {
-            
-            if (floor.Contains((Vector2Int)pos))
+            Debug.Log($"Room {i} position: {pos}");
+            Vector2Int pos2D = new Vector2Int(pos.x, pos.y);
+            if (floor.Contains(pos2D))
             {
-                bool isWater = water.Contains((Vector2Int)pos);
-                bool isNature = nature.Contains((Vector2Int)pos);
-                bool isDeadEnd = deadEnds.Contains((Vector2Int)pos);
-                var info = new TileInfo((Vector2Int)pos, isWater, isNature, isDeadEnd);
-                tilesInfos.Add(info);
+                bool isWater = water.Contains(pos2D);
+                bool isNature = nature.Contains(pos2D);
+                bool isDeadEnd = deadEnds.Contains(pos2D);
+                var info = new TileInfo(pos2D, isWater, isNature, isDeadEnd);
+                roomTilesInfos.Add(info);
+                
             }
+            Debug.Log($"Room {i} has {roomTilesInfos.Count} tiles.");
         }
-        var roomInfo = new RoomInfo(tilesInfos);
+        var roomInfo = new RoomInfo(roomTilesInfos);
         roomsInfos.Add(roomInfo);
         Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
         GameObject roomObject = new GameObject("Room");
