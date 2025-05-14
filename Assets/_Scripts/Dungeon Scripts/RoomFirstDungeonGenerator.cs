@@ -30,7 +30,8 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public HashSet<Vector2Int> water = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
     public List<TileInfo> tilesInfos = new List<TileInfo>();
-    public List<RoomInfo> roomsInfos = new List<RoomInfo>();
+    private List<RoomInfo> roomsInfos = new List<RoomInfo>();
+    public List<GameObject> rooms = new List<GameObject>();
 
     [SerializeField]
     private GameObject spawnPointPrefab; // Assign a prefab in the Inspector
@@ -411,8 +412,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
         GameObject roomObject = new GameObject("Room");
         roomObject.transform.position = new Vector3(roomCenter.x, roomCenter.y, 0);
-        
-        // Link the RoomInfo to the GameObject
+        rooms.Add(roomObject);
         var roomComponent = roomObject.AddComponent<RoomComponent>();
         roomComponent.roomInfo = roomInfo;
         

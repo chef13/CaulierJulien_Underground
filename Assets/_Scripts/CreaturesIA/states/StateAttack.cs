@@ -34,6 +34,7 @@ public class StateAttack : CreatureState
 
     private void Attack()
     {
+        creature.controller.currentEnergy -= creature.controller.damage/2;
         var targetComponent = target.GetComponent<BlopBehaviour>();
         if (targetComponent != null)
         {

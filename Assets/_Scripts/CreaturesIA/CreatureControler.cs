@@ -5,12 +5,14 @@ using UnityEngine.AI;
 public class CreatureController : MonoBehaviour
 {
     public int maxHP, currentHP, damage;
-    public float attackRange, attackSpeed, attackTimer, detectionRange;
+    public float attackRange, attackSpeed, attackTimer, detectionRange, maxEnergy, currentEnergy;
     public float stoppingDistance = 1f;
     public Vector2 destination;
     protected NavMeshAgent agent;
     public CreatureAI creatureAI;
     public bool hasDestination = false;
+    
+    public FactionBehaviour currentFaction;
 
     protected virtual void Awake()
     {
@@ -18,6 +20,7 @@ public class CreatureController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
+        currentFaction = GetComponentsInParent<FactionBehaviour>()[0];
 
     }
 
@@ -33,6 +36,16 @@ public class CreatureController : MonoBehaviour
             attackTimer -= Time.deltaTime;
         }
 
+        if (currentEnergy < maxEnergy/4)
+        {
+            creatureAI.SwitchState(new StateReccover(creatureAI));
+        }
+
+    }
+
+    public void SetFaction(FactionBehaviour faction)
+    {
+        currentFaction = faction;
     }
 
     public virtual void SetDestination(Vector2 destination)

@@ -139,10 +139,13 @@ MonoBehaviour:
   attackSpeed: 2
   attackTimer: 0
   detectionRange: 10
-  surface: {fileID: 0}
+  maxEnergy: 100
+  currentEnergy: 100
   stoppingDistance: 0.1
   destination: {x: 0, y: 0}
+  creatureAI: {fileID: 0}
   hasDestination: 0
+  currentFaction: {fileID: 0}
 --- !u!114 &8621514609750838602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +160,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   attacker: {fileID: 0}
-  surface: {fileID: 0}
   controller: {fileID: 0}
 --- !u!195 &2382739966660156435
 NavMeshAgent:
