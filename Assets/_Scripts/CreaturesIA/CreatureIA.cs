@@ -5,7 +5,7 @@ using UnityEngine.AI;
 public class CreatureAI : MonoBehaviour
 {
     public CreatureState currentState;
-    public NavMeshPlus.Components.NavMeshSurface surface;
+    public GameObject target, attacker;
     [HideInInspector] public CreatureController controller;
 
     void Awake()
@@ -39,6 +39,11 @@ public class CreatureAI : MonoBehaviour
             // Ensure the sampled position is close to the original position
             return Vector3.Distance(position, hit.position) < 0.5f;
         }
+        return false;
+    }
+    private bool LowHealth()
+    {
+        // Remplacer par ton système de vie
         return false;
     }
 }

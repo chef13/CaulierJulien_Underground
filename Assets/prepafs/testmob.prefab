@@ -132,6 +132,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHP: 150
+  currentHP: 150
+  damage: 10
+  attackRange: 1
+  attackSpeed: 2
+  attackTimer: 0
+  detectionRange: 10
   surface: {fileID: 0}
   stoppingDistance: 0.1
   destination: {x: 0, y: 0}
@@ -148,6 +155,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2a35308086e4841ad9de1307ae568b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  attacker: {fileID: 0}
   surface: {fileID: 0}
   controller: {fileID: 0}
 --- !u!195 &2382739966660156435

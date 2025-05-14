@@ -29,6 +29,8 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> water = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
+    public List<TileInfo> tilesInfos = new List<TileInfo>();
+    public List<RoomInfo> roomsInfos = new List<RoomInfo>();
 
     [SerializeField]
     private GameObject spawnPointPrefab; // Assign a prefab in the Inspector
@@ -77,7 +79,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         tilemapVisualizer.PaintFloorTiles(floor);
         WallGenerator.CreateWalls(floor, tilemapVisualizer);
         NatureGenerator.CreateNature(nature, tilemapVisualizer);
-        
+        RegisterTileInfo();
         StartCoroutine(BuildNavMeshAfterDelay());
     }
 
@@ -381,24 +383,47 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         var roomBounds = roomsList[i];
         roomBounds.position = new Vector3Int(roomBounds.position.x, roomBounds.position.y, 0);
         roomsList[i] = roomBounds;
+        List<TileInfo> tilesInfos = new List<TileInfo>();
+        foreach (var pos in roomBounds.allPositionsWithin)
+        {
+            
+            if (floor.Contains((Vector2Int)pos))
+            {
+                bool isWater = water.Contains((Vector2Int)pos);
+                bool isNature = nature.Contains((Vector2Int)pos);
+                bool isDeadEnd = deadEnds.Contains((Vector2Int)pos);
+                var info = new TileInfo((Vector2Int)pos, isWater, isNature, isDeadEnd);
+                tilesInfos.Add(info);
+            }
+        }
+        var roomInfo = new RoomInfo(tilesInfos);
+        roomsInfos.Add(roomInfo);
         Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
         GameObject roomObject = new GameObject("Room");
         roomObject.transform.position = new Vector3(roomCenter.x, roomCenter.y, 0);
+        
+        // Link the RoomInfo to the GameObject
+        var roomComponent = roomObject.AddComponent<RoomComponent>();
+        roomComponent.roomInfo = roomInfo;
+        
         dgRoomslist.Add(roomObject);
         roomObject.transform.SetParent(transform); // Set the parent to the current object for organization
     }
 }
 
-
-private bool IsWalkable(Vector3 position)
+    public void RegisterTileInfo()
     {
-        NavMeshHit hit;
-    // Check if the position is on the NavMesh within a small distance
-        if (NavMesh.SamplePosition(position, out hit, 1.0f, NavMesh.AllAreas))
+        tilesInfos.Clear();
+        foreach (var pos in floor)
         {
-            // Ensure the sampled position is close to the original position
-            return Vector3.Distance(position, hit.position) < 0.5f;
+        // Replace the following line with your logic for determining if the tile is a room and the room name
+        bool isWater = water.Contains(pos);
+        bool isNature = nature.Contains(pos);
+        bool isDeadEnd = deadEnds.Contains(pos);
+        
+
+        var info = new TileInfo(pos, isWater, isNature, isDeadEnd);
+        tilesInfos.Add(info);
         }
-    return false;
     }
 }

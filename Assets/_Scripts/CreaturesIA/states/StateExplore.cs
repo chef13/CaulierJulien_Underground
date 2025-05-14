@@ -100,7 +100,11 @@ public class StateExplore : CreatureState
             if (hit.CompareTag("Blop"))
             {
                 target = hit.gameObject;
-                return target;
+                if (target.activeInHierarchy)
+                {return target;}
+                else
+                {target = null;
+                return target;}
             }
         }
         target = null;

@@ -3,7 +3,6 @@ using UnityEngine;
 public class StateAttack : CreatureState
 {
     private GameObject target;
-    private float attackRange = .5f;
 
     public StateAttack(CreatureAI creature, GameObject target) : base(creature)
     {
@@ -12,29 +11,25 @@ public class StateAttack : CreatureState
 
     public override void Update()
     {
-        if (target == null)
+        if (target.activeInHierarchy == false)
         {
+            target = null;
             creature.SwitchState(new StateExplore(creature));
             return;
         }
 
         float distance = Vector2.Distance(creature.transform.position, target.transform.position);
 
-        if (distance > attackRange)
+        if (distance > creature.controller.attackRange)
         {
             creature.controller.SetDestination(target.transform.position);
         }
-        else
+        else if (creature.controller.attackTimer <= 0)
         {
             creature.controller.SetDestination(creature.transform.position);
             Attack();
         }
 
-        // Exemple de condition de fuite
-        if (LowHealth())
-        {
-            creature.SwitchState(new StateFlee(creature));
-        }
     }
 
     private void Attack()
@@ -42,14 +37,10 @@ public class StateAttack : CreatureState
         var targetComponent = target.GetComponent<BlopBehaviour>();
         if (targetComponent != null)
         {
-            targetComponent.OnDeath();
-            target = null;
+            targetComponent.OnHit(creature.controller.damage, this.creature.gameObject);
+            creature.controller.attackTimer = creature.controller.attackSpeed;
         }
     }
 
-    private bool LowHealth()
-    {
-        // Remplacer par ton système de vie
-        return false;
-    }
+    
 }
