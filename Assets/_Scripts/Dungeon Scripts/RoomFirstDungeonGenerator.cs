@@ -30,6 +30,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public HashSet<Vector2Int> water = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
     public List<TileInfo> tilesInfos = new List<TileInfo>();
+    public Dictionary<Vector2Int, TileInfo> tileInfoDict = new Dictionary<Vector2Int, TileInfo>();
     private List<RoomInfo> roomsInfos = new List<RoomInfo>();
     public List<GameObject> rooms = new List<GameObject>();
 
@@ -37,6 +38,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     private GameObject spawnPointPrefab; // Assign a prefab in the Inspector
     [SerializeField]
     public List<GameObject> dgRoomslist = new List<GameObject>();
+    public List<GameObject> dgTilesList = new List<GameObject>();
     public List<GameObject> spawnPoints = new List<GameObject>();
     protected override void RunProceduralGeneration()
     {
@@ -394,7 +396,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         List<TileInfo> roomTilesInfos = new List<TileInfo>();
         foreach (Vector3Int pos in roomBounds.allPositionsWithin)
         {
-            Debug.Log($"Room {i} position: {pos}");
+            
             Vector2Int pos2D = new Vector2Int(pos.x, pos.y);
             if (floor.Contains(pos2D))
             {
@@ -405,7 +407,6 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
                 roomTilesInfos.Add(info);
                 
             }
-            Debug.Log($"Room {i} has {roomTilesInfos.Count} tiles.");
         }
         var roomInfo = new RoomInfo(roomTilesInfos);
         roomsInfos.Add(roomInfo);
@@ -423,7 +424,12 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     public void RegisterTileInfo()
     {
+        for (int i = dgTilesList.Count - 1; i >= 0; i--)
+    {
+        DestroyImmediate(dgTilesList[i].gameObject);
+    }
         tilesInfos.Clear();
+        tileInfoDict.Clear();
         foreach (var pos in floor)
         {
         // Replace the following line with your logic for determining if the tile is a room and the room name
@@ -432,8 +438,19 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         bool isDeadEnd = deadEnds.Contains(pos);
         
 
-        var info = new TileInfo(pos, isWater, isNature, isDeadEnd);
+        TileInfo info = new TileInfo(pos, isWater, isNature, isDeadEnd);
+
+         GameObject tileObject = new GameObject("Tile");
+         tileObject.transform.position = new Vector3(pos.x +0.5f, pos.y +0.5f, 0);
+         dgTilesList.Add(tileObject);
+        var tileComponent = tileObject.AddComponent<TileComponent>();
+        tileComponent.tileInfo = info;
+        tileObject.AddComponent<BoxCollider2D>().isTrigger = true; // For 2D
+        tileObject.layer = 15 ;
+        tileObject.transform.SetParent(transform);
+        tileInfoDict[info.position] = info;
         tilesInfos.Add(info);
         }
+        Debug.Log($"Registered {tileInfoDict.Count} tiles in tileInfoDict.");
     }
 }

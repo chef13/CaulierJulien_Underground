@@ -11,7 +11,7 @@ public class StateAttack : CreatureState
 
     public override void Update()
     {
-        if (target.activeInHierarchy == false)
+        if (!target.activeInHierarchy)
         {
             target = null;
             creature.SwitchState(new StateExplore(creature));

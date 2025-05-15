@@ -14,13 +14,14 @@ public abstract class CreatureState
     public virtual void Exit() { }
     public virtual void Update() { }
 
-     private GameObject DetectEnemy(out GameObject target)
+    public virtual void SetNewDestination() { }
+
+    public GameObject DetectEnemy(out GameObject target)
     {
         // Example: detect enemies within a radius using Physics.OverlapSphereNonAlloc
-        float detectionRadius = 10f;
+        float detectionRadius = 5f;
         Collider2D[] hits = Physics2D.OverlapCircleAll(creature.transform.position, detectionRadius);
         int hitCount = hits.Length; // Get the number of hits
-        Debug.Log($"Hit count: {hitCount}"); // Log the hit count
 
         foreach (var hit in hits)
         {

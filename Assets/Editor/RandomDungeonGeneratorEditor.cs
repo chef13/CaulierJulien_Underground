@@ -20,5 +20,17 @@ public class RandomDungeonGeneratorEditor : Editor
         {
             generator.GenerateDungeon();
         }
+
+
+        RoomFirstDungeonGenerator gen = (RoomFirstDungeonGenerator)target;
+        if (GUILayout.Button("Log TileInfoDict"))
+        {
+            foreach (var kvp in gen.tileInfoDict)
+            {
+                Debug.Log($"Tile at {kvp.Key}: Water={kvp.Value.isWater}, Nature={kvp.Value.isNature}, DeadEnd={kvp.Value.isDeadEnd}");
+            }
+        }
     }
+
+    
 }
