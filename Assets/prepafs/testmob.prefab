@@ -132,6 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomGenerator: {fileID: 0}
   maxHP: 150
   currentHP: 150
   damage: 10
@@ -145,6 +146,8 @@ MonoBehaviour:
   destination: {x: 0, y: 0}
   creatureAI: {fileID: 0}
   hasDestination: 0
+  currentRoom: {fileID: 0}
+  floorTileMap: {fileID: 0}
   currentFaction: {fileID: 0}
 --- !u!114 &8621514609750838602
 MonoBehaviour:

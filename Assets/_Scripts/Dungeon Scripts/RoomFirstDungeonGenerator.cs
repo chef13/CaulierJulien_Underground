@@ -8,6 +8,8 @@ using Random = UnityEngine.Random;
 using UnityEngine.UIElements;
 using UnityEngine.AI;
 using NavMeshPlus.Components;
+using UnityEngine.Rendering;
+using UnityEngine.Tilemaps;
 
 public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
@@ -30,7 +32,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public HashSet<Vector2Int> water = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
     public List<TileInfo> tilesInfos = new List<TileInfo>();
-    public Dictionary<Vector2Int, TileInfo> tileInfoDict = new Dictionary<Vector2Int, TileInfo>();
+    public Dictionary<Vector3Int, TileInfo> tileInfoDict = new Dictionary<Vector3Int, TileInfo>();
     private List<RoomInfo> roomsInfos = new List<RoomInfo>();
     public List<GameObject> rooms = new List<GameObject>();
 
@@ -390,67 +392,86 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         // Add the Transform of the spawn point to the list
         spawnPoints.Add(spawnPoint);
     }
-    for (int i = 0; i < roomsList.Count; i++)
-    {
-        var roomBounds = roomsList[i];
-        List<TileInfo> roomTilesInfos = new List<TileInfo>();
-        foreach (Vector3Int pos in roomBounds.allPositionsWithin)
+        for (int i = 0; i < roomsList.Count; i++)
         {
-            
-            Vector2Int pos2D = new Vector2Int(pos.x, pos.y);
-            if (floor.Contains(pos2D))
+            var roomBounds = roomsList[i];
+            List<TileInfo> roomTilesInfos = new List<TileInfo>();
+            foreach (Vector3Int pos in roomBounds.allPositionsWithin)
             {
-                bool isWater = water.Contains(pos2D);
-                bool isNature = nature.Contains(pos2D);
-                bool isDeadEnd = deadEnds.Contains(pos2D);
-                var info = new TileInfo(pos2D, isWater, isNature, isDeadEnd);
-                roomTilesInfos.Add(info);
-                
+
+                if (tileInfoDict.TryGetValue(pos, out TileInfo tileInfo))
+                {
+                    roomTilesInfos.Add(tileInfo);
+
+                }
             }
-        }
-        var roomInfo = new RoomInfo(roomTilesInfos);
-        roomsInfos.Add(roomInfo);
-        Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
-        GameObject roomObject = new GameObject("Room");
-        roomObject.transform.position = new Vector3(roomCenter.x, roomCenter.y, 0);
-        rooms.Add(roomObject);
-        var roomComponent = roomObject.AddComponent<RoomComponent>();
-        roomComponent.roomInfo = roomInfo;
+            var roomInfo = new RoomInfo(roomTilesInfos);
+            roomsInfos.Add(roomInfo);
+            Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
+            GameObject roomObject = new GameObject("Room");
+            roomObject.transform.position = new Vector3(roomCenter.x, roomCenter.y, 0);
+            rooms.Add(roomObject);
+            var roomComponent = roomObject.AddComponent<RoomComponent>();
+            roomComponent.roomInfo = roomInfo;
+
+            dgRoomslist.Add(roomObject);
+            roomObject.transform.SetParent(transform); // Set the parent to the current object for organization
         
-        dgRoomslist.Add(roomObject);
-        roomObject.transform.SetParent(transform); // Set the parent to the current object for organization
+                        foreach (Vector3Int pos in roomBounds.allPositionsWithin)
+                {
+                    if (!tileInfoDict.ContainsKey(pos)) {
+                        Debug.LogWarning($"❌ No TileInfo at room cell {pos}");
+                    }
+                }
     }
 }
 
     public void RegisterTileInfo()
     {
         for (int i = dgTilesList.Count - 1; i >= 0; i--)
-    {
-        DestroyImmediate(dgTilesList[i].gameObject);
-    }
-        tilesInfos.Clear();
-        tileInfoDict.Clear();
-        foreach (var pos in floor)
         {
-        // Replace the following line with your logic for determining if the tile is a room and the room name
-        bool isWater = water.Contains(pos);
-        bool isNature = nature.Contains(pos);
-        bool isDeadEnd = deadEnds.Contains(pos);
-        
-
-        TileInfo info = new TileInfo(pos, isWater, isNature, isDeadEnd);
-
-         GameObject tileObject = new GameObject("Tile");
-         tileObject.transform.position = new Vector3(pos.x +0.5f, pos.y +0.5f, 0);
-         dgTilesList.Add(tileObject);
-        var tileComponent = tileObject.AddComponent<TileComponent>();
-        tileComponent.tileInfo = info;
-        tileObject.AddComponent<BoxCollider2D>().isTrigger = true; // For 2D
-        tileObject.layer = 15 ;
-        tileObject.transform.SetParent(transform);
-        tileInfoDict[info.position] = info;
-        tilesInfos.Add(info);
+            DestroyImmediate(dgTilesList[i].gameObject);
         }
-        Debug.Log($"Registered {tileInfoDict.Count} tiles in tileInfoDict.");
+        tileInfoDict.Clear();
+        tilesInfos.Clear();
+        dgTilesList.Clear();
+
+        Tilemap groundTilemap = tilemapVisualizer.floorTilemap;
+        BoundsInt bounds = groundTilemap.cellBounds;
+
+        foreach (Vector3Int pos in bounds.allPositionsWithin)
+        {
+            TileBase tile = groundTilemap.GetTile(pos);
+            if (tile == null) continue; // Only register real ground tiles
+
+            Vector2Int pos2D = new Vector2Int(pos.x, pos.y); // for containment checks
+
+            bool isWater = water.Contains(pos2D);
+            bool isNature = nature.Contains(pos2D);
+            bool isDeadEnd = deadEnds.Contains(pos2D);
+
+            GameObject tileObject = new GameObject("Tile");
+            tileObject.transform.position = groundTilemap.CellToWorld(pos) + new Vector3(0.5f, 0.5f, 0);
+            tileObject.transform.SetParent(transform);
+            tileObject.layer = 15;
+
+            TileInfo info = new TileInfo(pos, tileObject, isWater, isNature, isDeadEnd);
+            tileObject.AddComponent<TileComponent>().tileInfo = info;
+            tileObject.AddComponent<BoxCollider2D>().isTrigger = true;
+
+            tileInfoDict[pos] = info;
+            tilesInfos.Add(info);
+            dgTilesList.Add(tileObject);
+
+            Debug.Log($"Registered TileInfo at {pos}");
+        }
+
+        Debug.Log($"✅ Registered {tileInfoDict.Count} ground tiles.");
+                
+                if (tileInfoDict.ContainsKey(new Vector3Int(67, 65, 0))) {
+                    Debug.Log("✅ tileInfoDict contains (67, 65, 0)");
+                } else {
+                    Debug.LogWarning("❌ tileInfoDict does NOT contain (67, 65, 0)");
+                }
     }
 }

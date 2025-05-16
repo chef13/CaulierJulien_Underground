@@ -1,7 +1,11 @@
+using System;
 using System.Collections;
 using Mono.Cecil.Cil;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class CreatureController : MonoBehaviour
@@ -16,8 +20,10 @@ public class CreatureController : MonoBehaviour
     public CreatureAI creatureAI;
     public bool hasDestination = false;
     public GameObject currentRoom;
-    
+    public Tilemap floorTileMap;
+
     public FactionBehaviour currentFaction;
+    Grid dgGrid;
 
     protected virtual void Awake()
     {
@@ -38,15 +44,17 @@ public class CreatureController : MonoBehaviour
             CheckCurrentRoom();
             //OnDestinationReached();
         }
-        if(attackTimer > 0)
+        if (attackTimer > 0)
         {
             attackTimer -= Time.deltaTime;
         }
 
-        if (currentEnergy < maxEnergy/4)
+        if (currentEnergy < maxEnergy / 4)
         {
             creatureAI.SwitchState(new StateReccover(creatureAI));
         }
+
+        //RegisterUnknownTileFonc();
 
     }
 
@@ -82,7 +90,7 @@ public class CreatureController : MonoBehaviour
         {
             // Change color to red
             creatureAI.attacker = attacker;
-           creatureAI.SwitchState(new StateFlee(creatureAI, attacker));
+            creatureAI.SwitchState(new StateFlee(creatureAI, attacker));
         }
         else
         {
@@ -108,7 +116,7 @@ public class CreatureController : MonoBehaviour
                 RoomInfo roomInfo = room.GetComponent<RoomComponent>().roomInfo; // Make sure RoomInfo inherits from MonoBehaviour
                 foreach (var tile in roomInfo.positions)
                 {
-                    if (tile.position == Vector2Int.RoundToInt(transform.position))
+                    if (tile.position == Vector3Int.RoundToInt(transform.position))
                     {
                         // If the tile is in the room, set it as the current room
                         currentRoom = room;
@@ -125,25 +133,74 @@ public class CreatureController : MonoBehaviour
 
     IEnumerator RegisterUnknownTile()
     {
-        
-
-        
-        Vector2 center = transform.position;
-        int tileLayer = 15;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(center, detectionRange, tileLayer);
-
-        foreach (var hit in hits)
+        Vector3Int centerCell = floorTileMap.WorldToCell(transform.position);
+        centerCell.z = 0;
+        int range = Mathf.RoundToInt(detectionRange);
+        for (int x = -range; x < range; x++)
         {
-            GameObject tile = hit.gameObject;
-            TileComponent tileComp = hit.GetComponent<TileComponent>();
-            TileInfo tileInfo = tileComp.tileInfo;
-            if (!currentFaction.knownTiles.Contains(tile))
+            for (int y = -range; y < range; y++)
             {
-                currentFaction.knownTiles.Add(tile);
+                Vector3Int cell = new Vector3Int(centerCell.x, centerCell.y, 0);
+                if (roomGenerator.tileInfoDict.TryGetValue(cell, out TileInfo info))
+                {
+                    Debug.Log(cell);
+                    var value = roomGenerator.tileInfoDict[cell];
+                    // Update faction's knowledge
+                    if (!currentFaction.knowntileInfoDict.ContainsKey(centerCell))
+                    {
+                        currentFaction.knowntileInfoDict[cell] = info;
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"Tile NOT found: {cell}");
+
+                    foreach (var key in roomGenerator.tileInfoDict.Keys)
+                    {
+                        Debug.Log($"Stored key: {key}");
+                    }
+                }
             }
+            
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(Random.Range(1f,1.2f));
         StartCoroutine("RegisterUnknownTile");
+    }
+
+    public void RegisterUnknownTileFonc()
+    {
+
+
+
+       Vector3Int centerCell = floorTileMap.WorldToCell(transform.position);
+        
+        int range = Mathf.RoundToInt(detectionRange);
+        for (int x = -range; x < range; x++)
+        {
+            for (int y = -range; y < range; y++)
+            {
+                Vector3Int cell = new Vector3Int(centerCell.x + x, centerCell.y + y, 0);
+                if (roomGenerator.tileInfoDict.TryGetValue(cell, out TileInfo tileInfo))
+                {
+                    Debug.Log(cell);
+                    // Update faction's knowledge
+                    if (!currentFaction.knowntileInfoDict.ContainsKey(cell))
+                    {
+                        currentFaction.knowntileInfoDict[cell] = tileInfo;
+                    }
+                }
+                else
+                {
+                    foreach (var key in roomGenerator.tileInfoDict.Keys)
+                    {
+                        Debug.Log($"Stored key: {key}");
+                    }
+                }
+            }
+            
+        }
+        
+
     }
 }

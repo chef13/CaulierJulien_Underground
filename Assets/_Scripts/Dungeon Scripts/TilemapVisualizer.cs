@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
-public class TilemapVisualizer : MonoBehaviour
+[SerializeField]public class TilemapVisualizer : MonoBehaviour
 {
     static public TilemapVisualizer Instance;
     [SerializeField]

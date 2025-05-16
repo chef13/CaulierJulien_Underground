@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using Unity.AI.Navigation;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
+using UnityEditor.Rendering;
 
 public class StateExplore : CreatureState
 {
@@ -117,12 +118,12 @@ public class StateExplore : CreatureState
         List<TileInfo> tiles = roomInfo.positions;
         TileInfo randomTile = tiles[Random.Range(0, tiles.Count)];
             Vector2 worldDestination = new Vector3(randomTile.position.x, randomTile.position.y);
-            creature.controller.SetDestination(worldDestination);
-        
+            creature.controller.SetDestination(worldDestination);        
 
+        
         // Check if all tiles in the room are known
-        bool allTilesKnown = roomInfo.positions.TrueForAll(roomTile =>creature.controller.currentFaction.knownTiles.Exists(
-                                    go => go.GetComponent<TileComponent>().tileInfo.position == roomTile.position));
+            bool allTilesKnown = roomInfo.positions.TrueForAll(tiles =>
+            creature.controller.currentFaction.knowntileInfoDict.ContainsKey(tiles.position));
         if (allTilesKnown && !creature.controller.currentFaction.knowRooms.Contains(currentRoom))
         {
             // All tiles in the room are known, you can add logic here if needed

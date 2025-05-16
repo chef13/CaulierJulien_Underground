@@ -202,6 +202,11 @@ public static class Direction2D
         return cardinalDirectionsList[UnityEngine.Random.Range(0, cardinalDirectionsList.Count)];
     }
 
+    public static Vector2Int GetRandomEightDirection()
+    {
+        return cardinalDirectionsList[UnityEngine.Random.Range(0, eightDirectionsList.Count)];
+    }
+
 
     
 }
