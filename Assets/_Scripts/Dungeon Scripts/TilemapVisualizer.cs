@@ -100,10 +100,11 @@ using UnityEngine.Tilemaps;
 
     public void Clear()
     {
-        floorTilemap.ClearAllTiles();
+
         wallTilemap.ClearAllTiles();
         waterTilemap.ClearAllTiles();
         natureTilemap.ClearAllTiles();
+         floorTilemap.ClearAllTiles();
     }
 
     internal void PaintSingleCornerWall(Vector2Int position, string binaryType)

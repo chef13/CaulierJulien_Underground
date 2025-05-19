@@ -14,10 +14,10 @@ public class StateExplore : CreatureState
     private Vector2Int cardinalExplo;
     public StateExplore(CreatureAI creature) : base(creature) { }
 
-    public override void Enter()
+    /*public override void Enter()
     {
         
-        creature.controller.CheckCurrentRoom();
+        //creature.controller.CheckCurrentRoom();
         agent = creature.GetComponent<NavMeshAgent>();
         cardinalExplo = Direction2D.cardinalDirectionsList[Random.Range(0, Direction2D.cardinalDirectionsList.Count)];
         SetNewDestination();
@@ -32,7 +32,7 @@ public class StateExplore : CreatureState
             if (creature.controller.currentFaction.knowRooms.Contains(creature.controller.currentRoom) || creature.controller.currentRoom == null)
             SetNewDestination();
             else if (creature.controller.currentRoom != null && !creature.controller.currentFaction.knowRooms.Contains(creature.controller.currentRoom))
-            ExploreCurrentRoom(creature.controller.currentRoom);
+            //ExploreCurrentRoom(creature.controller.currentRoom);
         }
 
         // Exemple de transition vers un autre état
@@ -112,27 +112,41 @@ public class StateExplore : CreatureState
         return neighboringRooms.Count > 0 ? neighboringRooms : null;
     }
 
-    private void ExploreCurrentRoom(GameObject currentRoom)
+    /*private void ExploreCurrentRoom(GameObject currentRoom)
     {
         RoomInfo roomInfo = currentRoom.GetComponent<RoomComponent>().roomInfo;
         List<TileInfo> tiles = roomInfo.positions;
         TileInfo randomTile = tiles[Random.Range(0, tiles.Count)];
-            Vector2 worldDestination = new Vector3(randomTile.position.x, randomTile.position.y);
-            creature.controller.SetDestination(worldDestination);        
+        Vector2 worldDestination = new Vector3(randomTile.position.x, randomTile.position.y);
+        creature.controller.SetDestination(worldDestination);
 
-        
+        bool allTilesKnown =false;
+        foreach (var pos in tiles)
+        {
+            Vector2Int checkPos = new Vector2Int(pos.position.x, pos.position.y);
+            if (creature.controller.currentFaction.knownTilePositions.Contains(checkPos))
+            {
+                allTilesKnown = true;
+            }
+            else
+            {
+                allTilesKnown = false;
+            }
+        }
+
         // Check if all tiles in the room are known
-            bool allTilesKnown = roomInfo.positions.TrueForAll(tiles =>
-            creature.controller.currentFaction.knowntileInfoDict.ContainsKey(tiles.position));
-        if (allTilesKnown && !creature.controller.currentFaction.knowRooms.Contains(currentRoom))
+
+         /*bool allTilesKnown = roomInfo.positions.TrueForAll(tiles =>
+           creature.controller.currentFaction.knowntileInfoDict.ContainsKey(tiles.position));*/
+        /*if (allTilesKnown && !creature.controller.currentFaction.knowRooms.Contains(currentRoom))
         {
             // All tiles in the room are known, you can add logic here if needed
             creature.controller.currentFaction.knowRooms.Add(currentRoom);
 
-        }
+        }*/
 
-       
-    }
+
+    
 
     /*private void RegisterNewTiles()
     {

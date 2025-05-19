@@ -14,7 +14,7 @@ public class SimpleRandomWalkDungeonGenerator : AbstractDungeonGenerator
     protected SimpleRandomWalkSO randomWalkParametersMainRooms;
 
 
-    protected override void RunProceduralGeneration()
+    public override void RunProceduralGeneration()
     {
         HashSet<Vector2Int> floorPositions = RunRandomWalk(randomWalkParameters, startPosition);
         tilemapVisualizer.Clear();

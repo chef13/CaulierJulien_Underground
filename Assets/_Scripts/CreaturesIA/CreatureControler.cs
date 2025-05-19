@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Mono.Cecil.Cil;
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
@@ -20,6 +23,7 @@ public class CreatureController : MonoBehaviour
     public CreatureAI creatureAI;
     public bool hasDestination = false;
     public GameObject currentRoom;
+    public List<TileInfo> currentRoomTiles;
     public Tilemap floorTileMap;
 
     public FactionBehaviour currentFaction;
@@ -33,7 +37,7 @@ public class CreatureController : MonoBehaviour
         agent.updateUpAxis = false;
         currentFaction = GetComponentsInParent<FactionBehaviour>()[0];
         roomGenerator = GameObject.FindFirstObjectByType<RoomFirstDungeonGenerator>();
-        StartCoroutine("RegisterUnknownTile");
+        //StartCoroutine("RegisterUnknownTile2");
     }
 
     protected virtual void Update()
@@ -41,7 +45,7 @@ public class CreatureController : MonoBehaviour
         if (hasDestination && agent.remainingDistance <= stoppingDistance)
         {
             hasDestination = false;
-            CheckCurrentRoom();
+            //CheckCurrentRoom();
             //OnDestinationReached();
         }
         if (attackTimer > 0)
@@ -106,7 +110,7 @@ public class CreatureController : MonoBehaviour
         transform.position = new Vector3(-100, -100, 0);
     }
 
-    public void CheckCurrentRoom()
+   /* public void CheckCurrentRoom()
     {
         foreach (var room in roomGenerator.dgRoomslist)
         {
@@ -120,16 +124,27 @@ public class CreatureController : MonoBehaviour
                     {
                         // If the tile is in the room, set it as the current room
                         currentRoom = room;
-                        break;
+
                     }
                 }
                 if (currentRoom != null)
+                {
+                    foreach (var tile in roomInfo.positions)
+                    {
+                        if (!currentRoomTiles.Contains(tile))
+                            currentRoomTiles.Add(tile);
+                    }
+                    break;
+                }
+
+
+                else if (currentRoom == null)
                 {
                     break;
                 }
             }
         }
-    }
+    }*/
 
     IEnumerator RegisterUnknownTile()
     {
@@ -153,7 +168,7 @@ public class CreatureController : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"Tile NOT found: {cell}");
+                    // Debug.LogWarning($"Tile NOT found: {cell}");
 
                     foreach (var key in roomGenerator.tileInfoDict.Keys)
                     {
@@ -161,10 +176,10 @@ public class CreatureController : MonoBehaviour
                     }
                 }
             }
-            
+
         }
 
-        yield return new WaitForSeconds(Random.Range(1f,1.2f));
+        yield return new WaitForSeconds(Random.Range(1f, 1.2f));
         StartCoroutine("RegisterUnknownTile");
     }
 
@@ -173,8 +188,8 @@ public class CreatureController : MonoBehaviour
 
 
 
-       Vector3Int centerCell = floorTileMap.WorldToCell(transform.position);
-        
+        Vector3Int centerCell = floorTileMap.WorldToCell(transform.position);
+
         int range = Mathf.RoundToInt(detectionRange);
         for (int x = -range; x < range; x++)
         {
@@ -198,9 +213,40 @@ public class CreatureController : MonoBehaviour
                     }
                 }
             }
+
+        }
+
+
+    }
+    
+
+    IEnumerator RegisterUnknownTile2()
+    {
+        Vector3Int centerCell = floorTileMap.WorldToCell(transform.position);
+        centerCell.z = 0;
+        int range = Mathf.RoundToInt(detectionRange);
+        for (int x = -range; x < range; x++)
+        {
+            for (int y = -range; y < range; y++)
+            {
+                Collider2D hit = Physics2D.OverlapPoint(transform.position, 15);
+                if (hit != null)
+                {
+                    GameObject tile = hit.gameObject;
+                    if (roomGenerator.dgTilesList.Contains(tile))
+                    {
+                        if (!currentFaction.knownTiles.Contains(tile))
+                        {
+                            currentFaction.knownTiles.Add(tile);
+                            currentFaction.knownTilePositions.Add(new Vector2Int(x, y));
+                        }
+                    }
+                }
+            }
             
         }
-        
 
+        yield return new WaitForSeconds(Random.Range(1f,1.2f));
+        StartCoroutine("RegisterUnknownTile2");
     }
 }

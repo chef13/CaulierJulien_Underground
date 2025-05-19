@@ -19,7 +19,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     [SerializeField]
     private int dungeonWidth = 20, dungeonHeight = 20;
     [SerializeField]
-    [Range(0,10)]
+    [Range(0, 10)]
     private int offset = 1;
     [SerializeField]
     private bool randomWalkRooms = false;
@@ -27,14 +27,14 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public List<Vector2Int> deadEnds = new List<Vector2Int>();
     [SerializeField]
     public List<Vector2Int> deadEndsBorders = new List<Vector2Int>();
-    public  List<Vector2Int> floorList = new List<Vector2Int>();
+    public List<Vector2Int> floorList = new List<Vector2Int>();
     public HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> water = new HashSet<Vector2Int>();
     public HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
     public List<TileInfo> tilesInfos = new List<TileInfo>();
     public Dictionary<Vector3Int, TileInfo> tileInfoDict = new Dictionary<Vector3Int, TileInfo>();
     private List<RoomInfo> roomsInfos = new List<RoomInfo>();
-    public List<GameObject> rooms = new List<GameObject>();
+     public List<GameObject> rooms = new List<GameObject>();
 
     [SerializeField]
     private GameObject spawnPointPrefab; // Assign a prefab in the Inspector
@@ -42,15 +42,17 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     public List<GameObject> dgRoomslist = new List<GameObject>();
     public List<GameObject> dgTilesList = new List<GameObject>();
     public List<GameObject> spawnPoints = new List<GameObject>();
-    protected override void RunProceduralGeneration()
+    public override void RunProceduralGeneration()
     {
         CreateRooms();
     }
 
     private void CreateRooms()
-    
+
     {
         surface.RemoveData();
+        ClearData();
+        tilemapVisualizer.Clear();
         tilemapVisualizer.Clear();
         var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 1)), minRoomWidth, minRoomHeight);
 
@@ -71,7 +73,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         {
             floor = CreateSimpleRooms(roomsList);
         }
-        
+
 
         List<Vector2Int> roomCenters = new List<Vector2Int>();
         foreach (var room in roomsList)
@@ -81,13 +83,12 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         floor.UnionWith(corridors);
 
         RegisterFloors(floor);
-         CropFloorOnBorder(floor);
+        CropFloorOnBorder(floor);
         (deadEnds, deadEndsBorders) = FindAllDeadEnds(floor.ToList(), deadEndLength);
         CreateMainRoom();
         water = CreateWaterRandomly(roomsList);
         nature = CreateNatureRandomly(water.ToList());
-        
-        
+
         tilemapVisualizer.PaintWaterTiles(floor, water);
         tilemapVisualizer.PaintFloorTiles(floor);
         WallGenerator.CreateWalls(floor, tilemapVisualizer);
@@ -98,10 +99,10 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     }
 
     private IEnumerator BuildNavMeshAfterDelay()
-{
-    yield return new WaitForSeconds(1); // Wait for one frame to ensure tilemap updates are complete
-    surface.BuildNavMesh();
-}
+    {
+        yield return new WaitForSeconds(1); // Wait for one frame to ensure tilemap updates are complete
+        surface.BuildNavMesh();
+    }
     private HashSet<Vector2Int> CreateRoomsRandomly(List<BoundsInt> roomsList)
     {
         HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
@@ -112,7 +113,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             var roomFloor = RunRandomWalk(randomWalkParameters, roomCenter);
             foreach (var position in roomFloor)
             {
-                if(position.x >= (roomBounds.xMin + offset) && position.x <= (roomBounds.xMax - offset) && position.y >= (roomBounds.yMin - offset) && position.y <= (roomBounds.yMax - offset))
+                if (position.x >= (roomBounds.xMin + offset) && position.x <= (roomBounds.xMax - offset) && position.y >= (roomBounds.yMin - offset) && position.y <= (roomBounds.yMax - offset))
                 {
                     floor.Add(position);
                 }
@@ -123,15 +124,15 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     private HashSet<Vector2Int> CreateWaterRandomly(List<BoundsInt> roomsList)
     {
-        
-        for (int i = 0; i < roomsList.Count/4; i++)
+
+        for (int i = 0; i < roomsList.Count / 4; i++)
         {
             var roomBounds = roomsList[Random.Range(0, roomsList.Count)];
             var roomCenter = new Vector2Int(Mathf.RoundToInt(roomBounds.center.x), Mathf.RoundToInt(roomBounds.center.y));
-            var waterFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(roomCenter, Random.Range(0,30));
+            var waterFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(roomCenter, Random.Range(0, 30));
             foreach (var position in waterFloor)
             {
-                if(floor.Contains(position))
+                if (floor.Contains(position))
                 {
                     water.Add(position);
                 }
@@ -139,7 +140,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         }
         return water;
     }
-    
+
     private HashSet<Vector2Int> CreateNatureRandomly(List<Vector2Int> water)
     {
         HashSet<Vector2Int> nature = new HashSet<Vector2Int>();
@@ -181,22 +182,15 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         Vector2Int distance = destination - currentRoomCenter;
         var position = currentRoomCenter;
         corridor.Add(position);
-        
-            
-                path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.right).corridor);
-                path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.left).corridor);
-                path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.down).corridor);
-                path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.up).corridor);
-                 position = path.Last(); 
-                 corridor.AddRange(path);
-                
-            
-        
-            
-         
-            
-            
-        
+
+
+        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.right).corridor);
+        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.left).corridor);
+        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.down).corridor);
+        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.up).corridor);
+        position = path.Last();
+        corridor.AddRange(path);
+
         return corridor;
     }
 
@@ -207,7 +201,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         foreach (var position in roomCenters)
         {
             float currentDistance = Vector2.Distance(position, currentRoomCenter);
-            if(currentDistance < distance)
+            if (currentDistance < distance)
             {
                 distance = currentDistance;
                 closest = position;
@@ -314,16 +308,16 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     private void RegisterFloors(HashSet<Vector2Int> floorPositions)
     {
-        floorList.Clear();
-       
-            foreach (var position in floorPositions)
-            {
-                if (!floorList.Contains(position))
-                {
-                    floorList.Add(position);
-                }
-            }
         
+
+        foreach (var position in floorPositions)
+        {
+            if (!floorList.Contains(position))
+            {
+                floorList.Add(position);
+            }
+        }
+
     }
 
     private void CreateMainRoom()
@@ -331,7 +325,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         var room = RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth / 2, dungeonHeight / 2));
         room.AddRange(RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth / 2, dungeonHeight / 2)));
         room.AddRange(RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth / 4, dungeonHeight / 4)));
-        room.AddRange(RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth *  3 / 4, dungeonHeight * 3 / 4)));
+        room.AddRange(RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth * 3 / 4, dungeonHeight * 3 / 4)));
         room.AddRange(RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth / 4, dungeonHeight * 3 / 4)));
         room.AddRange(RunRandomWalk(randomWalkParametersMainRooms, new Vector2Int(dungeonWidth * 3 / 4, dungeonHeight / 4)));
         foreach (var pos in room)
@@ -342,13 +336,13 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
 
-        var waterfloor = RunRandomWalk(randomWalkParameters,new Vector2Int(dungeonWidth * 3 / 4, dungeonHeight / 4));
-        waterfloor.AddRange( RunRandomWalk(randomWalkParameters,new Vector2Int(dungeonWidth / 4, dungeonHeight / 4)));
-        waterfloor.AddRange( RunRandomWalk(randomWalkParameters,new Vector2Int(dungeonWidth * 3 / 4, dungeonHeight * 3 / 4)));
-        waterfloor.AddRange( RunRandomWalk(randomWalkParameters,new Vector2Int(dungeonWidth / 4, dungeonHeight * 3 / 4)));
+        var waterfloor = RunRandomWalk(randomWalkParameters, new Vector2Int(dungeonWidth * 3 / 4, dungeonHeight / 4));
+        waterfloor.AddRange(RunRandomWalk(randomWalkParameters, new Vector2Int(dungeonWidth / 4, dungeonHeight / 4)));
+        waterfloor.AddRange(RunRandomWalk(randomWalkParameters, new Vector2Int(dungeonWidth * 3 / 4, dungeonHeight * 3 / 4)));
+        waterfloor.AddRange(RunRandomWalk(randomWalkParameters, new Vector2Int(dungeonWidth / 4, dungeonHeight * 3 / 4)));
         foreach (var pos in waterfloor)
         {
-           if (floor.Contains(pos))
+            if (floor.Contains(pos))
             {
                 water.Add(pos);
             }
@@ -368,30 +362,21 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
     }
 
     public void RegisterSpawnPointsAndRooms(List<BoundsInt> roomsList)
-{
-    
-    for (int i = spawnPoints.Count - 1; i >= 0; i--)
     {
-        DestroyImmediate(spawnPoints[i].gameObject);
-    }
-    for (int i = dgRoomslist.Count - 1; i >= 0; i--)
-    {
-        DestroyImmediate(dgRoomslist[i].gameObject);
-    }
-    spawnPoints.Clear();
-    dgRoomslist.Clear();
-    foreach (var position in deadEndsBorders)
-    {
-        // Convert Vector2Int to Vector3 for world position
-        Vector3 worldPosition = new Vector2(position.x+0.5f, position.y+0.5f);
 
-        // Instantiate the spawn point prefab at the position
-        GameObject spawnPoint = Instantiate(spawnPointPrefab, worldPosition, Quaternion.identity);
-        spawnPoint.transform.SetParent(transform); // Set the parent to the current object for organization
-        spawnPoint.transform.localScale = new Vector3(1, 1, 1); // Reset scale to 1,1,1
-        // Add the Transform of the spawn point to the list
-        spawnPoints.Add(spawnPoint);
-    }
+
+        foreach (var position in deadEndsBorders)
+        {
+            // Convert Vector2Int to Vector3 for world position
+            Vector3 worldPosition = new Vector2(position.x + 0.5f, position.y + 0.5f);
+
+            // Instantiate the spawn point prefab at the position
+            GameObject spawnPoint = Instantiate(spawnPointPrefab, worldPosition, Quaternion.identity);
+            spawnPoint.transform.SetParent(transform); // Set the parent to the current object for organization
+            spawnPoint.transform.localScale = new Vector3(1, 1, 1); // Reset scale to 1,1,1
+                                                                    // Add the Transform of the spawn point to the list
+            spawnPoints.Add(spawnPoint);
+        }
         for (int i = 0; i < roomsList.Count; i++)
         {
             var roomBounds = roomsList[i];
@@ -405,7 +390,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
                 }
             }
-            var roomInfo = new RoomInfo(roomTilesInfos);
+            var roomInfo = new RoomInfo(new Vector3Int(0,0,0), roomTilesInfos);
             roomsInfos.Add(roomInfo);
             Vector2 roomCenter = new Vector2(roomBounds.position.x + roomBounds.size.x / 2, roomBounds.position.y + roomBounds.size.y / 2);
             GameObject roomObject = new GameObject("Room");
@@ -416,25 +401,20 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
 
             dgRoomslist.Add(roomObject);
             roomObject.transform.SetParent(transform); // Set the parent to the current object for organization
-        
-                        foreach (Vector3Int pos in roomBounds.allPositionsWithin)
+
+            foreach (Vector3Int pos in roomBounds.allPositionsWithin)
+            {
+                if (!tileInfoDict.ContainsKey(pos))
                 {
-                    if (!tileInfoDict.ContainsKey(pos)) {
-                        Debug.LogWarning($"❌ No TileInfo at room cell {pos}");
-                    }
+                    Debug.LogWarning($"❌ No TileInfo at room cell {pos}");
                 }
+            }
+        }
     }
-}
 
     public void RegisterTileInfo()
     {
-        for (int i = dgTilesList.Count - 1; i >= 0; i--)
-        {
-            DestroyImmediate(dgTilesList[i].gameObject);
-        }
-        tileInfoDict.Clear();
-        tilesInfos.Clear();
-        dgTilesList.Clear();
+        
 
         Tilemap groundTilemap = tilemapVisualizer.floorTilemap;
         BoundsInt bounds = groundTilemap.cellBounds;
@@ -445,17 +425,18 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
             if (tile == null) continue; // Only register real ground tiles
 
             Vector2Int pos2D = new Vector2Int(pos.x, pos.y); // for containment checks
-
+            bool isFloor = true;
             bool isWater = water.Contains(pos2D);
             bool isNature = nature.Contains(pos2D);
             bool isDeadEnd = deadEnds.Contains(pos2D);
+            RoomInfo room = null;
 
             GameObject tileObject = new GameObject("Tile");
             tileObject.transform.position = groundTilemap.CellToWorld(pos) + new Vector3(0.5f, 0.5f, 0);
             tileObject.transform.SetParent(transform);
             tileObject.layer = 15;
 
-            TileInfo info = new TileInfo(pos, tileObject, isWater, isNature, isDeadEnd);
+            TileInfo info = new TileInfo(pos, tileObject, room, isFloor, isWater, isNature, isDeadEnd);
             tileObject.AddComponent<TileComponent>().tileInfo = info;
             tileObject.AddComponent<BoxCollider2D>().isTrigger = true;
 
@@ -467,11 +448,38 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         }
 
         Debug.Log($"✅ Registered {tileInfoDict.Count} ground tiles.");
-                
-                if (tileInfoDict.ContainsKey(new Vector3Int(67, 65, 0))) {
-                    Debug.Log("✅ tileInfoDict contains (67, 65, 0)");
-                } else {
-                    Debug.LogWarning("❌ tileInfoDict does NOT contain (67, 65, 0)");
-                }
+
+        if (tileInfoDict.ContainsKey(new Vector3Int(67, 65, 0)))
+        {
+            Debug.Log("✅ tileInfoDict contains (67, 65, 0)");
+        }
+        else
+        {
+            Debug.LogWarning("❌ tileInfoDict does NOT contain (67, 65, 0)");
+        }
+    }
+
+    private void ClearData()
+    {
+        for (int i = dgTilesList.Count - 1; i >= 0; i--)
+        {
+            DestroyImmediate(dgTilesList[i].gameObject);
+        }
+        tileInfoDict.Clear();
+        tilesInfos.Clear();
+        dgTilesList.Clear();
+
+        for (int i = spawnPoints.Count - 1; i >= 0; i--)
+        {
+            DestroyImmediate(spawnPoints[i].gameObject);
+        }
+        for (int i = dgRoomslist.Count - 1; i >= 0; i--)
+        {
+            DestroyImmediate(dgRoomslist[i].gameObject);
+        }
+        spawnPoints.Clear();
+        dgRoomslist.Clear();
+        
+        floorList.Clear();
     }
 }
