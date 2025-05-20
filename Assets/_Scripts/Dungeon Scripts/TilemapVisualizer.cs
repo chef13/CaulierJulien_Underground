@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
-
+using System.Linq;
 [SerializeField]public class TilemapVisualizer : MonoBehaviour
 {
     static public TilemapVisualizer Instance;
@@ -45,6 +45,15 @@ using UnityEngine.Tilemaps;
              }
         }
         
+    }
+
+        public void PaintWaterTiles2(Dictionary<Vector3Int, TileInfo> dungeonMap)
+    {
+        var waterPositions = dungeonMap
+            .Where(kvp => kvp.Value.isFloor && kvp.Value.isWater)
+            .Select(kvp => new Vector2Int(kvp.Key.x, kvp.Key.y));// ensure Z is 0 if needed
+
+        PaintTiles(waterPositions, waterTilemap, water);
     }
 
         public void PaintNatureTiles(IEnumerable<Vector2Int> naturePositions)

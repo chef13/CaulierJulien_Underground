@@ -47,7 +47,7 @@ public class RoomFirstDungeonGenerator : SimpleRandomWalkDungeonGenerator
         CreateRooms();
     }
 
-    private void CreateRooms()
+    public void CreateRooms()
 
     {
         surface.RemoveData();
