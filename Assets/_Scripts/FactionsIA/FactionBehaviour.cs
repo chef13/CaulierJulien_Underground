@@ -4,12 +4,15 @@ using System;
 using Unity.VisualScripting;
 public class FactionBehaviour : MonoBehaviour
 {
+    public int rooms;
+    public int tiles;
     static public FactionType currentFactionType;
     public string factionName;
     public List<GameObject> members = new List<GameObject>();
     public Dictionary<Vector3Int, TileInfo> knownTilesDict = new Dictionary<Vector3Int, TileInfo>();
     public Dictionary<Vector3Int, RoomInfo> knownRoomsDict = new Dictionary<Vector3Int, RoomInfo>();
     public RoomInfo currentHQ;
+
 
 
     public void SwitchType(FactionType newType)
@@ -50,6 +53,8 @@ public class FactionBehaviour : MonoBehaviour
             }
         }
 
+        rooms = knownRoomsDict.Count;
+        tiles = knownTilesDict.Count;
     }
 
     public void AskedForState(GameObject unit)

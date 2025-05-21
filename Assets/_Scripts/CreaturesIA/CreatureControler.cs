@@ -13,6 +13,7 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(NavMeshAgent))]
 public class CreatureController : MonoBehaviour
 {
+    public bool room;
     [HideInInspector] public CreatureState currentState;
     public int maxHP, currentHP, damage;
     public float attackRange, attackSpeed, attackTimer, detectionRange, maxEnergy, currentEnergy;
@@ -22,9 +23,6 @@ public class CreatureController : MonoBehaviour
     public CreatureAI creatureAI;
     public bool hasDestination = false;
     public RoomInfo currentRoom;
-    public List<TileInfo> currentRoomTiles;
-    public Tilemap floorTileMap;
-
     public FactionBehaviour currentFaction;
 
     protected virtual void Awake()
@@ -35,14 +33,17 @@ public class CreatureController : MonoBehaviour
         agent.updateUpAxis = false;
         currentFaction = GetComponentsInParent<FactionBehaviour>()[0];
         //StartCoroutine("RegisterUnknownTile2");
+        CheckCurrentRoom();
     }
 
     protected virtual void Update()
     {
+        CheckCurrentRoom();
+
         if (hasDestination && agent.remainingDistance <= stoppingDistance)
         {
             hasDestination = false;
-            //CheckCurrentRoom();
+
             //OnDestinationReached();
         }
         if (attackTimer > 0)
@@ -107,7 +108,7 @@ public class CreatureController : MonoBehaviour
         transform.position = new Vector3(-100, -100, 0);
     }
 
-   public void RegisterNewTiles()
+    public void RegisterNewTiles()
     {
         Vector3Int centerCell = Vector3Int.FloorToInt(transform.position);
         centerCell.z = 0;
@@ -131,5 +132,21 @@ public class CreatureController : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void CheckCurrentRoom()
+    {
+        Vector3Int pos3D = Vector3Int.FloorToInt(transform.position);
+        if (DungeonGenerator.Instance.dungeonMap.TryGetValue(pos3D, out TileInfo tile))
+            if (tile.room != null)
+            {
+                currentRoom = tile.room;
+                room = true;
+            }
+            else
+            {
+                currentRoom = null;
+                room = false;
+            }
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using UnityEngine.Tilemaps;
 
 public class StateExplore : CreatureState
 {
@@ -14,13 +15,18 @@ public class StateExplore : CreatureState
     {
         agent = creature.GetComponent<NavMeshAgent>();
         cardinalExplo = Direction2D.cardinalDirectionsList[Random.Range(0, Direction2D.cardinalDirectionsList.Count)];
-        SetNewDestination();
     }
 
     public override void Update()
     {
         if (!creature.controller.hasDestination)
         {
+            if (creature.controller.currentRoom != null &&
+                !creature.controller.currentFaction.knownRoomsDict.ContainsValue(creature.controller.currentRoom))
+            {
+                ExploreCurrentRoom(creature.controller.currentRoom);
+            }
+
             if (creature.controller.currentRoom == null ||
                 creature.controller.currentFaction.knownRoomsDict.ContainsValue(creature.controller.currentRoom))
             {
@@ -79,23 +85,48 @@ public class StateExplore : CreatureState
     {
         var nearby = new List<Vector3Int>();
 
-        foreach (var kvp in DungeonGenerator.Instance.roomsMap)
+        if (creature.controller.currentRoom != null && creature.controller.currentRoom.connectedRooms.Count > 0)
         {
-            Vector3 centerWorld = new Vector3(kvp.Key.x + 0.5f, kvp.Key.y + 0.5f);
-            float dist = Vector2.Distance(creature.transform.position, centerWorld);
-
-            if (dist <= exploreRange && !creature.controller.currentFaction.knownRoomsDict.ContainsKey(kvp.Key))
+            foreach (RoomInfo room in creature.controller.currentRoom.connectedRooms)
             {
-                nearby.Add(kvp.Key);
+                if (!creature.controller.currentFaction.knownRoomsDict.ContainsValue(room))
+                {
+                    nearby.Add(room.position);
+                }
             }
         }
+        else if (creature.controller.currentRoom == null)
+            foreach (RoomInfo room in creature.controller.currentFaction.knownRoomsDict.Values)
+            {
+                if (room.connectedRooms != null)
+                {
+                    foreach (RoomInfo roomNeighbore in room.connectedRooms)
+                    {
+                        if (!creature.controller.currentFaction.knownRoomsDict.ContainsValue(roomNeighbore))
+                        {
+                            nearby.Add(roomNeighbore.position);
+                        }
+                    }
+                }
+            }
 
         return nearby;
     }
 
     private void ExploreCurrentRoom(RoomInfo currentRoom)
     {
-        var faction = creature.controller.currentFaction;
+         var faction = creature.controller.currentFaction;
+        List<TileInfo> unexplo = new List<TileInfo>();
+
+        foreach (TileInfo kvp in currentRoom.tiles)
+        {
+            if (!faction.knownTilesDict.ContainsKey(kvp.position))
+            {
+                creature.controller.SetDestination(new Vector2(kvp.position.x, kvp.position.y));
+            }
+        }
+
+       
 
         bool allTilesKnown = true;
 
