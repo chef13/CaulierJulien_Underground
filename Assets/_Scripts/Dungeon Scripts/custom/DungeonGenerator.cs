@@ -4,19 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Random = UnityEngine.Random;
-using UnityEngine.UIElements;
-using UnityEngine.AI;
 using NavMeshPlus.Components;
-using UnityEngine.Rendering;
-using UnityEngine.Tilemaps;
-using UnityEngine.InputSystem;
 
 public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
+    public GameObject prefabFaction;
     public static DungeonGenerator Instance;
     [HideInInspector] public bool genReady;
     public NavMeshSurface surface;
+
     public Dictionary<Vector3Int, TileInfo> dungeonMap = new Dictionary<Vector3Int, TileInfo>();
+
     public Dictionary<Vector3Int, RoomInfo> roomsMap = new Dictionary<Vector3Int, RoomInfo>();
     [SerializeField] private int dungeonWidth = 20, dungeonHeight = 20;
     [SerializeField] private int minRoomWidth = 4, minRoomHeight = 4;
@@ -39,6 +37,8 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         {
             Destroy(gameObject);
         }
+
+        RunProceduralGeneration();
     }
 
     public override void RunProceduralGeneration()
@@ -111,6 +111,19 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         yield return new WaitForSeconds(1); // Wait for one frame to ensure tilemap updates are complete
         surface.BuildNavMesh();
         genReady = true;
+
+        yield return new WaitForSeconds(1);
+        RoomInfo randomRoom = GetRandomRoom(roomsMap);
+
+        if (randomRoom != null && randomRoom.tiles.Count > 0)
+        {
+            TileInfo tile = randomRoom.tiles[Random.Range(0, randomRoom.tiles.Count)];
+            Vector3 spawnPosition = new Vector3(tile.position.x + 0.5f, tile.position.y + 0.5f, 0f);
+
+            Instantiate(prefabFaction, spawnPosition, Quaternion.identity);
+            Instantiate(prefabFaction, spawnPosition, Quaternion.identity);
+
+        }
     }
 
     private void CreateRoomsRandomly(List<BoundsInt> roomsList)
@@ -194,7 +207,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         }
 
         RoomInfo mainRoom = new RoomInfo(mainRoomBounds.position, mainRoomTiles);
-        roomsMap[new Vector3Int(0, 0, 0 )] = mainRoom;
+        roomsMap[new Vector3Int(0, 0, 0)] = mainRoom;
 
         foreach (var tile in mainRoomTiles)
         {
@@ -335,10 +348,22 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
     }
 
 
-private bool BoundsOverlap(BoundsInt a, BoundsInt b)
-{
-    return a.xMin < b.xMax && a.xMax > b.xMin &&
-           a.yMin < b.yMax && a.yMax > b.yMin;
-}
+    private bool BoundsOverlap(BoundsInt a, BoundsInt b)
+    {
+        return a.xMin < b.xMax && a.xMax > b.xMin &&
+               a.yMin < b.yMax && a.yMax > b.yMin;
+    }
+
+    RoomInfo GetRandomRoom(Dictionary<Vector3Int, RoomInfo> roomsMap)
+    {
+        if (roomsMap.Count == 0)
+        {
+            Debug.LogWarning("No rooms available in roomsMap.");
+            return null;
+        }
+
+        var roomList = new List<RoomInfo>(roomsMap.Values);
+        return roomList[Random.Range(0, roomList.Count)];
+    }
 
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using Unity.VisualScripting;
+using Random = UnityEngine.Random;
 public class FactionBehaviour : MonoBehaviour
 {
     public int rooms;
@@ -12,6 +12,8 @@ public class FactionBehaviour : MonoBehaviour
     public Dictionary<Vector3Int, TileInfo> knownTilesDict = new Dictionary<Vector3Int, TileInfo>();
     public Dictionary<Vector3Int, RoomInfo> knownRoomsDict = new Dictionary<Vector3Int, RoomInfo>();
     public RoomInfo currentHQ;
+
+    public GameObject prefabCreature;
 
 
 
@@ -24,6 +26,7 @@ public class FactionBehaviour : MonoBehaviour
 
     void Awake()
     {
+
         Vector2Int startPos = Vector2Int.RoundToInt(transform.position);
         Collider2D[] hits = Physics2D.OverlapCircleAll(startPos, 5, 15);
         SwitchType(new GobFaction(this));
@@ -36,6 +39,10 @@ public class FactionBehaviour : MonoBehaviour
             member.GetComponent<CreatureAI>().controller.currentFaction = this;
             member.GetComponent<CreatureAI>().SwitchState(new StateExplore(member.GetComponent<CreatureAI>()));
         }
+
+        SpawnCreatureInRoom(transform.position, prefabCreature);
+        SpawnCreatureInRoom(transform.position, prefabCreature);
+        SpawnCreatureInRoom(transform.position, prefabCreature);
     }
 
     // Update is called once per frame
@@ -67,4 +74,18 @@ public class FactionBehaviour : MonoBehaviour
         throw new NotImplementedException();
     }
     
+
+    public void SpawnCreatureInRoom(Vector2 pos, GameObject creaturePrefab)
+    {
+        
+        // Instantiate creature
+        GameObject creatureGO = GameObject.Instantiate(creaturePrefab, pos, Quaternion.identity);
+        creatureGO.transform.SetParent(transform);
+        CreatureController controller = creatureGO.GetComponent<CreatureController>();
+        controller.currentFaction = this.GetComponent<FactionBehaviour>();
+        
+        // Assign faction
+
+        GetComponent<FactionBehaviour>().members.Add(creatureGO); // optional: track units
+    }
 }

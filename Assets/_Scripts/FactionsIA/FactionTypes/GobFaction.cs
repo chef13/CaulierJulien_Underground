@@ -1,8 +1,5 @@
-using System.Collections;
-using Unity.VisualScripting;
+
 using UnityEngine;
-using System.Linq;
-using NUnit.Framework;
 
 public class GobFaction : FactionType
 {

@@ -1,14 +1,9 @@
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using System.Linq;
 using Random = UnityEngine.Random;
 using UnityEngine.Tilemaps;
-using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
-using UnityEditor.Tilemaps;
 public class TileInspector : MonoBehaviour
 {
     public Tilemap tilemap; // Your floor tilemap

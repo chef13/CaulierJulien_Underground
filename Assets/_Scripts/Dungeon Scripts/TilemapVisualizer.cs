@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 using System.Linq;
 [SerializeField]public class TilemapVisualizer : MonoBehaviour

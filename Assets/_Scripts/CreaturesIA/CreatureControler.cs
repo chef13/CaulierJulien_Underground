@@ -1,18 +1,13 @@
-using System;
+
 using System.Collections;
-using System.Collections.Generic;
-using Mono.Cecil.Cil;
-using UnityEditor;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class CreatureController : MonoBehaviour
 {
+    public Vector2 position;
     public bool room;
     [HideInInspector] public CreatureState currentState;
     public int maxHP, currentHP, damage;
@@ -24,6 +19,8 @@ public class CreatureController : MonoBehaviour
     public bool hasDestination = false;
     public RoomInfo currentRoom;
     public FactionBehaviour currentFaction;
+    private Coroutine tileDetectionRoutine;
+    private Vector3Int lastCheckedTile;
 
     protected virtual void Awake()
     {
@@ -31,14 +28,31 @@ public class CreatureController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
-        currentFaction = GetComponentsInParent<FactionBehaviour>()[0];
+        //currentFaction = GetComponentsInParent<FactionBehaviour>()[0];
         //StartCoroutine("RegisterUnknownTile2");
         CheckCurrentRoom();
+        StartTileDetection();
     }
 
     protected virtual void Update()
     {
-        CheckCurrentRoom();
+        Vector3Int currentTile = Vector3Int.FloorToInt(transform.position);
+        currentTile.z = 0;
+
+        if (currentTile != lastCheckedTile)
+        {
+            lastCheckedTile = currentTile;
+            CheckCurrentRoom();
+
+            if (currentRoom != null)
+            {
+                position = new Vector2(currentRoom.position.x, currentRoom.position.y);
+            }
+            else
+            {
+                position = Vector2.zero; // or keep the previous value
+            }
+        }
 
         if (hasDestination && agent.remainingDistance <= stoppingDistance)
         {
@@ -108,8 +122,48 @@ public class CreatureController : MonoBehaviour
         transform.position = new Vector3(-100, -100, 0);
     }
 
+    public void StartTileDetection()
+    {
+        if (tileDetectionRoutine == null)
+            tileDetectionRoutine = StartCoroutine(TilesDetection());
+    }
+
+    public void StopTileDetection()
+    {
+        if (tileDetectionRoutine != null)
+        {
+            StopCoroutine(tileDetectionRoutine);
+            tileDetectionRoutine = null;
+        }
+    }
+    IEnumerator TilesDetection()
+    {
+        while (true)
+        {
+            RegisterNewTiles();
+            yield return new WaitForSeconds(1f); 
+        }
+    }
     public void RegisterNewTiles()
     {
+            if (currentFaction == null)
+    {
+        Debug.LogError("❌ currentFaction is null in RegisterNewTiles()");
+        return;
+    }
+
+    if (DungeonGenerator.Instance == null)
+    {
+        Debug.LogError("❌ DungeonGenerator.Instance is null in RegisterNewTiles()");
+        return;
+    }
+
+    if (currentFaction.knownTilesDict == null)
+    {
+        Debug.LogError("❌ knownTilesDict is null in currentFaction");
+        return;
+    }
+
         Vector3Int centerCell = Vector3Int.FloorToInt(transform.position);
         centerCell.z = 0;
 
@@ -127,26 +181,31 @@ public class CreatureController : MonoBehaviour
                     if (!faction.knownTilesDict.ContainsKey(checkPos))
                     {
                         faction.knownTilesDict[checkPos] = tile;
-                        // Optional: notify faction or creature of discovery
                     }
+                    else if (faction.knownTilesDict.TryGetValue(checkPos, out TileInfo knowntile))
+                    {
+                        if (knowntile != tile)
+                            knowntile = tile;
+                    } 
                 }
             }
         }
     }
 
-    private void CheckCurrentRoom()
+   private void CheckCurrentRoom()
     {
         Vector3Int pos3D = Vector3Int.FloorToInt(transform.position);
-        if (DungeonGenerator.Instance.dungeonMap.TryGetValue(pos3D, out TileInfo tile))
-            if (tile.room != null)
-            {
-                currentRoom = tile.room;
-                room = true;
-            }
-            else
-            {
-                currentRoom = null;
-                room = false;
-            }
+        pos3D.z = 0;
+
+        if (DungeonGenerator.Instance.dungeonMap.TryGetValue(pos3D, out TileInfo tile) && tile.room != null)
+        {
+            currentRoom = tile.room;
+            room = true;
+        }
+        else
+        {
+            currentRoom = null;
+            room = false;
+        }
     }
 }
