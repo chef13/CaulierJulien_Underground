@@ -46,7 +46,7 @@ public class CreatureController : MonoBehaviour
 
             if (currentRoom != null)
             {
-                position = new Vector2(currentRoom.position.x, currentRoom.position.y);
+                
             }
             else
             {

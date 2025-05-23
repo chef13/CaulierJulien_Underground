@@ -1,42 +1,36 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using Random = UnityEngine.Random;
 using NavMeshPlus.Components;
 
 public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
     public GameObject prefabFaction;
     public static DungeonGenerator Instance;
-    [HideInInspector] public bool genReady;
+    public bool genReady;
+
     public NavMeshSurface surface;
 
-    public Dictionary<Vector3Int, TileInfo> dungeonMap = new Dictionary<Vector3Int, TileInfo>();
+    public Dictionary<Vector3Int, TileInfo> dungeonMap = new();
+    public Dictionary<Vector2Int, RoomInfo> roomsMap = new();
+    public Dictionary<(Vector2Int from, Vector2Int to), CorridorInfo> corridorsMap = new();
 
-    public Dictionary<Vector3Int, RoomInfo> roomsMap = new Dictionary<Vector3Int, RoomInfo>();
-    [SerializeField] private int dungeonWidth = 20, dungeonHeight = 20;
-    [SerializeField] private int minRoomWidth = 4, minRoomHeight = 4;
+    [SerializeField, Range(3, 10)] private int roomGrid = 5;
+    [SerializeField] private int dungeonWidth = 100;
+    [SerializeField] private int dungeonHeight = 100;
+    [SerializeField] private int minRoomWidth = 4;
+    [SerializeField] private int minRoomHeight = 4;
+    [SerializeField] private int mainRoomWidth = 10;
+    [SerializeField] private int mainRoomHeight = 10;
+    [SerializeField, Range(0, 10)] private int offset = 1;
 
-    [SerializeField] private int mainRoomWidth = 10, mainRoomHeight = 10;
-    [SerializeField][Range(0, 10)] private int offset = 1;
+    public float floorcount, wallcount, corridorcount;
 
-    public float floorcount = 0;
-    public float tileinfocount = 0;
-    public float wallcount = 0;
-    public float corridorcount = 0;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
 
         RunProceduralGeneration();
     }
@@ -45,16 +39,16 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
     {
         CreateRooms();
     }
-    // Update is called once per frame
+
     private void CreateRooms()
     {
         genReady = false;
-        floorcount = 0;
-        tileinfocount = 0;
-        wallcount = 0;
-        corridorcount = 0;
+        floorcount = wallcount = corridorcount = 0;
+
         dungeonMap.Clear();
         roomsMap.Clear();
+
+        // Initialize dungeon map grid
         for (int x = 0; x < dungeonWidth; x++)
         {
             for (int y = 0; y < dungeonHeight; y++)
@@ -62,7 +56,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                 Vector3Int pos = new Vector3Int(x, y, 0);
                 dungeonMap[pos] = new TileInfo
                 {
-                    position = new Vector3Int(x, y, 0),
+                    position = pos,
                     tile = null,
                     isWater = false,
                     isNature = false,
@@ -70,91 +64,57 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                 };
             }
         }
-        Debug.Log(dungeonMap.Count);
 
-        var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 1)), minRoomWidth, minRoomHeight);
+        BoundsInt bounds = new BoundsInt(Vector3Int.zero, new Vector3Int(dungeonWidth, dungeonHeight, 1));
+        var roomsList = ProceduralGenerationAlgorithms.CreateUniformGridRooms(roomGrid, roomGrid, dungeonWidth, dungeonHeight);
 
-        CreateRoomsRandomly(roomsList);
-
+        CreateRoomsGridAligned(roomsList);
         ConnectRooms();
 
         var floorPositions = dungeonMap
-        .Where(kvp => kvp.Value.isFloor)
-        .Select(kvp => new Vector2Int(kvp.Key.x, kvp.Key.y));
+            .Where(kvp => kvp.Value.isFloor)
+            .Select(kvp => new Vector2Int(kvp.Key.x, kvp.Key.y));
 
         tilemapVisualizer.PaintFloorTiles(floorPositions);
-
-        foreach (var c in dungeonMap)
-        {
-            Vector3Int pos3D = c.Key;
-            if (dungeonMap.TryGetValue(pos3D, out TileInfo tile))
-            {
-                if (tile != null)
-                    tileinfocount++;
-            }
-
-        }
-        Debug.Log($"🟩 Total TileInfo cout is {tileinfocount}");
 
         CreateWaterRandomly(roomsList);
         CreateNatureRandomly();
 
         NatureDrawer.CreateNature(dungeonMap, tilemapVisualizer);
         tilemapVisualizer.PaintWaterTiles2(dungeonMap);
-
         WallGen.CreateWalls(dungeonMap, tilemapVisualizer);
+
         StartCoroutine(BuildNavMeshAfterDelay());
     }
 
-    private IEnumerator BuildNavMeshAfterDelay()
+    private void CreateRoomsGridAligned(List<BoundsInt> roomsList)
     {
-        yield return new WaitForSeconds(1); // Wait for one frame to ensure tilemap updates are complete
-        surface.BuildNavMesh();
-        genReady = true;
+        int gridCols = roomGrid, gridRows = roomGrid;
+        Vector2Int cellSize = new Vector2Int(dungeonWidth / gridCols, dungeonHeight / gridRows);
+        roomsMap.Clear();
 
-        yield return new WaitForSeconds(1);
-        RoomInfo randomRoom = GetRandomRoom(roomsMap);
-
-        if (randomRoom != null && randomRoom.tiles.Count > 0)
+        foreach (var roomBounds in roomsList)
         {
-            TileInfo tile = randomRoom.tiles[Random.Range(0, randomRoom.tiles.Count)];
-            Vector3 spawnPosition = new Vector3(tile.position.x + 0.5f, tile.position.y + 0.5f, 0f);
+           
+            Vector2Int roomCenter = Vector2Int.RoundToInt(roomBounds.center);
+            Vector2Int gridIndex = new Vector2Int(
+                Mathf.Clamp(roomCenter.x / cellSize.x, 0, gridCols ),
+                Mathf.Clamp(roomCenter.y / cellSize.y, 0, gridRows )
+            );
 
-            Instantiate(prefabFaction, spawnPosition, Quaternion.identity);
-            Instantiate(prefabFaction, spawnPosition, Quaternion.identity);
-
-        }
-    }
-
-    private void CreateRoomsRandomly(List<BoundsInt> roomsList)
-    {
-        // Reserve a central 10x10 area (you can tweak size)
-
-        Vector3Int center = new Vector3Int(dungeonWidth / 2 - mainRoomWidth / 2, dungeonHeight / 2 - mainRoomHeight / 2, 0);
-        BoundsInt mainRoomBounds = new BoundsInt(center, new Vector3Int(mainRoomWidth, mainRoomHeight, 1));
-
-        for (int i = 0; i < roomsList.Count; i++)
-        {
-            var roomBounds = roomsList[i];
-
-            // Skip rooms that overlap the main room area
-            if (BoundsOverlap(roomBounds, mainRoomBounds))
+            if (roomsMap.ContainsKey(gridIndex))
                 continue;
 
-            var roomCenter = Vector2Int.RoundToInt(roomBounds.center);
-            Vector3Int roomCenter3D = new Vector3Int(roomCenter.x, roomCenter.y, 0);
-            var roomFloor = RunRandomWalk(randomWalkParameters, roomCenter);
             List<TileInfo> roomTiles = new();
+            HashSet<Vector2Int> randomPath = RunRandomWalk(randomWalkParameters, roomCenter);
 
-            foreach (var position in roomFloor)
+            for (int x = roomBounds.xMin + offset; x < roomBounds.xMax - offset; x++)
             {
-                if (position.x >= roomBounds.xMin + offset &&
-                    position.x <= roomBounds.xMax - offset &&
-                    position.y >= roomBounds.yMin + offset &&
-                    position.y <= roomBounds.yMax - offset)
+                for (int y = roomBounds.yMin + offset; y < roomBounds.yMax - offset; y++)
                 {
-                    Vector3Int pos3D = new Vector3Int(position.x, position.y, 0);
-                    if (dungeonMap.TryGetValue(pos3D, out TileInfo tile))
+                    Vector3Int pos3D = new Vector3Int(x, y, 0);
+                    Vector2Int pos2D = new Vector2Int(x, y);
+                    if (randomPath.Contains(pos2D) && dungeonMap.TryGetValue(pos3D, out TileInfo tile))
                     {
                         tile.isFloor = true;
                         roomTiles.Add(tile);
@@ -162,143 +122,216 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                 }
             }
 
-            RoomInfo roomInfo = new RoomInfo(new Vector3Int(roomCenter.x, roomCenter.y, 0), roomTiles);
-            roomsMap[roomCenter3D] = roomInfo;
+             RoomInfo room = new RoomInfo(roomBounds);
+            roomsMap[gridIndex] = room;
+            room.tiles = roomTiles;
+            room.index = gridIndex;
 
             foreach (var tile in roomTiles)
-            {
-                tile.room = roomInfo;
-                roomInfo.tiles.Add(tile);
-            }
+                tile.room = room;
 
-            Debug.Log($"Created room at {roomCenter} with {roomTiles.Count} tiles.");
+            Debug.Log($"📦 Room at grid {gridIndex}, tiles: {roomTiles.Count}");
         }
-
-        CreateMainRoom(mainRoomBounds); // 👈 Create the special main room last
-
-        Debug.Log($"Created {roomsMap.Count} rooms total.");
-
-        int floorCount = 0, wallCount = 0;
-        foreach (var tile in dungeonMap.Values)
-        {
-            if (tile.isFloor) floorCount++;
-            else wallCount++;
-        }
-
-        Debug.Log($"🟩 Floor Tile count: {floorCount}");
-        Debug.Log($"🧱 Wall Tile count: {wallCount}");
     }
 
-    private void CreateMainRoom(BoundsInt mainRoomBounds)
+    /*private void ConnectRooms()
     {
-        List<TileInfo> mainRoomTiles = new();
+        HashSet<Vector2Int> corridors = new();
+        List<Vector2Int> keys = roomsMap.Keys.ToList();
+        Vector2Int current = keys[Random.Range(0, keys.Count)];
+        keys.Remove(current);
 
-        for (int x = mainRoomBounds.xMin; x < mainRoomBounds.xMax; x++)
+        while (keys.Count > 0)
         {
-            for (int y = mainRoomBounds.yMin; y < mainRoomBounds.yMax; y++)
-            {
-                Vector3Int pos = new Vector3Int(x, y, 0);
-                if (dungeonMap.TryGetValue(pos, out TileInfo tile))
-                {
-                    tile.isFloor = true;
-                    mainRoomTiles.Add(tile);
-                }
-            }
-        }
+            Vector2Int next = FindClosestRoom(current, keys);
+            keys.Remove(next);
 
-        RoomInfo mainRoom = new RoomInfo(mainRoomBounds.position, mainRoomTiles);
-        roomsMap[new Vector3Int(0, 0, 0)] = mainRoom;
+            List<Vector2Int> corridor = CreateCorridor(current, next);
+            foreach (var c in corridor) corridors.Add(c);
 
-        foreach (var tile in mainRoomTiles)
-        {
-            tile.room = mainRoom;
-            mainRoom.tiles.Add(tile);
-        }
-
-        Debug.Log($"🏰 Main room created at center map with {mainRoom.tiles.Count} tiles.");
-    }
-
-    private void ConnectRooms()
-    {
-        HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
-
-        List<Vector3Int> roomCenters = new List<Vector3Int>(roomsMap.Keys);
-        Vector3Int current = roomCenters[Random.Range(0, roomCenters.Count)];
-        roomCenters.Remove(current);
-
-        while (roomCenters.Count > 0)
-        {
-            Vector3Int next = FindClosestPointTo(current, roomCenters);
-            roomCenters.Remove(next);
-
-            List<Vector2Int> corridor = CreateCorridor(new Vector2Int(current.x, current.y), new Vector2Int(next.x, next.y));
-            foreach (var tile in corridor)
-            {
-                corridors.Add(tile);
-            }
-
-            // Link rooms in graph
             if (roomsMap.TryGetValue(current, out RoomInfo roomA) &&
                 roomsMap.TryGetValue(next, out RoomInfo roomB))
             {
                 roomA.connectedRooms.Add(roomB);
                 roomB.connectedRooms.Add(roomA);
-
-                if (roomsMap.TryGetValue(current, out roomA) && roomsMap.TryGetValue(next, out roomB))
-                {
-                    Debug.Log($"🔗 Connected Room at {roomA.position} <--> {roomB.position}");
-                }
+                Debug.Log($"🔗 Connected room {current} <--> {next}");
             }
 
             current = next;
         }
 
-        // Apply floor flag to corridor tiles
         foreach (var c in corridors)
         {
-            Vector3Int pos3D = new Vector3Int(c.x, c.y, 0);
-            if (dungeonMap.TryGetValue(pos3D, out TileInfo tile))
+            Vector3Int pos = new Vector3Int(c.x, c.y, 0);
+            if (dungeonMap.TryGetValue(pos, out TileInfo tile))
             {
                 tile.isFloor = true;
-                if (tile.room == null)
-                    corridorcount++;
+                if (tile.room == null) corridorcount++;
+            }
+        }
+
+        Debug.Log($"🛤️ Corridors marked: {corridorcount}");
+    }*/
+    private void ConnectRooms()
+    {
+        HashSet<Vector2Int> allCorridorTiles = new();
+        corridorsMap.Clear();
+
+        List<Vector2Int> keys = new List<Vector2Int>(roomsMap.Keys);
+        Vector2Int current = keys[Random.Range(0, keys.Count)];
+        keys.Remove(current);
+
+        while (keys.Count > 0)
+        {
+            List<RoomInfo> neighbores = new();
+            foreach (var card in Direction2D.cardinalDirectionsList)
+                {
+                    if (roomsMap.ContainsKey(current + card) && !roomsMap[current + card].connectedRooms.Contains(roomsMap[current]))
+                    {
+                        neighbores.Add(roomsMap[current + card]);
+                    }
+                }
+             if (neighbores.Count > 0)
+            {
+                Vector2Int next = neighbores[Random.Range(0, neighbores.Count)].index;
+                keys.Remove(next);
+
+
+                // Get center world positions of the rooms
+                Vector2Int start = Vector2Int.RoundToInt(roomsMap[current].roomBounds.center);
+                Vector2Int end = Vector2Int.RoundToInt(roomsMap[next].roomBounds.center);
+
+                // Use random walk corridor to create a more organic shape
+                Vector2Int direction = Direction2D.GetCardinalDirection(start, end);
+                int length = Vector2Int.Distance(start, end) > 0 ? Mathf.RoundToInt(Vector2Int.Distance(start, end)) : 5;
+                List<Vector2Int> corridorPath = ProceduralGenerationAlgorithms.RandomWalkCorridor(start, end, length, direction);
+                //corridorPath.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(start, length, direction).corridor);
+                CorridorInfo linkingCorridor = new();
+                foreach (var tile in corridorPath)
+                {
+                     var tilePos = new Vector3Int(tile.x, tile.y, 0);
+                    if (dungeonMap.TryGetValue(tilePos, out TileInfo corridorTile))
+                    {
+                        corridorTile.isFloor = true;
+                        if (corridorTile.room == null)
+                        {
+                            linkingCorridor.tiles.Add(corridorTile);
+                            corridorTile.corridor = linkingCorridor;
+                        }
+                    }
+                }
+                if (roomsMap.TryGetValue(current, out RoomInfo roomA) &&
+                    roomsMap.TryGetValue(next, out RoomInfo roomB))
+                {
+                    roomA.connectedRooms.Add(roomB);
+                    roomB.connectedRooms.Add(roomA);
+                    Debug.Log($"🔗 Connected room {current} <--> {next}");
+                }
+
+                current = next;
+            }
+            else
+            {
+                // No unconnected neighbors: pick a new current from keys to continue
+                if (keys.Count > 0)
+                {
+                    current = keys[Random.Range(0, keys.Count)];
+                    keys.Remove(current);
+                }
             }
 
+            foreach (var room in roomsMap)
+            {
+                if (room.Value.connectedRooms.Count == 0)
+                {
+                    List<RoomInfo> neighbors = new();
+                    foreach (var card in Direction2D.cardinalDirectionsList)
+                    {
+                        if (roomsMap.ContainsKey(room.Value.index + card))
+                        {
+                            neighbors.Add(roomsMap[room.Value.index + card]);
+                        }
+                    }
+                    if (neighbors.Count > 0)
+                    {
+                        RoomInfo neighbor = neighbors[Random.Range(0, neighbors.Count)];
+                        room.Value.connectedRooms.Add(neighbor);
+                        neighbor.connectedRooms.Add(room.Value);
+
+                        // Optionally, create a corridor here as well
+                        Vector2Int start = Vector2Int.RoundToInt(room.Value.roomBounds.center);
+                        Vector2Int end = Vector2Int.RoundToInt(neighbor.roomBounds.center);
+                        Vector2Int direction = Direction2D.GetCardinalDirection(start, end);
+                        int length = Mathf.RoundToInt(Vector2Int.Distance(start, end));
+                        List<Vector2Int> corridorPath = ProceduralGenerationAlgorithms.RandomWalkCorridor(start, end, length, direction);
+                        // corridorPath.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(start, length, direction).corridor);
+                        foreach (var tile in corridorPath)
+                        {
+                            var tilePos = new Vector3Int(tile.x, tile.y, 0);
+                            if (dungeonMap.TryGetValue(tilePos, out TileInfo corridorTile))
+                            {
+                                corridorTile.isFloor = true;
+                                if (corridorTile.room == null)
+                                {
+                                    corridorTile.corridor = new CorridorInfo();
+                                    corridorTile.corridor.tiles.Add(corridorTile);
+                                }
+                            }
+                        }
+                        Debug.Log($"🔗 Extra connection for room {room.Value.index} to {neighbor.index}");
+                    }
+                }
+            }
+
+
+
+            // Apply corridors to dungeon map
+
+                foreach (var pos in allCorridorTiles)
+                {
+                    var pos3D = new Vector3Int(pos.x, pos.y, 0);
+                    if (dungeonMap.TryGetValue(pos3D, out TileInfo tile))
+                    {
+                        tile.isFloor = true;
+                        if (tile.room == null)
+                            corridorcount++;
+                    }
+                }
         }
-        Debug.Log($"🟩 corridor Tile cout is {corridorcount}");
     }
 
-    private Vector3Int FindClosestPointTo(Vector3Int currentRoomCenter, List<Vector3Int> roomCenters)
+
+    private Vector2Int FindClosestRoom(Vector2Int from, List<Vector2Int> others)
     {
-        Vector3Int closest = Vector3Int.zero;
-        float distance = float.MaxValue;
-        foreach (var position in roomCenters)
+        float minDist = float.MaxValue;
+        Vector2Int closest = from;
+
+        foreach (var pos in others)
         {
-            float currentDistance = Vector3.Distance(position, currentRoomCenter);
-            if (currentDistance < distance)
+            float dist = Vector2Int.Distance(from, pos);
+            if (dist < minDist)
             {
-                distance = currentDistance;
-                closest = position;
+                minDist = dist;
+                closest = pos;
             }
         }
+
         return closest;
     }
 
-    private List<Vector2Int> CreateCorridor(Vector2Int currentRoomCenter, Vector2Int destination)
+    private List<Vector2Int> CreateCorridor(Vector2Int start, Vector2Int end)
     {
-        List<Vector2Int> corridor = new List<Vector2Int>();
-        List<Vector2Int> path = new List<Vector2Int>();
-        Vector2Int distance = destination - currentRoomCenter;
-        var position = currentRoomCenter;
-        corridor.Add(position);
+        List<Vector2Int> corridor = new();
+        Vector2Int dir = end - start;
+        Vector2Int pos = start;
+        corridor.Add(pos);
 
+        var steps = Mathf.CeilToInt(dir.magnitude * 2);
 
-        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.right).corridor);
-        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.left).corridor);
-        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.down).corridor);
-        path.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(position, (int)(distance.magnitude * 2), Vector2Int.up).corridor);
-        position = path.Last();
-        corridor.AddRange(path);
+        corridor.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(pos, steps, Vector2Int.right).corridor);
+        corridor.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(pos, steps, Vector2Int.left).corridor);
+        corridor.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(pos, steps, Vector2Int.up).corridor);
+        corridor.AddRange(ProceduralGenerationAlgorithms.RandomWalkCorridor2(pos, steps, Vector2Int.down).corridor);
 
         return corridor;
     }
@@ -308,62 +341,53 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         for (int i = 0; i < roomsList.Count / 4; i++)
         {
             var roomBounds = roomsList[Random.Range(0, roomsList.Count)];
-            var roomCenter = new Vector2Int(Mathf.RoundToInt(roomBounds.center.x), Mathf.RoundToInt(roomBounds.center.y));
-            var waterFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(roomCenter, Random.Range(10, 30));
+            var center = Vector2Int.RoundToInt(roomBounds.center);
+            var waterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(center, Random.Range(10, 30));
 
-            foreach (var pos in waterFloor)
+            foreach (var pos in waterTiles)
             {
-                Vector3Int pos3D = new Vector3Int(pos.x, pos.y, 0);
-                if (dungeonMap.TryGetValue(pos3D, out TileInfo tile) && tile.isFloor)
-                {
+                Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
+                if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
                     tile.isWater = true;
-                }
             }
         }
     }
 
     private void CreateNatureRandomly()
     {
-        // Get all current water tiles from the dungeon map
-        var waterTiles = dungeonMap
-            .Where(kvp => kvp.Value.isWater)
-            .Select(kvp => kvp.Key)
-            .ToList();
+        var waterTiles = dungeonMap.Where(t => t.Value.isWater).Select(t => t.Key).ToList();
 
         foreach (var pos in waterTiles)
         {
-            var center2D = new Vector2Int(pos.x, pos.y);
-            var natureFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(center2D, Random.Range(10, 30));
-
+            var natureFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int(pos.x, pos.y), Random.Range(10, 30));
             foreach (var p in natureFloor)
             {
-                Vector3Int pos3D = new Vector3Int(p.x, p.y, 0);
-                if (dungeonMap.TryGetValue(pos3D, out TileInfo tile) &&
-                    tile.isFloor && !tile.isWater)
-                {
+                Vector3Int p3 = new Vector3Int(p.x, p.y, 0);
+                if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor && !tile.isWater)
                     tile.isNature = true;
-                }
             }
         }
     }
 
-
-    private bool BoundsOverlap(BoundsInt a, BoundsInt b)
+    private IEnumerator BuildNavMeshAfterDelay()
     {
-        return a.xMin < b.xMax && a.xMax > b.xMin &&
-               a.yMin < b.yMax && a.yMax > b.yMin;
-    }
+        yield return new WaitForSeconds(1f);
+        surface.BuildNavMesh();
+        genReady = true;
 
-    RoomInfo GetRandomRoom(Dictionary<Vector3Int, RoomInfo> roomsMap)
-    {
-        if (roomsMap.Count == 0)
+        yield return new WaitForSeconds(1f);
+        RoomInfo room = GetRandomRoom();
+        if (room != null && room.tiles.Count > 0)
         {
-            Debug.LogWarning("No rooms available in roomsMap.");
-            return null;
+            TileInfo tile = room.tiles[Random.Range(0, room.tiles.Count)];
+            Vector3 pos = new Vector3(tile.position.x + 0.5f, tile.position.y + 0.5f, 0f);
+            Instantiate(prefabFaction, pos, Quaternion.identity);
         }
-
-        var roomList = new List<RoomInfo>(roomsMap.Values);
-        return roomList[Random.Range(0, roomList.Count)];
     }
 
+    private RoomInfo GetRandomRoom()
+    {
+        if (roomsMap.Count == 0) return null;
+        return roomsMap.Values.ElementAt(Random.Range(0, roomsMap.Count));
+    }
 }

@@ -3,8 +3,7 @@ using System.Collections;
 using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
-{
-    public RoomFirstDungeonGenerator roomGenerator;
+{/*
     public GameObject mobPrefab;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -40,5 +39,5 @@ public class GameManager : MonoBehaviour
             StartCoroutine(SpawnTraversingMobs());
             
     }
-
+*/
 }

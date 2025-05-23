@@ -22,18 +22,14 @@ public static class ProceduralGenerationAlgorithms
         return path;
     }
 
-    public static List<Vector2Int> RandomWalkCorridor(Vector2Int startPosition, int corridorLength)
+    public static List<Vector2Int> RandomWalkCorridor(Vector2Int startPosition, Vector2Int endPosition, int corridorLength, Vector2Int direction)
     {
         List<Vector2Int> corridor = new List<Vector2Int>();
-        var direction = Direction2D.GetRandomCardinalDirection();
         var currentPosition = startPosition;
         corridor.Add(currentPosition);
 
         for (int i = 0; i < corridorLength; i++)
         {   
-            if (i % 2 == 0)
-            currentPosition +=  Direction2D.GetRandomCardinalDirection();
-            else
             currentPosition += direction;
             corridor.Add(currentPosition);
         }
@@ -96,26 +92,48 @@ public static class ProceduralGenerationAlgorithms
         }
         return positions;
     }
+    
+        public static List<BoundsInt> CreateUniformGridRooms(int cols, int rows, int dungeonWidth, int dungeonHeight)
+    {
+        List<BoundsInt> result = new();
+
+        int cellWidth = dungeonWidth / cols;
+        int cellHeight = dungeonHeight / rows;
+
+        for (int x = 0; x < cols; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                Vector3Int pos = new Vector3Int(x * cellWidth, y * cellHeight, 0);
+                Vector3Int size = new Vector3Int(cellWidth, cellHeight, 1);
+                result.Add(new BoundsInt(pos, size));
+            }
+        }
+
+        return result;
+    }
 
     public static List<BoundsInt> BinarySpacePartitioning(BoundsInt spaceToSplit, int minWidth, int minHeight)
     {
         Queue<BoundsInt> roomsQueue = new Queue<BoundsInt>();
         List<BoundsInt> roomsList = new List<BoundsInt>();
         roomsQueue.Enqueue(spaceToSplit);
-        while(roomsQueue.Count > 0)
+        while (roomsQueue.Count > 0)
         {
             var room = roomsQueue.Dequeue();
-            if(room.size.y >= minHeight && room.size.x >= minWidth)
+            if (room.size.y >= minHeight && room.size.x >= minWidth)
             {
-                if(Random.value < 0.5f)
+                if (Random.value < 0.5f)
                 {
-                    if(room.size.y >= minHeight * 2)
+                    if (room.size.y >= minHeight * 2)
                     {
                         SplitHorizontally(minHeight, roomsQueue, room);
-                    }else if(room.size.x >= minWidth * 2)
+                    }
+                    else if (room.size.x >= minWidth * 2)
                     {
                         SplitVertically(minWidth, roomsQueue, room);
-                    }else if(room.size.x >= minWidth && room.size.y >= minHeight)
+                    }
+                    else if (room.size.x >= minWidth && room.size.y >= minHeight)
                     {
                         roomsList.Add(room);
                     }
@@ -202,6 +220,17 @@ public static class Direction2D
         return cardinalDirectionsList[UnityEngine.Random.Range(0, eightDirectionsList.Count)];
     }
 
+    public static Vector2Int GetCardinalDirection(Vector2Int start, Vector2Int end)
+        {
+            Vector2Int delta = end - start;
 
+            // Choose the dominant axis
+            if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+                return new Vector2Int((int)Mathf.Sign(delta.x), 0); // Horizontal
+            else if (Mathf.Abs(delta.y) > 0)
+                return new Vector2Int(0, (int)Mathf.Sign(delta.y)); // Vertical
+            else
+                return Vector2Int.zero; // Same position
+        }
     
 }

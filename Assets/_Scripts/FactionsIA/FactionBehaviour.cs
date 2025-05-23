@@ -10,7 +10,7 @@ public class FactionBehaviour : MonoBehaviour
     public string factionName;
     public List<GameObject> members = new List<GameObject>();
     public Dictionary<Vector3Int, TileInfo> knownTilesDict = new Dictionary<Vector3Int, TileInfo>();
-    public Dictionary<Vector3Int, RoomInfo> knownRoomsDict = new Dictionary<Vector3Int, RoomInfo>();
+    public Dictionary<Vector2Int, RoomInfo> knownRoomsDict = new Dictionary<Vector2Int, RoomInfo>();
     public RoomInfo currentHQ;
 
     public GameObject prefabCreature;
@@ -34,15 +34,16 @@ public class FactionBehaviour : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        SpawnCreatureInRoom(transform.position, prefabCreature);
+        SpawnCreatureInRoom(transform.position, prefabCreature);
+        SpawnCreatureInRoom(transform.position, prefabCreature);
         foreach (GameObject member in members)
         {
             member.GetComponent<CreatureAI>().controller.currentFaction = this;
             member.GetComponent<CreatureAI>().SwitchState(new StateExplore(member.GetComponent<CreatureAI>()));
         }
 
-        SpawnCreatureInRoom(transform.position, prefabCreature);
-        SpawnCreatureInRoom(transform.position, prefabCreature);
-        SpawnCreatureInRoom(transform.position, prefabCreature);
+
     }
 
     // Update is called once per frame
@@ -64,7 +65,7 @@ public class FactionBehaviour : MonoBehaviour
         tiles = knownTilesDict.Count;
     }
 
-    public void AskedForState(GameObject unit)
+    public void AskedForState(CreatureController unit)
     {
         currentFactionType.AskForState();
     }

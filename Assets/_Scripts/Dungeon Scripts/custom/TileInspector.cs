@@ -55,13 +55,13 @@ public class TileInspector : MonoBehaviour
                 lastTileSelected = cellPos;
 
                 string type = tile.room != null ? "Room" : "Corridor";
-                string roomCenter = tile.room != null ? tile.room.position.ToString() : "None";
+                string roomCenter = tile.room != null ? tile.room.index.ToString() : "None";
                 Debug.Log($"🟩 Tile at {cellPos} → Type: {type}, Room Center: {roomCenter}");
                 inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd}";
                 if (tile.room != null)
                 {
                     RoomInfo room = tile.room;
-                    inspectorTxt.text = inspectorTxt.text + $"Room : {room.position}, tiles : {room.tiles.Count}";
+                    inspectorTxt.text = inspectorTxt.text + $"Room : {room.index}, tiles : {room.tiles.Count}";
                     foreach (TileInfo t in room.tiles)
                     {
                         inspectorTxt.text = inspectorTxt.text + $"{t.position}";
@@ -69,7 +69,22 @@ public class TileInspector : MonoBehaviour
                     HashSet<RoomInfo> connection = room.connectedRooms;
                     foreach (RoomInfo r in connection)
                     {
-                        inspectorTxt.text = inspectorTxt.text + $"connected to : {r.position}";
+                        inspectorTxt.text = inspectorTxt.text + $"connected to : {r.index}";
+                    }
+                }
+
+                if (tile.corridor != null)
+                {
+                    CorridorInfo corridor = tile.corridor;
+                    inspectorTxt.text = inspectorTxt.text + $"Corridor : {corridor.tiles.Count}";
+                    foreach (TileInfo t in corridor.tiles)
+                    {
+                        inspectorTxt.text = inspectorTxt.text + $"{t.position}";
+                    }
+                    HashSet<RoomInfo> connection = corridor.connectedRooms;
+                    foreach (RoomInfo r in connection)
+                    {
+                        inspectorTxt.text = inspectorTxt.text + $"connected to : {r.index}";
                     }
                 }
             }

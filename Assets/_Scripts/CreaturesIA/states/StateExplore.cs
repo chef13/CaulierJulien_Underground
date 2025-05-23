@@ -8,11 +8,15 @@ public class StateExplore : CreatureState
     private float exploreRange = 5f;
     private Vector2Int cardinalExplo;
     private RoomInfo targetRoom;
+    private bool mission;
 
-    public StateExplore(CreatureAI creature) : base(creature) { }
+    public StateExplore(CreatureAI creature) : base(creature) 
+    {
+    }
 
     public override void Enter()
     {
+        mission = false;
         agent = creature.GetComponent<NavMeshAgent>();
         cardinalExplo = Direction2D.cardinalDirectionsList[Random.Range(0, Direction2D.cardinalDirectionsList.Count)];
     }
@@ -23,20 +27,27 @@ public class StateExplore : CreatureState
 
         if (!creature.controller.hasDestination)
         {
-            if (creature.controller.currentRoom != null && !creature.controller.currentFaction.knownRoomsDict.ContainsKey(creature.controller.currentRoom.position))
+            if (creature.controller.currentRoom != null && !creature.controller.currentFaction.knownRoomsDict.ContainsKey(creature.controller.currentRoom.index))
             {
                 ExploreCurrentRoom(creature.controller.currentRoom);
             }
-            else if (creature.controller.currentRoom == null || creature.controller.currentFaction.knownRoomsDict.ContainsKey(creature.controller.currentRoom.position))
+            else if (creature.controller.currentRoom == null || creature.controller.currentFaction.knownRoomsDict.ContainsKey(creature.controller.currentRoom.index))
             {
                 SetNewDestination();
             }
         }
 
         if (DetectEnemy(out GameObject target))
-            {
-                creature.SwitchState(new StateAttack(creature, target));
-            }
+        {
+            creature.SwitchState(new StateAttack(creature, target));
+        }
+
+        if (mission == true)
+        {
+            // Pass the appropriate argument(s) to AskedForState, e.g. the creature or relevant state
+            creature.controller.currentFaction.AskedForState(creature.controller);
+
+        }
     }
 
     public override void SetNewDestination()
@@ -49,7 +60,7 @@ public class StateExplore : CreatureState
             Debug.Log($"getting new room loc");
             var randomNearby = neighboringRooms[Random.Range(0, neighboringRooms.Count)];
 
-                Vector2 worldPos = new Vector2(randomNearby.position.x + 0.5f, randomNearby.position.y + 0.5f);
+                Vector2 worldPos = new Vector2(randomNearby.index.x + 0.5f, randomNearby.index.y + 0.5f);
             targetRoom = randomNearby;
                 if (creature.IsWalkable(worldPos))
                 {
@@ -93,7 +104,7 @@ public class StateExplore : CreatureState
         {
             foreach (RoomInfo connected in currentRoom.connectedRooms)
             {
-                if (!knownRooms.ContainsKey(connected.position))
+                if (!knownRooms.ContainsKey(connected.index))
                 {
                     nearby.Add(connected);
                 }
@@ -107,7 +118,7 @@ public class StateExplore : CreatureState
 
                 foreach (RoomInfo connected in known.connectedRooms)
                 {
-                    if (!knownRooms.ContainsKey(connected.position))
+                    if (!knownRooms.ContainsKey(connected.index))
                     {
                         nearby.Add(connected);
                     }
@@ -140,10 +151,10 @@ public class StateExplore : CreatureState
             Vector2 destination = new Vector2(targetTile.position.x + 0.5f, targetTile.position.y + 0.5f);
             creature.controller.SetDestination(destination);
         }
-        else if (!faction.knownRoomsDict.ContainsKey(Room.position))
+        else if (!faction.knownRoomsDict.ContainsKey(Room.index))
         {
-            faction.knownRoomsDict[Room.position] = Room;
-            Debug.Log($"🧭 {faction.name} fully explored room at {Room.position}");
+            faction.knownRoomsDict[Room.index] = Room;
+            Debug.Log($"🧭 {faction.name} fully explored room at {Room.index}");
             faction.rooms++;
         }
     }
