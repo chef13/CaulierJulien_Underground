@@ -57,7 +57,7 @@ public class TileInspector : MonoBehaviour
                 string type = tile.room != null ? "Room" : "Corridor";
                 string roomCenter = tile.room != null ? tile.room.index.ToString() : "None";
                 Debug.Log($"🟩 Tile at {cellPos} → Type: {type}, Room Center: {roomCenter}");
-                inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd}";
+                inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd} \n";
                 if (tile.room != null)
                 {
                     RoomInfo room = tile.room;

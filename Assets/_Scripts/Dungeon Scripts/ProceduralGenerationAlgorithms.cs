@@ -22,7 +22,7 @@ public static class ProceduralGenerationAlgorithms
         return path;
     }
 
-    public static List<Vector2Int> RandomWalkCorridor(Vector2Int startPosition, Vector2Int endPosition, int corridorLength, Vector2Int direction)
+    public static List<Vector2Int> RandomWalkCorridor(Vector2Int startPosition, int corridorLength, Vector2Int direction)
     {
         List<Vector2Int> corridor = new List<Vector2Int>();
         var currentPosition = startPosition;

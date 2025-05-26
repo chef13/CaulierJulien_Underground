@@ -38,6 +38,7 @@ public class TileInfo
     public Vector2Int index;
     public List<TileInfo> tiles;
     public string faction;
+    public List<CorridorInfo> corridors = new List<CorridorInfo>();
 
     public HashSet<RoomInfo> connectedRooms = new HashSet<RoomInfo>();
 
