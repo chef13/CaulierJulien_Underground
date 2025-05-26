@@ -59,8 +59,9 @@ public class StateExplore : CreatureState
         {
             Debug.Log($"getting new room loc");
             var randomNearby = neighboringRooms[Random.Range(0, neighboringRooms.Count)];
+            var randomNearbyTiles = randomNearby.tiles[Random.Range(0, randomNearby.tiles.Count)];
 
-                Vector2 worldPos = new Vector2(randomNearby.index.x + 0.5f, randomNearby.index.y + 0.5f);
+                Vector2 worldPos = new Vector2(randomNearbyTiles.position.x + 0.5f, randomNearbyTiles.position.y + 0.5f);
             targetRoom = randomNearby;
                 if (creature.IsWalkable(worldPos))
                 {

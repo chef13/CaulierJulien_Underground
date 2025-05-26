@@ -9,7 +9,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
     public GameObject prefabFaction;
     public static DungeonGenerator Instance;
     public bool genReady;
-
+    public bool navReady;
     public NavMeshSurface surface;
 
     public Dictionary<Vector3Int, TileInfo> dungeonMap = new();
@@ -17,8 +17,8 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
     public Dictionary<(Vector2Int from, Vector2Int to), CorridorInfo> corridorsMap = new();
 
     [SerializeField, Range(3, 10)] private int roomGrid = 5;
-    [SerializeField] private int dungeonWidth = 100;
-    [SerializeField] private int dungeonHeight = 100;
+    [SerializeField] public int dungeonWidth = 100;
+    [SerializeField] public int dungeonHeight = 100;
     [SerializeField] private int minRoomWidth = 4;
     [SerializeField] private int minRoomHeight = 4;
     [SerializeField] private int mainRoomWidth = 10;
@@ -383,6 +383,9 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
             Vector3 pos = new Vector3(tile.position.x + 0.5f, tile.position.y + 0.5f, 0f);
             Instantiate(prefabFaction, pos, Quaternion.identity);
         }
+
+        yield return new WaitForSeconds(1f);
+        navReady = true;
     }
 
     private RoomInfo GetRandomRoom()
