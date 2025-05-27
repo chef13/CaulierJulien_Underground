@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "CaulierJulien_Underground.sln"
+    "dotnet.defaultSolution": "Underworld.sln"
 }

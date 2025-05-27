@@ -6,6 +6,8 @@ using UnityEngine.Tilemaps;
 using TMPro;
 public class TileInspector : MonoBehaviour
 {
+    public GameObject player; // Reference to the player object
+    private bool camLock = false;
     public Tilemap tilemap; // Your floor tilemap
     public DungeonGenerator dungeonGenerator; // Holds dungeonMap
     public TMP_Text inspectorTxt;
@@ -32,10 +34,30 @@ public class TileInspector : MonoBehaviour
 
     void Update()
     {
+        if (!camLock)
+        {
         HandleMouseDrag();
+        }
+        else if (camLock && player != null)
+        {
+            Vector3 newPos = player.transform.position;
+            newPos.z = -5f;
+            Camera.main.transform.position = newPos;
+        }
+
+
         HandleZoom();
 
-        if (Input.GetMouseButtonDown(0)) // Left-click
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            camLock = !camLock;
+            if (camLock && player != null)
+            {
+                Camera.main.transform.position = player.transform.position;
+            }
+        }
+
+        if (!camLock && Input.GetMouseButtonDown(0)) // Left-click
         {
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int worldPosInt = new Vector3Int(Mathf.RoundToInt(worldPos.x), Mathf.RoundToInt(worldPos.y), 0);
@@ -57,19 +79,19 @@ public class TileInspector : MonoBehaviour
                 string type = tile.room != null ? "Room" : "Corridor";
                 string roomCenter = tile.room != null ? tile.room.index.ToString() : "None";
                 Debug.Log($"🟩 Tile at {cellPos} → Type: {type}, Room Center: {roomCenter}");
-                inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd} \n";
+                //inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd} \n";
                 if (tile.room != null)
                 {
                     RoomInfo room = tile.room;
-                    inspectorTxt.text = inspectorTxt.text + $"Room : {room.index}, tiles : {room.tiles.Count}";
+                    inspectorTxt.text += $"Room : {room.index}, tiles : {room.tiles.Count}";
                     foreach (TileInfo t in room.tiles)
                     {
-                        inspectorTxt.text = inspectorTxt.text + $"{t.position}";
+                        inspectorTxt.text += $"{t.position}";
                     }
                     HashSet<RoomInfo> connection = room.connectedRooms;
                     foreach (RoomInfo r in connection)
                     {
-                        inspectorTxt.text = inspectorTxt.text + $"connected to : {r.index}";
+                        inspectorTxt.text += $"connected to : {r.index}";
                     }
                 }
 

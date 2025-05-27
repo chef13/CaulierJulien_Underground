@@ -4,6 +4,7 @@ using System;
 using Random = UnityEngine.Random;
 public class FactionBehaviour : MonoBehaviour
 {
+    public FactionData factionData;
     public int rooms;
     public int tiles;
     static public FactionType currentFactionType;

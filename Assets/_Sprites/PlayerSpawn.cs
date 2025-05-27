@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerSpawn : MonoBehaviour
 {
+    [SerializeField] private TileInspector tileInspector;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Vector3 spawnPosition;
     bool isSpawned = false;
@@ -17,8 +18,9 @@ public class PlayerSpawn : MonoBehaviour
     {
         if (!isSpawned && DungeonGenerator.Instance.navReady)
         {
-            Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+            GameObject player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
             isSpawned = true;
+            tileInspector.player = player;
         }
     }
 }

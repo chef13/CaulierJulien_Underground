@@ -148,7 +148,7 @@ public class CreatureController : MonoBehaviour
     {
             if (currentFaction == null)
     {
-        Debug.LogError("❌ currentFaction is null in RegisterNewTiles()");
+        //Debug.LogError("❌ currentFaction is null in RegisterNewTiles()");
         return;
     }
 
