@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c47bb73a11f86e47a6ebf7658a8cafe, type: 3}
+  m_Name: Fleurs
+  m_EditorClassIdentifier: 
+  planteName: Fleur
+  sprites:
+  - {fileID: -6030531973334407656, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: 1590204759890579865, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: 816692587866295773, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: -3740154654687573679, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: 7701443798082501263, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: 1239574188762954491, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: 4490935887582196425, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  - {fileID: 6693262700944515502, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
+  growingTime: 0
+  growthStages: 1
