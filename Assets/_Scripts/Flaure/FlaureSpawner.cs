@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 
 
@@ -20,6 +21,11 @@ public class FlaureSpawner : MonoBehaviour
     }
 
     private void FirstSpawning()
+    {
+
+    }
+
+    public void SpawnFlaure(TileInfo tileInfo, FlaureData data)
     {
 
     }

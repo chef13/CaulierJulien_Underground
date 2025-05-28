@@ -14,7 +14,7 @@ public class CreatureController : MonoBehaviour
     public float attackRange, attackSpeed, attackTimer, detectionRange, maxEnergy, currentEnergy;
     public float stoppingDistance = 1f;
     public Vector2 destination;
-    protected NavMeshAgent agent;
+    public NavMeshAgent agent;
     public CreatureAI creatureAI;
     public bool hasDestination = false;
     public RoomInfo currentRoom;
@@ -22,10 +22,15 @@ public class CreatureController : MonoBehaviour
     private Coroutine tileDetectionRoutine;
     private Vector3Int lastCheckedTile;
 
+    [HideInInspector] public Animator animator;
+    [HideInInspector] public SpriteRenderer spriteRenderer;
+
     protected virtual void Awake()
     {
         creatureAI = GetComponent<CreatureAI>();
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         //currentFaction = GetComponentsInParent<FactionBehaviour>()[0];
@@ -38,6 +43,25 @@ public class CreatureController : MonoBehaviour
     {
         Vector3Int currentTile = Vector3Int.FloorToInt(transform.position);
         currentTile.z = 0;
+        
+        // chnange sprite orientation based on movement direction
+        if (agent.velocity.x > 0.1f)
+        {
+            spriteRenderer.flipX = false; // facing right
+        }
+        else if (agent.velocity.x < -0.1f)
+        {
+            spriteRenderer.flipX = true; // facing left
+        }
+
+        if (agent.velocity.magnitude > 0.1f)
+        {
+            animator.SetBool("isWalking", true);
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
 
         if (currentTile != lastCheckedTile)
         {
@@ -46,7 +70,7 @@ public class CreatureController : MonoBehaviour
 
             if (currentRoom != null)
             {
-                
+
             }
             else
             {
@@ -141,28 +165,28 @@ public class CreatureController : MonoBehaviour
         while (true)
         {
             RegisterNewTiles();
-            yield return new WaitForSeconds(1f); 
+            yield return new WaitForSeconds(0.2f); 
         }
     }
     public void RegisterNewTiles()
     {
-            if (currentFaction == null)
-    {
-        //Debug.LogError("❌ currentFaction is null in RegisterNewTiles()");
-        return;
-    }
+                if (currentFaction == null)
+        {
+            //Debug.LogError("❌ currentFaction is null in RegisterNewTiles()");
+            return;
+        }
 
-    if (DungeonGenerator.Instance == null)
-    {
-        Debug.LogError("❌ DungeonGenerator.Instance is null in RegisterNewTiles()");
-        return;
-    }
+        if (DungeonGenerator.Instance == null)
+        {
+            Debug.LogError("❌ DungeonGenerator.Instance is null in RegisterNewTiles()");
+            return;
+        }
 
-    if (currentFaction.knownTilesDict == null)
-    {
-        Debug.LogError("❌ knownTilesDict is null in currentFaction");
-        return;
-    }
+        if (currentFaction.knownTilesDict == null)
+        {
+            Debug.LogError("❌ knownTilesDict is null in currentFaction");
+            return;
+        }
 
         Vector3Int centerCell = Vector3Int.FloorToInt(transform.position);
         centerCell.z = 0;

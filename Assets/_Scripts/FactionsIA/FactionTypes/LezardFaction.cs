@@ -1,11 +1,11 @@
 
 using UnityEngine;
 
-public class GobFaction : FactionType
+public class LezardFaction : FactionType
 {
-    
 
-    public GobFaction(FactionBehaviour gob) : base(gob)
+
+    public LezardFaction(FactionBehaviour gob) : base(gob)
     {
         
     }

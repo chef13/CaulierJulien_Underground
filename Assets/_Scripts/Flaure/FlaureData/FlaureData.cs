@@ -6,8 +6,14 @@ using UnityEngine;
 public class FlaureData : ScriptableObject
 {
     public string planteName;
+    public enum FlaureTypeEnum { Flower, Champi, Bush, Jonc }
+    public FlaureTypeEnum factionTypeEnum;
     public Sprite[] sprites;
     public float growingTime;
     public int growthStages;
+    public int range;
+    public bool needWater;
+    public bool needNature;
+    public bool likeDeadEnds;
    
 }

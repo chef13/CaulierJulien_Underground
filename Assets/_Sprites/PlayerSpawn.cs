@@ -20,7 +20,7 @@ public class PlayerSpawn : MonoBehaviour
         {
             GameObject player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
             isSpawned = true;
-            tileInspector.player = player;
+            //tileInspector.player = player;
         }
     }
 }

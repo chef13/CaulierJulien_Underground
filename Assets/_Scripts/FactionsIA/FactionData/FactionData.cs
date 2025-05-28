@@ -6,8 +6,11 @@ using UnityEngine;
 public class FactionData : ScriptableObject
 {
     public string factionName;
-    public FactionType factionType;
+    public enum FactionTypeEnum { Goblin, Lezard }
+    public FactionTypeEnum factionTypeEnum;
     public GameObject[] prefabCreature;
     public int startingMembers;
    
 }
+
+

@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f43251858e6dd8540897709862c602b3, type: 3}
-  m_Name: GobData
+  m_Name: LezardData
   m_EditorClassIdentifier: 
-  factionName: Gobs
+  factionName: Lezards
+  factionTypeEnum: 1
   prefabCreature:
-  - {fileID: 3239829643432152457, guid: 1d24f3a1cfceeea4d848cf264073faac, type: 3}
-  startingMembers: 4
+  - {fileID: 4595724152688228843, guid: e665f6a00f491144da336a250e6e67eb, type: 3}
+  startingMembers: 2

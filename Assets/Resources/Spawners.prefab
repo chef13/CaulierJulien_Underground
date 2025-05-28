@@ -60,12 +60,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99ca55010a40cf148ad6b2ca7d996229, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  factionData: []
+  factionData:
+  - {fileID: 11400000, guid: f87cf75ec987c604b8ddbc6f64c3734e, type: 2}
+  - {fileID: 11400000, guid: 8871937ba718ff44c9ef63d4ef1852ea, type: 2}
   spawners:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   factions: []
-  factionPrefab: {fileID: 5451100149941113879, guid: 485890cec67608c4984af51973297e76, type: 3}
+  factionPrefab: {fileID: 5451100149941113879, guid: 004b2dfe882cde243b7120d8bcd184da, type: 3}
   spawnerPrefab: {fileID: 5860656394164244162, guid: 4e543a0261c16da4b8d00e174b2d80d0, type: 3}

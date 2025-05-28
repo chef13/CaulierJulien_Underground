@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class StateAttack : CreatureState
@@ -30,8 +31,7 @@ public class StateAttack : CreatureState
             }
             else
             {
-                // In range — attack
-                Attack();
+                creature.StartCoroutine(Attack());
             }
         }
         else // on cooldown
@@ -59,15 +59,20 @@ public class StateAttack : CreatureState
 
     }
 
-    private void Attack()
+    private IEnumerator Attack()
     {
-        creature.controller.currentEnergy -= creature.controller.damage/5;
+        creature.controller.animator.SetTrigger("Attack");
+        creature.controller.agent.isStopped = true; // Stop moving while attacking
+        creature.controller.currentEnergy -= creature.controller.damage / 5;
         var targetComponent = target.GetComponent<BlopBehaviour>();
         if (targetComponent != null)
         {
             targetComponent.OnHit(creature.controller.damage, this.creature.gameObject);
             creature.controller.attackTimer = creature.controller.attackSpeed;
         }
+
+        yield return new WaitForSeconds(creature.controller.animator.GetCurrentAnimatorStateInfo(0).length);
+        creature.controller.agent.isStopped = false; // Resume moving after attack
     }
 
     

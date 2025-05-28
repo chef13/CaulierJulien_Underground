@@ -883,56 +883,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1168728732
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1168728734}
-  - component: {fileID: 1168728733}
-  m_Layer: 0
-  m_Name: FlaureSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1168728733
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1168728732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b5f14660c4bd154ab78f77bfd8cdef3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  flaureData:
-  - {fileID: 11400000, guid: 3f38b938c3bcd9b4f8d138198839b894, type: 2}
-  - {fileID: 11400000, guid: 172cbad2416e3a24f95b53a45403120b, type: 2}
-  - {fileID: 11400000, guid: 875272c3b34d58f4493b42592a3cecdc, type: 2}
-  - {fileID: 11400000, guid: 414783c8e8ca24342b954f06d321990c, type: 2}
-  flaurePrefab: {fileID: 0}
---- !u!4 &1168728734
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1168728732}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 74.52675, y: 12.20787, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1578010604
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,54 +1490,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!1 &2112757798
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2112757800}
-  - component: {fileID: 2112757799}
-  m_Layer: 0
-  m_Name: Plante
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2112757799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2112757798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1340d4769cb2e349861d6c10e6f5793, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  flaureData: {fileID: 0}
-  currentStage: 0
-  currentGrowthTime: 0
-  range: 2
---- !u!4 &2112757800
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2112757798}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 74.52675, y: 12.20787, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1597,5 +1499,3 @@ SceneRoots:
   - {fileID: 1578010608}
   - {fileID: 714486654}
   - {fileID: 105814237}
-  - {fileID: 1168728734}
-  - {fileID: 2112757800}

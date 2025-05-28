@@ -12,9 +12,10 @@ public class FactionSpawner : MonoBehaviour
     [SerializeField] private GameObject factionPrefab;
     [SerializeField] private GameObject spawnerPrefab;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    void Awake()
     {
-        for (int i = 0; i < spawners.Length; i++)
+         for (int i = 0; i < spawners.Length; i++)
 
             {
                 RoomInfo room;
@@ -34,28 +35,27 @@ public class FactionSpawner : MonoBehaviour
                 spawners[i] = spawner;
             }
     }
+    void Start()
+    {
+        for (int i = 0; i < spawners.Length; i++)
+        {
+            Transform spawnerPos = spawners[i].transform;
+            var faction = factionData[Random.Range(0, factionData.Length)];
+            SpawnFaction(faction, spawnerPos);
+        }
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (DungeonGenerator.Instance.navReady && !init)
-        {
-            init = true;
-        }
-
-        if (init && factions.Count < 4)
-        {
-            Transform spawnerPos = spawners[Random.Range(0, spawners.Length)].transform;
-            GameObject faction = Instantiate(factionPrefab, spawnerPos.position, Quaternion.identity);
-            faction.transform.SetParent(transform);
-            factions.Add(faction);
-        }
+       
     }
     
-    public void SpawnFaction(FactionData factionData, Transform transform)
+    public void SpawnFaction(FactionData factionData, Transform spawnTransform)
     {
-        GameObject faction = Instantiate(factionPrefab, transform.position, Quaternion.identity);
-        faction.GetComponent<FactionBehaviour>().factionData = factionData;
+        GameObject faction = Instantiate(factionPrefab, spawnTransform.position, Quaternion.identity);
+        var factionIa = faction.GetComponent<FactionBehaviour>();
+        factionIa.factionData = factionData;
         faction.name = factionData.factionName;
         factions.Add(faction);
     }

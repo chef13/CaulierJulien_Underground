@@ -5,7 +5,6 @@ using UnityEngine.AI;
 public class StateExplore : CreatureState
 {
     public NavMeshAgent agent;
-    private float exploreRange = 5f;
     private Vector2Int cardinalExplo;
     private RoomInfo targetRoom;
     private bool mission;

@@ -26,18 +26,34 @@ public class FactionBehaviour : MonoBehaviour
     }
 
     void Awake()
-    {
+    {   
+        GetFactionTypeInstance();
+        factionName = factionData.factionName;
 
         Vector2Int startPos = Vector2Int.RoundToInt(transform.position);
         Collider2D[] hits = Physics2D.OverlapCircleAll(startPos, 5, 15);
         SwitchType(new GobFaction(this));
     }
+
+        public FactionType GetFactionTypeInstance()
+    {
+        switch (factionData.factionTypeEnum)
+        {
+            case FactionData.FactionTypeEnum.Goblin:
+                return new GobFaction(this);
+            case FactionData.FactionTypeEnum.Lezard:
+                return new LezardFaction(this);
+            default:
+                return null;
+        }
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SpawnCreatureInRoom(transform.position, prefabCreature);
-        SpawnCreatureInRoom(transform.position, prefabCreature);
-        SpawnCreatureInRoom(transform.position, prefabCreature);
+        for (int i = 0; i < factionData.startingMembers; i++)
+        {
+            SpawnCreatureInRoom(transform.position, factionData.prefabCreature[Random.Range(0, factionData.prefabCreature.Length)]);
+        }
         foreach (GameObject member in members)
         {
             member.GetComponent<CreatureAI>().controller.currentFaction = this;
