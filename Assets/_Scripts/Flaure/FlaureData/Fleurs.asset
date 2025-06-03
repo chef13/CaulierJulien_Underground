@@ -13,14 +13,54 @@ MonoBehaviour:
   m_Name: Fleurs
   m_EditorClassIdentifier: 
   planteName: Fleur
+  flaureTypeEnum: 0
   sprites:
-  - {fileID: -6030531973334407656, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 1590204759890579865, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 816692587866295773, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -3740154654687573679, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 7701443798082501263, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 1239574188762954491, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 4490935887582196425, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 6693262700944515502, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  growingTime: 0
+  - {fileID: -7137703573457445642, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 1120072209133408562, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 8935973269305976665, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -5695011830644684264, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 3727213943776079239, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -4447037029534114201, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -4281507866331204011, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 8105150936559268549, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 8225774253846438407, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -6011391333845119457, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 2476326159804665293, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -6351125571439094877, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -8440589555766840327, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -2108708399984867609, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 7803643375917258250, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 7060690515930724421, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 7927647591229312076, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 990636449541357736, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -321396950496923004, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -5744745071069968877, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -8841786299683925347, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -7647330096044813350, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 1816458415082785314, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 7170805379355759019, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 5429733989642071794, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 7927654692714447369, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -933574598800400762, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -253902384328988980, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 878648697618030875, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 2253569538738361222, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -3894170748965558446, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -8776351404527014645, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 1370794702, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -495854160, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 939421949, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 744134171, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 954998974, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -1792463448, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 428219870, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 1189832066, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -2089931039, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: 461806824, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -1260747960, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  - {fileID: -544003412, guid: 0f7e5152b28f00a498ae7e3c267877dc, type: 3}
+  growingTime: 50
   growthStages: 1
+  EdibleStage: 1
+  edibleAmount: 2
+  range: 3

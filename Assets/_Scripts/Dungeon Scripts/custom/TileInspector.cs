@@ -79,19 +79,27 @@ public class TileInspector : MonoBehaviour
                 string type = tile.room != null ? "Room" : "Corridor";
                 string roomCenter = tile.room != null ? tile.room.index.ToString() : "None";
                 Debug.Log($"🟩 Tile at {cellPos} → Type: {type}, Room Center: {roomCenter}");
-                //inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd} \n";
+                inspectorTxt.text = $"tile pos : {tile.position}, floor : {tile.isFloor}, water :{tile.isWater}, nature: {tile.isNature}, dead end : {tile.isDeadEnd} \n";
+                if (tile.objects.Count > 0)
+                {
+                    inspectorTxt.text += $"Objects : {tile.objects.Count} \n";
+                    foreach (GameObject obj in tile.objects)
+                    {
+                        inspectorTxt.text += $"Object : {obj.name} \n";
+                    }
+                }
+                else
+                {
+                    inspectorTxt.text += "No objects found \n";
+                }
                 if (tile.room != null)
                 {
                     RoomInfo room = tile.room;
                     inspectorTxt.text += $"Room : {room.index}, tiles : {room.tiles.Count}";
-                    foreach (TileInfo t in room.tiles)
-                    {
-                        inspectorTxt.text += $"{t.position}";
-                    }
-                    HashSet<RoomInfo> connection = room.connectedRooms;
+                    List<RoomInfo> connection = room.connectedRooms;
                     foreach (RoomInfo r in connection)
                     {
-                        inspectorTxt.text += $"connected to : {r.index}";
+                        inspectorTxt.text += $"connected to : {r.index} \n";
                     }
                 }
 
@@ -99,14 +107,10 @@ public class TileInspector : MonoBehaviour
                 {
                     CorridorInfo corridor = tile.corridor;
                     inspectorTxt.text = inspectorTxt.text + $"Corridor : {corridor.tiles.Count}";
-                    foreach (TileInfo t in corridor.tiles)
-                    {
-                        inspectorTxt.text = inspectorTxt.text + $"{t.position}";
-                    }
                     HashSet<RoomInfo> connection = corridor.connectedRooms;
                     foreach (RoomInfo r in connection)
                     {
-                        inspectorTxt.text = inspectorTxt.text + $"connected to : {r.index}";
+                        inspectorTxt.text = inspectorTxt.text + $"connected to : {r.index} \n";
                     }
                 }
             }

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 public class StateFlee : CreatureState
 {
     private float fleeDistance = 5f;
-    private GameObject attacker;
-    public StateFlee(CreatureAI creature, GameObject attacker) : base(creature)
+    private CreatureController attacker;
+    public StateFlee(CreatureAI creature, CreatureController attacker) : base(creature)
     {
         this.attacker = attacker;
     }
@@ -14,18 +14,33 @@ public class StateFlee : CreatureState
     {
         Vector2 away = ((Vector2)creature.transform.position - FindRetreatPosition(attacker)).normalized;
         Vector2 destination = (Vector2)creature.transform.position + away * fleeDistance;
-        creature.controller.SetDestination(destination);
+        Controller.SetDestination(destination);
     }
 
     public override void Update()
     {
-        if (creature.controller.HasReachedDestination())
+        if (!Controller.hasDestination)
         {
-            creature.SwitchState(new StateExplore(creature));
+            DetectTreat(out attacker);
+            if (attacker != null)
+            {
+                Vector2 retreatPos = FindRetreatPosition(attacker);
+                Vector2 away = ((Vector2)creature.transform.position - retreatPos).normalized;
+                Vector2 destination = (Vector2)creature.transform.position + away * fleeDistance;
+                Controller.SetDestination(destination);
+            }
+            else
+            {
+                // No attacker detected, switch to idle or explore state
+                if (creature.previousState != null)
+                    creature.SwitchState(creature.previousState);
+                else
+                    creature.SwitchState(new StateIdle(creature));
+            }
         }
     }
 
-    private Vector2 FindRetreatPosition(GameObject attacker)
+    private Vector2 FindRetreatPosition(CreatureController attacker)
     {
         List<Vector2> potentialRetreats = new List<Vector2>();
         Vector2 currentPos = creature.transform.position;
@@ -36,7 +51,7 @@ public class StateFlee : CreatureState
         for (float dist = fleeDistance; dist > 0; dist -= 1f)
         {
             Vector2 checkPos = currentPos + fleeDir * dist;
-            if (creature.IsWalkable(checkPos))
+            if (IsWalkable(checkPos))
             {
                 potentialRetreats.Add(checkPos);
             }

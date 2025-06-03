@@ -13,10 +13,18 @@ MonoBehaviour:
   m_Name: Buisson
   m_EditorClassIdentifier: 
   planteName: Buisson
+  flaureTypeEnum: 2
   sprites:
-  - {fileID: 3629979574950366771, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 8641750974379979804, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -8361330192969407816, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 5422649322949147123, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  growingTime: 0
-  growthStages: 0
+  - {fileID: -5992768870205288619, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  - {fileID: 9128854120190108604, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  - {fileID: 6394624382199077764, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  - {fileID: -6438066980846332861, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  - {fileID: 3150758861011866036, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  - {fileID: 8948732476287537110, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  - {fileID: -4825235150783562531, guid: 8e3549306589de1428a1160512c46d22, type: 3}
+  growingTime: 100
+  growthStages: 6
+  EdibleStage: 4
+  edibleAmount: 5
+  range: 1
+  waterFactor: 1

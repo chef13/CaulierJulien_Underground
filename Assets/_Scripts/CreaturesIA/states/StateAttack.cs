@@ -1,78 +1,96 @@
 using System.Collections;
+using CrashKonijn.Agent.Core;
 using UnityEngine;
 
 public class StateAttack : CreatureState
 {
-    private GameObject target;
+    private CreatureController target;
 
-    public StateAttack(CreatureAI creature, GameObject target) : base(creature)
+    private Coroutine attackCoroutine;
+
+    public StateAttack(CreatureAI creature, CreatureController target) : base(creature)
     {
         this.target = target;
     }
 
     public override void Update()
     {
-        if (!target.activeInHierarchy)
+        if (target == null || !target.gameObject.activeInHierarchy || target.isDead)
         {
             target = null;
-            creature.SwitchState(new StateExplore(creature));
+            if (creature.previousState != null)
+            creature.SwitchState(creature.previousState);
+            else
+            creature.SwitchState(new StateIdle(creature));
+            
             return;
         }
 
         float distance = Vector2.Distance(creature.transform.position, target.transform.position);
         Vector2 directionToTarget = (target.transform.position - creature.transform.position).normalized;
 
-        if (creature.controller.attackTimer <= 0)
+        if (Controller.attackTimer <= 0)
         {
-            if (distance > creature.controller.attackRange)
+            if (distance > Controller.data.attackRange)
             {
                 // Move closer to get in range
-                creature.controller.SetDestination((Vector2)target.transform.position);
+                Controller.SetDestination((Vector2)target.transform.position);
             }
-            else
+            else if (attackCoroutine == null)
             {
-                creature.StartCoroutine(Attack());
+                attackCoroutine = creature.StartCoroutine(Attack(target));
             }
         }
         else // on cooldown
         {
-            if (distance < creature.controller.attackRange * 0.9f)
+            if (distance < Controller.data.attackRange * 0.9f)
             {
                 // Too close, back up a little
                 Vector2 retreatPos = (Vector2)creature.transform.position - directionToTarget * 1.5f;
-                creature.controller.SetDestination(retreatPos);
+                Controller.SetDestination(retreatPos);
             }
-            else if (distance > creature.controller.attackRange * 1.2f)
+            else if (distance > Controller.data.attackRange * 1.2f)
             {
                 // Too far, move a bit closer
                 Vector2 advancePos = (Vector2)creature.transform.position + directionToTarget * 1.5f;
-                creature.controller.SetDestination(advancePos);
+                Controller.SetDestination(advancePos);
             }
             else
             {
                 // Already in reasonable range — maybe strafe?
                 Vector2 strafeDir = Vector2.Perpendicular(directionToTarget).normalized;
                 Vector2 strafePos = (Vector2)creature.transform.position + strafeDir * 1f;
-                creature.controller.SetDestination(strafePos);
+                Controller.SetDestination(strafePos);
             }
         }
 
     }
 
-    private IEnumerator Attack()
+    private IEnumerator Attack(CreatureController target)
     {
-        creature.controller.animator.SetTrigger("Attack");
-        creature.controller.agent.isStopped = true; // Stop moving while attacking
-        creature.controller.currentEnergy -= creature.controller.damage / 5;
-        var targetComponent = target.GetComponent<BlopBehaviour>();
-        if (targetComponent != null)
-        {
-            targetComponent.OnHit(creature.controller.damage, this.creature.gameObject);
-            creature.controller.attackTimer = creature.controller.attackSpeed;
-        }
+            if (target.transform.position.x < creature.transform.position.x)
+            {
+                Controller.spriteRenderer.flipX = true;
+            }
+            else
+            {
+                Controller.spriteRenderer.flipX = false;
+            }
+            Controller.animator.SetTrigger("Attack");
+            Controller.agent.isStopped = true; // Stop moving while attacking
+            Controller.currentEnergy -= Controller.data.attackPower / 5;
 
-        yield return new WaitForSeconds(creature.controller.animator.GetCurrentAnimatorStateInfo(0).length);
-        creature.controller.agent.isStopped = false; // Resume moving after attack
+            target.OnHit( Controller, Controller.data.attackPower);
+            Controller.attackTimer = Controller.data.attackSpeed;
+            
+
+            yield return new WaitForSeconds(Controller.animator.GetCurrentAnimatorStateInfo(0).length);
+            Controller.agent.isStopped = false; // Resume moving after attack
+            if (target.isDead)
+            {
+                target = null; // Clear target if it's dead
+            }
+            attackCoroutine = null;
     }
 
     

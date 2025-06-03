@@ -39,7 +39,7 @@ public class BlueBlop : BlopType
          blop.StartCoroutine(DisableLineAfterDelay(blop.lineRenderer, 0.2f));
 
         var CreatureController = target.GetComponent<CreatureController>();
-        CreatureController.OnHit(blop.gameObject, blop.damage);
+       // CreatureController.OnHit(blop.gameObject, blop.damage);
 
     }
 

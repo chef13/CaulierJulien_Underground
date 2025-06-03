@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3540257494150306129
 Transform:
   m_ObjectHideFlags: 0
@@ -44,9 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04c0375788df470469e6d933579da5af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  factionData: {fileID: 11400000, guid: f87cf75ec987c604b8ddbc6f64c3734e, type: 2}
+  factionData: {fileID: 0}
   rooms: 0
   tiles: 0
+  foodResources: 0
   factionName: 
   members: []
   prefabCreature: {fileID: 3239829643432152457, guid: 1d24f3a1cfceeea4d848cf264073faac, type: 3}

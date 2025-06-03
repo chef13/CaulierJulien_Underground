@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8240313070611270047}
+  - component: {fileID: 1068608196284021906}
   - component: {fileID: 5503300554037909847}
   - component: {fileID: 8441640180612283931}
   - component: {fileID: 4530483807209779411}
-  - component: {fileID: 1068608196284021906}
   - component: {fileID: 7433787118684670183}
   m_Layer: 0
   m_Name: Gobelin
@@ -20,7 +20,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8240313070611270047
 Transform:
   m_ObjectHideFlags: 0
@@ -36,6 +36,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1068608196284021906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3239829643432152457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 0, y: 0}
+  room: 0
+  currentHP: 100
+  currentEnergy: 100
+  currentHunger: 0
+  stoppingDistance: 1
+  attackTimer: 0
+  destination: {x: 0, y: 0}
+  agent: {fileID: 0}
+  creatureAI: {fileID: 7433787118684670183}
+  data: {fileID: 11400000, guid: a8d19e04f73c8254abfdc3d6fd35550c, type: 2}
+  hasDestination: 0
+  currentFaction: {fileID: 0}
+  currentHungerState: 0
+  animator: {fileID: 0}
+  spriteRenderer: {fileID: 0}
 --- !u!212 &5503300554037909847
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -59,7 +87,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -80,7 +108,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 973503285005971891, guid: 7d4a615c72931d2478b339d6b63298a4, type: 3}
+  m_Sprite: {fileID: 2050859546, guid: 7baca7b8f2b528a429b64d72b3d65df8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -135,36 +163,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1068608196284021906
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3239829643432152457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  position: {x: 0, y: 0}
-  room: 0
-  maxHP: 100
-  currentHP: 100
-  damage: 10
-  attackRange: 0.5
-  attackSpeed: 1
-  attackTimer: 0
-  detectionRange: 2
-  maxEnergy: 100
-  currentEnergy: 100
-  stoppingDistance: 1
-  destination: {x: 0, y: 0}
-  creatureAI: {fileID: 7433787118684670183}
-  hasDestination: 0
-  currentFaction: {fileID: 0}
-  animator: {fileID: 0}
-  spriteRenderer: {fileID: 0}
 --- !u!114 &7433787118684670183
 MonoBehaviour:
   m_ObjectHideFlags: 0

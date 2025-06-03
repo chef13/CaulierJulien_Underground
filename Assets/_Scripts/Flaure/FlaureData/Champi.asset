@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c47bb73a11f86e47a6ebf7658a8cafe, type: 3}
   m_Name: Champi
   m_EditorClassIdentifier: 
-  planteName: 
+  planteName: Champi
+  flaureTypeEnum: 1
   sprites:
-  - {fileID: 5157213365759437321, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -7820805915247827607, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -2712033756849647313, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -2940523345140957816, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 745826998333002686, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 60604826, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  growingTime: 0
-  growthStages: 0
+  - {fileID: 2191985638207685893, guid: 8315862a751561a4e8b27866d1130bb6, type: 3}
+  - {fileID: -2677706763061151435, guid: 8315862a751561a4e8b27866d1130bb6, type: 3}
+  - {fileID: -1065559302771166782, guid: 8315862a751561a4e8b27866d1130bb6, type: 3}
+  growingTime: 50
+  growthStages: 2
+  EdibleStage: 1
+  edibleAmount: 5
+  range: 10
+  waterFactor: 2

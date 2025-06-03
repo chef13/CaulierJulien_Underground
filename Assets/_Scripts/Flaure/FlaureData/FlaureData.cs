@@ -7,13 +7,13 @@ public class FlaureData : ScriptableObject
 {
     public string planteName;
     public enum FlaureTypeEnum { Flower, Champi, Bush, Jonc }
-    public FlaureTypeEnum factionTypeEnum;
+    public FlaureTypeEnum flaureTypeEnum;
     public Sprite[] sprites;
     public float growingTime;
     public int growthStages;
+    public int EdibleStage;
+    public int edibleAmount;
     public int range;
-    public bool needWater;
-    public bool needNature;
-    public bool likeDeadEnds;
+    public float waterFactor = 1f;
    
 }

@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 385566939307675614}
   - component: {fileID: 2559558216228233304}
+  - component: {fileID: 316406069554569626}
   - component: {fileID: 2094250366574707654}
   - component: {fileID: 4565841570084464637}
-  - component: {fileID: 316406069554569626}
   - component: {fileID: 5453967112668249202}
   m_Layer: 0
   m_Name: Lezard
@@ -59,7 +59,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -91,6 +91,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &316406069554569626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4595724152688228843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 0, y: 0}
+  currentHP: 150
+  currentEnergy: 150
+  currentHunger: 0
+  stoppingDistance: 1
+  attackTimer: 0
+  destination: {x: 0, y: 0}
+  tempDestination: {x: 0, y: 0}
+  agent: {fileID: 0}
+  creatureAI: {fileID: 5453967112668249202}
+  data: {fileID: 11400000, guid: 2c8e71a75ae41b042b0b8a818ff57263, type: 2}
+  hasDestination: 0
+  sleeping: 0
+  isDead: 0
+  isCorpse: 0
+  basicNeed: 0
+  currentFaction: {fileID: 0}
+  currentHungerState: 0
+  currentEnergyState: 0
+  animator: {fileID: 0}
+  spriteRenderer: {fileID: 0}
 --- !u!195 &2094250366574707654
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -135,36 +168,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &316406069554569626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4595724152688228843}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  position: {x: 0, y: 0}
-  room: 0
-  maxHP: 150
-  currentHP: 150
-  damage: 10
-  attackRange: 1
-  attackSpeed: 1
-  attackTimer: 0
-  detectionRange: 3
-  maxEnergy: 150
-  currentEnergy: 150
-  stoppingDistance: 1
-  destination: {x: 0, y: 0}
-  creatureAI: {fileID: 5453967112668249202}
-  hasDestination: 0
-  currentFaction: {fileID: 0}
-  animator: {fileID: 0}
-  spriteRenderer: {fileID: 0}
 --- !u!114 &5453967112668249202
 MonoBehaviour:
   m_ObjectHideFlags: 0

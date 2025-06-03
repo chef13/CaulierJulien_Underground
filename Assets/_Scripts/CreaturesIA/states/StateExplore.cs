@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using System.Collections;
 
 public class StateExplore : CreatureState
 {
@@ -8,13 +9,14 @@ public class StateExplore : CreatureState
     private Vector2Int cardinalExplo;
     private RoomInfo targetRoom;
     private bool mission;
-
+    private Coroutine exploreCurrentRoomCoroutine;
     public StateExplore(CreatureAI creature) : base(creature) 
     {
     }
 
     public override void Enter()
     {
+        
         mission = false;
         agent = creature.GetComponent<NavMeshAgent>();
         cardinalExplo = Direction2D.cardinalDirectionsList[Random.Range(0, Direction2D.cardinalDirectionsList.Count)];
@@ -24,19 +26,19 @@ public class StateExplore : CreatureState
     {
 
 
-        if (!creature.controller.hasDestination)
+        if (!Controller.hasDestination)
         {
-            if (creature.controller.currentRoom != null && !creature.controller.currentFaction.knownRoomsDict.ContainsKey(creature.controller.currentRoom.index))
+            if (Controller.currentRoom != null && !Controller.currentFaction.knownRoomsDict.ContainsKey(Controller.currentRoom.index))
             {
-                ExploreCurrentRoom(creature.controller.currentRoom);
+                exploreCurrentRoomCoroutine = creature.StartCoroutine(ExploreCurrentRoom(Controller.currentRoom));
             }
-            else if (creature.controller.currentRoom == null || creature.controller.currentFaction.knownRoomsDict.ContainsKey(creature.controller.currentRoom.index))
+            else if (Controller.currentRoom == null || Controller.currentFaction.knownRoomsDict.ContainsKey(Controller.currentRoom.index))
             {
                 SetNewDestination();
             }
         }
 
-        if (DetectEnemy(out GameObject target))
+        if (DetectTreat(out CreatureController target))
         {
             creature.SwitchState(new StateAttack(creature, target));
         }
@@ -44,12 +46,12 @@ public class StateExplore : CreatureState
         if (mission == true)
         {
             // Pass the appropriate argument(s) to AskedForState, e.g. the creature or relevant state
-            creature.controller.currentFaction.AskedForState(creature.controller);
+            Controller.currentFaction.AskedForState(Controller);
 
         }
     }
 
-    public override void SetNewDestination()
+    public void SetNewDestination()
     {
         
         var neighboringRooms = GetNeighboringRooms();
@@ -62,9 +64,9 @@ public class StateExplore : CreatureState
 
                 Vector2 worldPos = new Vector2(randomNearbyTiles.position.x + 0.5f, randomNearbyTiles.position.y + 0.5f);
             targetRoom = randomNearby;
-                if (creature.IsWalkable(worldPos))
+                if (IsWalkable(worldPos))
                 {
-                    creature.controller.SetDestination(worldPos);
+                    Controller.SetDestination(worldPos);
                     return;
                 }
             
@@ -79,9 +81,9 @@ public class StateExplore : CreatureState
                 Vector2Int check = origin + cardinalExplo * 2;
                 Vector3 worldCheck = new Vector3(check.x + 0.5f, check.y + 0.5f);
 
-                if (creature.IsWalkable(worldCheck))
+                if (IsWalkable(worldCheck))
                 {
-                    creature.controller.SetDestination(new Vector2(worldCheck.x, worldCheck.y));
+                    Controller.SetDestination(new Vector2(worldCheck.x, worldCheck.y));
                     return;
                 }
                 else
@@ -97,8 +99,8 @@ public class StateExplore : CreatureState
     private List<RoomInfo> GetNeighboringRooms()
     {
         var nearby = new List<RoomInfo>();
-        var knownRooms = creature.controller.currentFaction.knownRoomsDict;
-        var currentRoom = creature.controller.currentRoom;
+        var knownRooms = Controller.currentFaction.knownRoomsDict;
+        var currentRoom = Controller.currentRoom;
 
         if (currentRoom != null && currentRoom.connectedRooms != null)
         {
@@ -110,7 +112,17 @@ public class StateExplore : CreatureState
                 }
             }
         }
-        else
+        if (Controller.currentTile.corridor != null)
+        {
+            foreach (RoomInfo connected in Controller.currentTile.corridor.connectedRooms)
+            {
+                if (!knownRooms.ContainsKey(connected.index))
+                {
+                    nearby.Add(connected);
+                }
+            }
+        }
+        if (nearby.Count == 0)
         {
             foreach (RoomInfo known in knownRooms.Values)
             {
@@ -130,32 +142,50 @@ public class StateExplore : CreatureState
     }
 
 
-        private void ExploreCurrentRoom(RoomInfo Room)
+    private IEnumerator ExploreCurrentRoom(RoomInfo Room)
     {
-        Debug.Log($"exploring room");
-        var faction = creature.controller.currentFaction;
-
-        // Find unexplored tiles
-        List<TileInfo> unexplored = new List<TileInfo>();
-        foreach (TileInfo tile in Room.tiles)
+        bool exploringRoom = true;
+        while (exploringRoom)
         {
-            if (!faction.knownTilesDict.ContainsKey(tile.position))
+            Debug.Log($"exploring room");
+            var faction = Controller.currentFaction;
+            bool roomIsKnown = true;
+            // Find unexplored tiles
+            List<TileInfo> unexplored = new List<TileInfo>();
+            foreach (TileInfo tile in Room.tiles)
             {
-                unexplored.Add(tile);
+                if (!faction.knownTilesDict.ContainsKey(tile.position))
+                {
+                    unexplored.Add(tile);
+                    roomIsKnown = false;
+                }
             }
+
+            if (roomIsKnown)
+            {
+                faction.knownRoomsDict[Room.index] = Room;
+                Debug.Log($"🧭 {faction.name} fully explored room at {Room.index}");
+                faction.rooms++;
+                yield break;
+            }
+
+            if (unexplored.Count > 0 && !Controller.hasDestination)
+            {
+                TileInfo targetTile = unexplored[Random.Range(0, unexplored.Count)];
+                Vector2 destination = new Vector2(targetTile.position.x + 0.5f, targetTile.position.y + 0.5f);
+                Controller.SetDestination(destination);
+            }
+
+            yield return new WaitForSeconds(0.5f);
         }
 
-        if (unexplored.Count > 0)
-        {
-            TileInfo targetTile = unexplored[Random.Range(0, unexplored.Count)];
-            Vector2 destination = new Vector2(targetTile.position.x + 0.5f, targetTile.position.y + 0.5f);
-            creature.controller.SetDestination(destination);
-        }
-        else if (!faction.knownRoomsDict.ContainsKey(Room.index))
-        {
-            faction.knownRoomsDict[Room.index] = Room;
-            Debug.Log($"🧭 {faction.name} fully explored room at {Room.index}");
-            faction.rooms++;
-        }
+        exploreCurrentRoomCoroutine = null;
+
+        /*if (unexplored.Count == 0 && !faction.knownRoomsDict.ContainsKey(Room.index))
+            {
+                faction.knownRoomsDict[Room.index] = Room;
+                Debug.Log($"🧭 {faction.name} fully explored room at {Room.index}");
+                faction.rooms++;
+            }*/
     }
 }

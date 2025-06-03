@@ -50,13 +50,15 @@ public class FactionSpawner : MonoBehaviour
     {
        
     }
-    
+
     public void SpawnFaction(FactionData factionData, Transform spawnTransform)
     {
         GameObject faction = Instantiate(factionPrefab, spawnTransform.position, Quaternion.identity);
+        faction.SetActive(false);
         var factionIa = faction.GetComponent<FactionBehaviour>();
         factionIa.factionData = factionData;
         faction.name = factionData.factionName;
         factions.Add(faction);
+        faction.SetActive(true);
     }
 }

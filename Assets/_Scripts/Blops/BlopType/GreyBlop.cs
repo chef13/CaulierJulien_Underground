@@ -23,7 +23,7 @@ public class GreyBlop : BlopType
     {
         // Logique d’attaque
         var CreatureController = target.GetComponent<CreatureController>();
-        CreatureController.OnHit(blop.gameObject, blop.damage);
+       // CreatureController.OnHit(blop.gameObject, blop.damage);
     }
 
     public override void OnHit(GameObject attacker)

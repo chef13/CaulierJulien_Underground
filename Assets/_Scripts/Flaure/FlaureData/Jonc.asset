@@ -13,10 +13,15 @@ MonoBehaviour:
   m_Name: Jonc
   m_EditorClassIdentifier: 
   planteName: Jonc
+  flaureTypeEnum: 3
   sprites:
-  - {fileID: 4535057937155683414, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -3577351669155110060, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: 5578637916655681978, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  - {fileID: -222679565, guid: 47ff55f6967cb4c4cbe00f31518d49be, type: 3}
-  growingTime: 4
-  growthStages: 4
+  - {fileID: 1114133206441147506, guid: 275902651767b0a468f481f2b7e1f458, type: 3}
+  - {fileID: 4435375199238701040, guid: 275902651767b0a468f481f2b7e1f458, type: 3}
+  - {fileID: 1753101000312350007, guid: 275902651767b0a468f481f2b7e1f458, type: 3}
+  - {fileID: 3552363706510796660, guid: 275902651767b0a468f481f2b7e1f458, type: 3}
+  growingTime: 70
+  growthStages: 3
+  EdibleStage: 2
+  edibleAmount: 15
+  range: 2
+  waterFactor: 1

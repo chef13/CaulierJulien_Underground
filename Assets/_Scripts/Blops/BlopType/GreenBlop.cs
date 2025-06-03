@@ -27,7 +27,7 @@ public class GreenBlop : BlopType
         blop.rb.AddForce(blop.direction * blop.speed, ForceMode2D.Impulse);
         // Logique d’attaque
         var CreatureController = target.GetComponent<CreatureController>();
-        CreatureController.OnHit(blop.gameObject, blop.damage);
+        //CreatureController.OnHit(blop.gameObject, blop.damage);
     }
 
     public override void OnHit(GameObject attacker)

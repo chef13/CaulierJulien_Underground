@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: GobData
   m_EditorClassIdentifier: 
   factionName: Gobs
+  factionTypeEnum: 0
   prefabCreature:
   - {fileID: 3239829643432152457, guid: 1d24f3a1cfceeea4d848cf264073faac, type: 3}
   startingMembers: 4
+  maxMembersPerHQ: 10

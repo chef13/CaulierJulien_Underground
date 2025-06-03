@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9022758629011960707}
   - component: {fileID: 280158217865327991}
   m_Layer: 0
-  m_Name: Spawners
+  m_Name: FactionSpawners
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

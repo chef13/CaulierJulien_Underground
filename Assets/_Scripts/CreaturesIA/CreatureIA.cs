@@ -4,9 +4,9 @@ using UnityEngine.AI;
 [RequireComponent(typeof(CreatureController))]
 public class CreatureAI : MonoBehaviour
 {
-    public CreatureState currentState;
-    public GameObject target, attacker;
-    [HideInInspector] public CreatureController controller;
+    public CreatureState currentState, previousState;
+    public CreatureController target, attacker;
+    private CreatureController controller;
 
     void Awake()
     {
@@ -15,32 +15,37 @@ public class CreatureAI : MonoBehaviour
 
     void Start()
     {
-        SwitchState(new StateExplore(this));
+        SwitchState(new StateIdle(this));
     }
 
     void Update()
     {
+        if (currentState is StateNeedRest && controller.currentEnergyState == CreatureController.energyState.Full)
+        {
+            SwitchState(previousState is StateNeedFood ? new StateIdle(this) : previousState);
+        }
+
         currentState?.Update();
+    }
+
+    public void OnExit()
+    {
+
     }
 
     public void SwitchState(CreatureState newState)
     {
+        if (currentState != null && currentState.GetType() == newState.GetType())
+        return;
+        previousState = currentState;
         currentState?.Exit();
         currentState = newState;
+        controller.currentIAstate = currentState.GetType().Name;
+        currentState.Controller = controller;
         currentState?.Enter();
     }
 
-    public bool IsWalkable(Vector2 position)
-    {
-        NavMeshHit hit;
-        // Check if the position is on the NavMesh within a small distance
-        if (NavMesh.SamplePosition(position, out hit, 1.0f, NavMesh.AllAreas))
-        {
-            // Ensure the sampled position is close to the original position
-            return Vector3.Distance(position, hit.position) < 0.5f;
-        }
-        return false;
-    }
+    
     private bool LowHealth()
     {
         // Remplacer par ton système de vie

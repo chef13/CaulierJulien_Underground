@@ -2,26 +2,28 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Data;
 using UnityEditor.Search;
-
-
+using System;
 public class TileInfo
 {
-    public Vector3Int position;
-    public GameObject tile;
-    public RoomInfo room;
-    public CorridorInfo corridor;
-    public bool isFloor;
-    public bool isWater;
-    public bool isNature;
-    public bool isDeadEnd;
+    [HideInInspector]public Vector3Int position;
+    [HideInInspector]public List<GameObject> objects = new List<GameObject>();
+    [HideInInspector]public List<CreatureController> creatures = new List<CreatureController>();
+    [HideInInspector]public RoomInfo room;
+    [HideInInspector]public CorridorInfo corridor;
+    [HideInInspector]public bool isFloor;
+    [HideInInspector]public bool isWater;
+    [HideInInspector]public bool isNature;
+    [HideInInspector]public bool isDeadEnd;
    
-    public string faction;
+    [HideInInspector]public string faction;
 
-     public TileInfo() { }
-    public TileInfo(Vector3Int pos, GameObject tileObject, RoomInfo room, bool isFloor, bool isWater, bool isNature, bool isDeadEnd)
+
+    public TileInfo() { }
+    public TileInfo(Vector3Int pos, RoomInfo room, bool isFloor, bool isWater, bool isNature, bool isDeadEnd)
     {
         this.position = pos;
-        this.tile = tileObject;
+        objects = new List<GameObject>();
+        creatures = new List<CreatureController>();
         this.room = room;
         this.isFloor = isFloor;
         this.isWater = isWater;
@@ -30,33 +32,29 @@ public class TileInfo
 
     }
 }
-
-
-    public class RoomInfo
+public class RoomInfo
 {
-    public BoundsInt roomBounds;
-    public Vector2Int index;
-    public List<TileInfo> tiles;
-    public string faction;
-    public List<CorridorInfo> corridors = new List<CorridorInfo>();
+    [HideInInspector] public BoundsInt roomBounds;
+    [HideInInspector] public Vector2Int index;
+    [HideInInspector] public List<TileInfo> tiles;
+    [HideInInspector] public FactionBehaviour faction;
+    [HideInInspector] public List<CorridorInfo> corridors = new List<CorridorInfo>();
 
-    public HashSet<RoomInfo> connectedRooms = new HashSet<RoomInfo>();
+    [HideInInspector] public List<RoomInfo> connectedRooms = new List<RoomInfo>();
 
-    public RoomInfo(BoundsInt pos, List<TileInfo> tiles = null, string factionName = null, HashSet<RoomInfo> connect = null)
+    public RoomInfo()
     {
-            this.roomBounds = pos;
-            this.tiles = tiles ?? new List<TileInfo>();
-            this.faction = factionName ?? "None";
-            this.connectedRooms = connect ?? new HashSet<RoomInfo>();
+
+        this.tiles = new List<TileInfo>();
+        this.connectedRooms = new List<RoomInfo>();
     }
 }
-
 public class CorridorInfo
 {
-    public List<TileInfo> tiles;
-    public HashSet<RoomInfo> connectedRooms = new HashSet<RoomInfo>();
-    public bool connecting;
-    public bool deadend;
+    [HideInInspector]public List<TileInfo> tiles;
+    [HideInInspector]public HashSet<RoomInfo> connectedRooms = new HashSet<RoomInfo>();
+    [HideInInspector]public bool connecting;
+    [HideInInspector]public bool deadend;
 
 
     public CorridorInfo()

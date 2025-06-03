@@ -1,49 +1,40 @@
 fileFormatVersion: 2
-guid: 7d4a615c72931d2478b339d6b63298a4
+guid: 7baca7b8f2b528a429b64d72b3d65df8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 973503285005971891
-    second: gobelin-Sheet 1_0
+      213: -7562685793210210013
+    second: gobelin+outline-Sheet_0
   - first:
-      213: -2862090954697319843
-    second: gobelin-Sheet 1_1
+      213: -7508376220885172532
+    second: gobelin+outline-Sheet_1
   - first:
-      213: -4645464440814707958
-    second: gobelin-Sheet 1_2
+      213: 3473933705972999759
+    second: gobelin+outline-Sheet_2
   - first:
-      213: -9144381758514630104
-    second: gobelin-Sheet 1_3
+      213: -6142664016493549450
+    second: gobelin+outline-Sheet_3
   - first:
-      213: -4350368691364588474
-    second: gobelin-Sheet 1_4
+      213: -6807029595592201088
+    second: gobelin+outline-Sheet_4
   - first:
-      213: -2032743337247833084
-    second: gobelin-Sheet 1_5
+      213: -8331113228527819280
+    second: gobelin+outline-Sheet_5
   - first:
-      213: -5460182300362293006
-    second: gobelin-Sheet 1_6
+      213: -4899494815416838689
+    second: gobelin+outline-Sheet_6
   - first:
-      213: 5169334388517764518
-    second: gobelin-Sheet 1_7
+      213: 7246322956417728093
+    second: gobelin+outline-Sheet_7
   - first:
-      213: 919927730819841662
-    second: gobelin-Sheet 1_8
+      213: 5829258050552452803
+    second: gobelin+outline-Sheet_8
   - first:
-      213: -4007226009057551153
-    second: gobelin-Sheet 1_9
+      213: 4493538621393288207
+    second: gobelin+outline-Sheet_9
   - first:
-      213: 1178444137567220770
-    second: gobelin-Sheet 1_10
-  - first:
-      213: -6468041227828790430
-    second: gobelin-Sheet 1_11
-  - first:
-      213: 665088304202365014
-    second: gobelin-Sheet 1_12
-  - first:
-      213: 8268677942853455652
-    second: gobelin-Sheet 1_13
+      213: 477248941159272763
+    second: gobelin+outline-Sheet_10
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -165,7 +156,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gobelin-Sheet 1_0
+      name: gobelin-Sheet1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -178,16 +169,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3b1f4727414928d00800000000000000
-      internalID: 973503285005971891
+      spriteID: 4ca84bd92d6eea6438addcef31e31cab
+      internalID: 2050859546
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_1
+      name: gobelin-Sheet1_1
       rect:
         serializedVersion: 2
         x: 32
@@ -200,16 +191,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d5a5862d07fc748d0800000000000000
-      internalID: -2862090954697319843
+      spriteID: 568b879093aca094b9e86e78d7fa8d6e
+      internalID: -1634179526
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_2
+      name: gobelin-Sheet1_2
       rect:
         serializedVersion: 2
         x: 64
@@ -222,16 +213,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a0bd78c24bef78fb0800000000000000
-      internalID: -4645464440814707958
+      spriteID: b4d84d548c5dd7b4abc2ad63b54f309f
+      internalID: 1320049078
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_3
+      name: gobelin-Sheet1_3
       rect:
         serializedVersion: 2
         x: 96
@@ -244,16 +235,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8227c295d31a81180800000000000000
-      internalID: -9144381758514630104
+      spriteID: d0a046ca4664052438ae115b97538de9
+      internalID: 187156123
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_4
+      name: gobelin-Sheet1_4
       rect:
         serializedVersion: 2
         x: 0
@@ -266,16 +257,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6449b3579b260a3c0800000000000000
-      internalID: -4350368691364588474
+      spriteID: c535e907960322e45b7f758c85f57646
+      internalID: 1092845308
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_5
+      name: gobelin-Sheet1_5
       rect:
         serializedVersion: 2
         x: 32
@@ -288,16 +279,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 4040dc764be3ac3e0800000000000000
-      internalID: -2032743337247833084
+      spriteID: 3ee44cb86a261994b8eae646e39ea517
+      internalID: 1638643920
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_6
+      name: gobelin-Sheet1_6
       rect:
         serializedVersion: 2
         x: 64
@@ -310,16 +301,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2f0c70a80298934b0800000000000000
-      internalID: -5460182300362293006
+      spriteID: 9365318a610f48747ab9911ebbd8f758
+      internalID: -1052860789
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_7
+      name: gobelin-Sheet1_7
       rect:
         serializedVersion: 2
         x: 96
@@ -332,16 +323,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6adffc0fc3a2db740800000000000000
-      internalID: 5169334388517764518
+      spriteID: 1e78ec16261d32a4ca7b195eaef99956
+      internalID: 11446217
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_8
+      name: gobelin-Sheet1_8
       rect:
         serializedVersion: 2
         x: 0
@@ -354,16 +345,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e7e3c8ea56d34cc00800000000000000
-      internalID: 919927730819841662
+      spriteID: 8cb34f4fcc46427439136cd5bf2a3a77
+      internalID: -1792135392
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_9
+      name: gobelin-Sheet1_9
       rect:
         serializedVersion: 2
         x: 32
@@ -376,16 +367,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: fcc1b6b0d297368c0800000000000000
-      internalID: -4007226009057551153
+      spriteID: 2f0812c53ac2eac48aa49788ddce98d3
+      internalID: 971247236
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_10
+      name: gobelin-Sheet1_10
       rect:
         serializedVersion: 2
         x: 64
@@ -398,16 +389,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 224f55f03bcaa5010800000000000000
-      internalID: 1178444137567220770
+      spriteID: 8ab9e727f2974bf4eae266454c9dacfb
+      internalID: 349269013
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_11
+      name: gobelin-Sheet1_11
       rect:
         serializedVersion: 2
         x: 96
@@ -420,16 +411,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 26bfeaeb5c6ec36a0800000000000000
-      internalID: -6468041227828790430
+      spriteID: 2efd042e23a545040a2e7b78d0662825
+      internalID: -1121190299
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_12
+      name: gobelin-Sheet1_12
       rect:
         serializedVersion: 2
         x: 0
@@ -442,16 +433,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 658bf34f94eda3900800000000000000
-      internalID: 665088304202365014
+      spriteID: fc7782f00527eff4c9e8d35de9cb5347
+      internalID: -469076431
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_13
+      name: gobelin-Sheet1_13
       rect:
         serializedVersion: 2
         x: 32
@@ -464,16 +455,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 42f43e997ce30c270800000000000000
-      internalID: 8268677942853455652
+      spriteID: c522b6eb83973354fb1cc1ae1a87b145
+      internalID: -490808610
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: gobelin-Sheet 1_14
+      name: gobelin-Sheet1_14
       rect:
         serializedVersion: 2
         x: 64
@@ -488,8 +479,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4981f1e9983c209448eb520fc7730f96
-      internalID: -1034119371
+      spriteID: 762ab5bcb95553e4cb40929b4bdf7f03
+      internalID: -1133142568
       vertices: []
       indices: 
       edges: []
@@ -498,7 +489,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 0eab6ebe9928fee4f9cb00337698eb09
+    spriteID: ea37f89b5b7adcd43992aca1339777e5
     internalID: 0
     vertices: []
     indices: 
@@ -510,21 +501,21 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      gobelin-Sheet 1_0: 973503285005971891
-      gobelin-Sheet 1_1: -2862090954697319843
-      gobelin-Sheet 1_10: 1178444137567220770
-      gobelin-Sheet 1_11: -6468041227828790430
-      gobelin-Sheet 1_12: 665088304202365014
-      gobelin-Sheet 1_13: 8268677942853455652
-      gobelin-Sheet 1_14: -1034119371
-      gobelin-Sheet 1_2: -4645464440814707958
-      gobelin-Sheet 1_3: -9144381758514630104
-      gobelin-Sheet 1_4: -4350368691364588474
-      gobelin-Sheet 1_5: -2032743337247833084
-      gobelin-Sheet 1_6: -5460182300362293006
-      gobelin-Sheet 1_7: 5169334388517764518
-      gobelin-Sheet 1_8: 919927730819841662
-      gobelin-Sheet 1_9: -4007226009057551153
+      gobelin-Sheet1_0: 2050859546
+      gobelin-Sheet1_1: -1634179526
+      gobelin-Sheet1_10: 349269013
+      gobelin-Sheet1_11: -1121190299
+      gobelin-Sheet1_12: -469076431
+      gobelin-Sheet1_13: -490808610
+      gobelin-Sheet1_14: -1133142568
+      gobelin-Sheet1_2: 1320049078
+      gobelin-Sheet1_3: 187156123
+      gobelin-Sheet1_4: 1092845308
+      gobelin-Sheet1_5: 1638643920
+      gobelin-Sheet1_6: -1052860789
+      gobelin-Sheet1_7: 11446217
+      gobelin-Sheet1_8: -1792135392
+      gobelin-Sheet1_9: 971247236
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
