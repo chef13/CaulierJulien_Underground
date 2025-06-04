@@ -20,7 +20,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &385566939307675614
 Transform:
   m_ObjectHideFlags: 0
@@ -103,10 +103,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentIAstate: 
+  currentGoal: 
   position: {x: 0, y: 0}
   currentHP: 150
   currentEnergy: 150
   currentHunger: 0
+  currentResources: 0
   stoppingDistance: 1
   attackTimer: 0
   destination: {x: 0, y: 0}
@@ -120,8 +123,11 @@ MonoBehaviour:
   isCorpse: 0
   basicNeed: 0
   currentFaction: {fileID: 0}
+  currentTileAround: 0
   currentHungerState: 0
+  foodTarget: 0
   currentEnergyState: 0
+  creaturesInRange: []
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
 --- !u!195 &2094250366574707654
@@ -182,4 +188,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   attacker: {fileID: 0}
-  controller: {fileID: 0}

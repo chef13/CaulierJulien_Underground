@@ -58,7 +58,7 @@ public class StateExplore : CreatureState
 
         if (neighboringRooms.Count > 0)
         {
-            Debug.Log($"getting new room loc");
+            //Debug.Log($"getting new room loc");
             var randomNearby = neighboringRooms[Random.Range(0, neighboringRooms.Count)];
             var randomNearbyTiles = randomNearby.tiles[Random.Range(0, randomNearby.tiles.Count)];
 
@@ -73,7 +73,7 @@ public class StateExplore : CreatureState
         }
         else
         {
-            Debug.Log($"getting new random loc");
+            //Debug.Log($"getting new random loc");
             // Fallback: pick random direction and walk
             Vector2Int origin = Vector2Int.RoundToInt(creature.transform.position);
             for (int i = 0; i < 4; i++)
@@ -93,7 +93,7 @@ public class StateExplore : CreatureState
             }
         }
 
-        Debug.LogWarning("⚠️ No valid destination found.");
+       // Debug.LogWarning("⚠️ No valid destination found.");
     }
 
     private List<RoomInfo> GetNeighboringRooms()
@@ -147,7 +147,7 @@ public class StateExplore : CreatureState
         bool exploringRoom = true;
         while (exploringRoom)
         {
-            Debug.Log($"exploring room");
+            //Debug.Log($"exploring room");
             var faction = Controller.currentFaction;
             bool roomIsKnown = true;
             // Find unexplored tiles
@@ -161,10 +161,10 @@ public class StateExplore : CreatureState
                 }
             }
 
-            if (roomIsKnown)
+            if (roomIsKnown && !faction.knownRoomsDict.ContainsKey(Room.index))
             {
                 faction.knownRoomsDict[Room.index] = Room;
-                Debug.Log($"🧭 {faction.name} fully explored room at {Room.index}");
+                //Debug.Log($"🧭 {faction.name} fully explored room at {Room.index}");
                 faction.rooms++;
                 yield break;
             }

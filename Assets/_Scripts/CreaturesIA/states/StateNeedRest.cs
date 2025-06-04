@@ -52,7 +52,7 @@ public class StateNeedRest : CreatureState
 
         if (Controller.currentEnergyState != CreatureController.energyState.Full )
 
-            if (!Controller.hasDestination && Controller.currentRoom.faction == Controller.currentFaction && !Controller.sleeping)
+            if (!Controller.hasDestination && Controller.currentRoom != null && Controller.currentRoom.faction == Controller.currentFaction && !Controller.sleeping)
             {
                 //bool foundFactionTileAround = false;
                 for (int v = -1; v < 2; v++)

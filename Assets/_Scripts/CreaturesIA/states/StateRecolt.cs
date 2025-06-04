@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class StateRecolt : CreatureState
 {
 
-    bool recoltTarget = false;
-    bool lookingForRessource = false;
+
+    
     public StateRecolt(CreatureAI creature) : base(creature)
     {
     }
@@ -17,41 +17,53 @@ public class StateRecolt : CreatureState
 
     public override void Update()
     {
+
+        if (DetectTreat(out CreatureController target))
+                {
+                    creature.SwitchState(new StateAttack(creature, target));
+                }
+
+            
+        Debug.Log($"{Controller.name} is in Recolt state");
         if (Controller.currentResources >= Controller.data.maxEnergy / 2)
         {
-            lookingForRessource = false;
+            Controller.lookingForRessource = false;
         }
         else
         {
-            lookingForRessource = true;
+            Controller.lookingForRessource = true;
         }
 
-        if (!Controller.hasDestination && !lookingForRessource)
+        if (!Controller.hasDestination && !Controller.lookingForRessource)
         {
             var closerHQ = GetCloserHQ();
             TileInfo destinationTile = closerHQ.tiles[Random.Range(0, closerHQ.tiles.Count)];
             Controller.SetDestination(new Vector2Int(destinationTile.position.x, destinationTile.position.y));
         }
 
-        if (lookingForRessource && !recoltTarget)
+        if (Controller.lookingForRessource && !Controller.recoltTarget && !Controller.foodTarget)
         {
+            Debug.Log($"{Controller.name} looking for resources");
             if (Controller.data.carnivor)
             {
                 CheckCarnivor();
+                
+                Debug.Log($"{Controller.name} checking for carnivor targets");
             }
-            if (Controller.data.herbivor && !recoltTarget)
+            if (Controller.data.herbivor && !Controller.recoltTarget)
             {
                 CheckHerbivor();
+                Debug.Log($"{Controller.name} checking for herbivor targets");
             }
         }
 
-        if (!Controller.hasDestination && lookingForRessource)
+        if (!Controller.hasDestination && Controller.lookingForRessource)
         {
             if (Controller.data.carnivor)
             {
                 HuntPrey();
             }
-            if (Controller.data.herbivor)
+            if (!Controller.hasDestination && Controller.data.herbivor)
             {
                 SearchForVegetable();
             }
@@ -62,7 +74,7 @@ public class StateRecolt : CreatureState
 
     public IEnumerator GoRecoltTarget(GameObject target)
     {
-        while (recoltTarget)
+        while (Controller.recoltTarget)
         {
             //Debug.Log($"{name} GoEatTarget coroutine started for {target?.name}");
             Vector2 previousDestination = Controller.destination;
@@ -72,12 +84,12 @@ public class StateRecolt : CreatureState
             if (target == null || !target.activeInHierarchy)
             {
                 target = null;
-                recoltTarget = false;
+                Controller.recoltTarget = false;
 
                 //Debug.LogWarning($"{name} tried to eat a target that is null or inactive.");
                 yield break;
             }
-            yield return new WaitUntil(() => !Controller.hasDestination || Vector2.Distance(Controller.transform.position, Controller.tempDestination) <= 1f);
+            yield return new WaitUntil(() => !Controller.hasDestination || Vector2.Distance(Controller.transform.position, Controller.tempDestination) <= 1.5f);
 
             if (target.GetComponent<FlaureBehaviour>() != null)
             {
@@ -89,7 +101,7 @@ public class StateRecolt : CreatureState
                 Controller.agent.isStopped = false; // Resume moving after attack
                 flaure.IsEaten();
                 Controller.currentResources += flaure.flaureData.edibleAmount;
-                recoltTarget = false;
+                Controller.recoltTarget = false;
             }
             if (target.GetComponent<CreatureController>() != null)
             {
@@ -101,7 +113,7 @@ public class StateRecolt : CreatureState
                 Controller.agent.isStopped = false; // Resume moving after attack
                 creature.IsEaten();
                 Controller.currentResources += creature.data.maxLife / 2;
-                recoltTarget = false;
+                Controller.recoltTarget = false;
             }
             Controller.tempDestination = Vector2.zero;
             Controller.SetDestination(previousDestination);
@@ -111,252 +123,74 @@ public class StateRecolt : CreatureState
 
     private void HuntPrey()
     {
-        List<TileInfo> tileWithPrey = new List<TileInfo>();
-        if (Controller.currentRoom == null)
+        CreatureController prey = null;
+        prey = CheckForRoomWith(prey, 0);
+        if (prey == null)
         {
-            Debug.LogWarning("Current room is null, cannot hunt prey.");
+            prey = CheckForRoomWith(prey, 1);
+        }
+        if (prey == null)
+        {
+           // prey = CheckForRoomWith(prey, 2);
+        }
+        if (prey == null)
+        {
+            RoomInfo randomRoom = null;
+            if (Controller.currentRoom != null)
+            {
+                randomRoom = Controller.currentRoom.connectedRooms[Random.Range(0, Controller.currentRoom.connectedRooms.Count)];
+            }
+            else 
+            {
+                randomRoom = Controller.currentTile.corridor.connectedRooms[Random.Range(0, Controller.currentTile.corridor.connectedRooms.Count)];
+            }
+            TileInfo randomTile = randomRoom.tiles[Random.Range(0, randomRoom.tiles.Count)];
+            Controller.SetDestination(new Vector2(randomTile.position.x, randomTile.position.y));
             return;
         }
-        tileWithPrey.Add(Controller.currentTile);
-
-        for (int i = 0; i < Controller.currentRoom.tiles.Count; i++)
+        else
         {
-            TileInfo tile = Controller.currentRoom.tiles[i];
-            if (tile.creatures != null && tile.creatures.Count > 0)
-            {
-                foreach (var obj in tile.creatures)
-                {
-                    CreatureController prey = obj.GetComponent<CreatureController>();
-                    if (prey != null && prey.currentFaction != Controller.currentFaction)
-                    {
-                        if (prey.isDead && !prey.isCorpse)
-                        {
-                            return;
-                        }
-                        else if (!prey.isCorpse && !prey.isDead || prey.isDead && prey.isCorpse)
-                            tileWithPrey.Add(tile);
-
-                    }
-                }
-            }
+            Controller.SetDestination(new Vector2(prey.transform.position.x, prey.transform.position.y));
         }
-        if (tileWithPrey.Count == 0)
-        {
-            for (int i = -1; i < 2; i++)
-            {
-                for (int j = -1; j < 2; j++)
-                {
-                    Vector2Int roomPosCheck = new Vector2Int(Controller.currentRoom.index.x + i, Controller.currentRoom.index.y + j);
-                    if (DungeonGenerator.Instance.roomsMap.TryGetValue(roomPosCheck, out RoomInfo room))
-                    {
-                        if (Controller.currentFaction.knownRoomsDict.ContainsKey(room.index))
-                        {
-                            for (int f = 0; f < room.tiles.Count; f++)
-                            {
-                                TileInfo tile = room.tiles[f];
-                                if (tile.objects != null && tile.creatures.Count > 0)
-                                {
-                                    foreach (var obj in tile.creatures)
-                                    {
-                                        CreatureController prey = obj.GetComponent<CreatureController>();
-                                        if (prey != null && prey.currentFaction != Controller.currentFaction)
-                                        {
-                                            if (prey.isDead && !prey.isCorpse)
-                                            {
-                                                return;
-                                            }
-                                            else if (!prey.isCorpse && !prey.isDead || prey.isDead && prey.isCorpse)
-                                                tileWithPrey.Add(tile);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-        if (tileWithPrey.Count == 0)
-        {
-            for (int i = -2; i < 3; i++)
-            {
-                for (int j = -2; j < 3; j++)
-                {
-                    Vector2Int roomPosCheck = new Vector2Int(Controller.currentRoom.index.x + i, Controller.currentRoom.index.y + j);
-                    if (DungeonGenerator.Instance.roomsMap.TryGetValue(roomPosCheck, out RoomInfo room))
-                    {
-                        if (Controller.currentFaction.knownRoomsDict.ContainsKey(room.index))
-                        {
-                            for (int f = 0; f < room.tiles.Count; f++)
-                            {
-                                TileInfo tile = room.tiles[f];
-                                if (tile.objects != null && tile.creatures.Count > 0)
-                                {
-                                    foreach (var obj in tile.creatures)
-                                    {
-                                        CreatureController prey = obj.GetComponent<CreatureController>();
-                                        if (creature != null && prey.currentFaction != Controller.currentFaction)
-                                        {
-                                            if (prey.isDead && !prey.isCorpse)
-                                            {
-                                                return;
-                                            }
-                                            else if (!prey.isCorpse && !prey.isDead || prey.isDead && prey.isCorpse)
-                                                tileWithPrey.Add(tile);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-
-        if (tileWithPrey.Count == 0)
-        {
-            Debug.Log("No food found, switching to explore state.");
-            creature.SwitchState(new StateExplore(creature));
-            return;
-        }
-        float minDistance = 1000;
-        TileInfo closestTileWithPrey = null;
-        for (int i = 0; i < tileWithPrey.Count; i++)
-        {
-            float distanceForFood =
-                Controller.GetPathDistance(
-                    Controller.agent, tileWithPrey[i].position);
-            if (distanceForFood < minDistance)
-            {
-                minDistance = distanceForFood;
-                closestTileWithPrey = tileWithPrey[i];
-            }
-        }
-
-        Controller.SetDestination(new Vector2Int(closestTileWithPrey.position.x, closestTileWithPrey.position.y));
     }
 
     public void SearchForVegetable()
     {
-        List<TileInfo> TileWithFood = new List<TileInfo>(); ;
-        for (int i = 0; i < Controller.currentRoom.tiles.Count; i++)
+        FlaureBehaviour prey = null;
+        prey = CheckForRoomWith(prey, 0);
+        if (prey == null)
         {
-            TileInfo tile = Controller.currentRoom.tiles[i];
-            if (tile.objects != null && tile.objects.Count > 0)
-            {
-                foreach (var obj in tile.objects)
-                {
-                    FlaureBehaviour flaure = obj.GetComponent<FlaureBehaviour>();
-                    if (flaure != null && flaure.isEdible && Controller.data.herbivor)
-                    {
-                        TileWithFood.Add(tile);
-                    }
-                }
-            }
+            prey = CheckForRoomWith(prey, 1);
         }
-        if (TileWithFood.Count == 0)
+        if (prey == null)
         {
-            for (int i = -1; i < 2; i++)
-            {
-                for (int j = -1; j < 2; j++)
-                {
-                    Vector2Int roomPosCheck = new Vector2Int(Controller.currentRoom.index.x + i, Controller.currentRoom.index.y + j);
-                    if (DungeonGenerator.Instance.roomsMap.TryGetValue(roomPosCheck, out RoomInfo room))
-                    {
-                        if (Controller.currentFaction.knownRoomsDict.ContainsKey(room.index))
-                        {
-                            for (int f = 0; f < room.tiles.Count; f++)
-                            {
-                                TileInfo tile = room.tiles[f];
-                                if (tile.objects != null && tile.objects.Count > 0)
-                                {
-                                    foreach (var obj in tile.objects)
-                                    {
-                                        FlaureBehaviour flaure = obj.GetComponent<FlaureBehaviour>();
-                                        if (flaure != null && flaure.isEdible && Controller.data.herbivor)
-                                        {
-                                            TileWithFood.Add(tile);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
+            //prey = CheckForRoomWith(prey, 2);
         }
-        if (TileWithFood.Count == 0)
+        if (prey == null)
         {
-            for (int i = -2; i < 3; i++)
+            RoomInfo randomRoom = null;
+            if (Controller.currentRoom != null)
             {
-                for (int j = -2; j < 3; j++)
-                {
-                    Vector2Int roomPosCheck = new Vector2Int(Controller.currentRoom.index.x + i, Controller.currentRoom.index.y + j);
-                    if (DungeonGenerator.Instance.roomsMap.TryGetValue(roomPosCheck, out RoomInfo room))
-                    {
-                        if (Controller.currentFaction.knownRoomsDict.ContainsKey(room.index))
-                        {
-                            for (int f = 0; f < room.tiles.Count; f++)
-                            {
-                                TileInfo tile = room.tiles[f];
-                                if (tile.objects != null && tile.objects.Count > 0)
-                                {
-                                    foreach (var obj in tile.objects)
-                                    {
-                                        FlaureBehaviour flaure = obj.GetComponent<FlaureBehaviour>();
-                                        if (flaure != null && flaure.isEdible && Controller.data.herbivor)
-                                        {
-                                            TileWithFood.Add(tile);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
+                randomRoom = Controller.currentRoom.connectedRooms[Random.Range(0, Controller.currentRoom.connectedRooms.Count)];
             }
-        }
-
-        if (TileWithFood.Count == 0)
-        {
-            Debug.Log("No food found, switching to explore state.");
-            creature.SwitchState(new StateExplore(creature));
+            else 
+            {
+                randomRoom = Controller.currentTile.corridor.connectedRooms[Random.Range(0, Controller.currentTile.corridor.connectedRooms.Count)];
+            }
+            TileInfo randomTile = randomRoom.tiles[Random.Range(0, randomRoom.tiles.Count)];
+            Controller.SetDestination(new Vector2(randomTile.position.x, randomTile.position.y));
             return;
         }
-        float minDistance = 1000;
-        TileInfo closestTile = null;
-        for (int i = 0; i < TileWithFood.Count; i++)
-        {
-            float distanceForFood =
-                Controller.GetPathDistance(
-                    Controller.agent, TileWithFood[i].position);
-            if (distanceForFood < minDistance)
-            {
-                minDistance = distanceForFood;
-                closestTile = TileWithFood[i];
-            }
-        }
-
-        if (DetectTreat(out CreatureController prey) != null)
-        {
-            Debug.Log("Found a prey, switching to fight state.");
-            creature.SwitchState(new StateAttack(creature, prey));
-            return;
-        }
-        Controller.SetDestination(new Vector2Int(closestTile.position.x, closestTile.position.y));
+        Controller.SetDestination(new Vector2(prey.transform.position.x, prey.transform.position.y));
     }
     
 
     private void CheckHerbivor()
     {
         //Debug.Log($"{name}"  + " checking for herbivor targets");
-            for (int s = 0; s < Controller.surroundingTiles.Count; s++)
+            for (int s = 0; s < Controller._surroundingTiles.Count; s++)
             {
-                var tile = Controller.surroundingTiles[s];
+                var tile = Controller._surroundingTiles[s];
                 if (tile.objects != null && tile.objects.Count > 0)
                 {
                     for (int f = 0; f < tile.objects.Count; f++)
@@ -364,7 +198,7 @@ public class StateRecolt : CreatureState
                         var flaureComp = tile.objects[f].GetComponent<FlaureBehaviour>();
                         if (flaureComp != null && flaureComp.isEdible)
                         {
-                            recoltTarget = true;
+                            Controller.recoltTarget = true;
                            // Debug.Log($"{name} found edible Flaure {flaureComp.name} at {tile.position}");
                             Controller.StartCoroutine(GoRecoltTarget(tile.objects[f]));
                             break;
@@ -377,19 +211,27 @@ public class StateRecolt : CreatureState
     }
     private void CheckCarnivor()
     {
-            //Debug.Log($"{name}"  + " checking for carnivor targets");
-            for (int i = 0; i < Controller.CreaturesInRange.Count; i++)
-            {
-                
-                var creature = Controller.CreaturesInRange[i];
-                if (creature != null && creature.isDead && creature.isCorpse)
-                {
-                    //Debug.Log($"Found dead creature {creature.name} at {creature.currentTile.position}");
-                    recoltTarget = true;
-                    Controller.StartCoroutine(GoRecoltTarget(creature.gameObject));
-                    break;
-                }
+        //Debug.Log($"{name}"  + " checking for carnivor targets");
+        for (int i = 0; i < Controller.CreaturesInRange.Count; i++)
+        {
 
+            var creature = Controller.CreaturesInRange[i];
+            if (creature != null && !creature.isDead && creature.currentFaction != Controller.currentFaction)
+            {
+                Debug.Log($"Found creature to prey {creature.name} at {creature.currentTile.position}");
+                Controller.recoltTarget = true;
+                this.creature.SwitchState(new StateAttack(this.creature, creature));
+                break;
             }
+            
+            //Debug.Log($"No creature found in range.");        
+            if (!Controller.recoltTarget && creature != null && creature.isDead && creature.isCorpse)
+            {
+                Debug.Log($"Found dead creature {creature.name} at {creature.currentTile.position}");
+                Controller.recoltTarget = true;
+                Controller.StartCoroutine(GoRecoltTarget(creature.gameObject));
+                break;
+            }
+        }
     }
 }

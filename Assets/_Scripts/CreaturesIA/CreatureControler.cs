@@ -15,6 +15,8 @@ public class CreatureController : MonoBehaviour
 {
     public string currentIAstate;
     public string currentGoal;
+    public int currentGoalPriority;
+    public bool lookingForRessource = false;
     public Vector2 position;
     [HideInInspector] public CreatureState currentState;
     public int currentHP, currentEnergy, currentHunger, currentResources;
@@ -29,16 +31,18 @@ public class CreatureController : MonoBehaviour
     public FactionBehaviour currentFaction;
     private Coroutine tileDetectionRoutine, hungerCheckRoutine, energyCheckRoutine;
     [HideInInspector] public TileInfo currentTile, lastCheckedTile;
-    [HideInInspector]private List<TileInfo> SurroundingTiles = new List<TileInfo>();
-    public List<TileInfo> surroundingTiles {
-        get { return surroundingTiles; }
-        set { surroundingTiles = value; }
+    [HideInInspector]private List<TileInfo> __surroundingTiles = new List<TileInfo>();
+    public List<TileInfo> _surroundingTiles {
+        get { return __surroundingTiles; }
+        set { __surroundingTiles = value; }
     }
 
     public int currentTileAround;
     public enum hungerState { Starving, Hungry, Normal, Full }
     public hungerState currentHungerState;
-    [SerializeField]private bool foodTarget = false;
+    [SerializeField]public bool foodTarget = false;
+    public bool recoltTarget = false;
+    public GameObject recoltarget;
 
     public enum energyState { Exhausted, Tired, Normal, Full }
     public energyState currentEnergyState;
@@ -64,7 +68,7 @@ public class CreatureController : MonoBehaviour
 
     }
 
-    private System.Collections.IEnumerator DelayedInit()
+    private IEnumerator DelayedInit()
     {
         yield return null;
 
@@ -75,8 +79,25 @@ public class CreatureController : MonoBehaviour
         currentHungerState = hungerState.Full;
         currentEnergyState = energyState.Full;
         agent.speed = data.speed;
-
-        CheckCurrentRoom();
+        animator.enabled = true;
+        spriteRenderer.sprite = data.sprite;
+        agent.enabled = true;
+        agent.isStopped = false;
+        lookingForRessource = false;
+        hasDestination = false;
+        isDead = false;
+        isCorpse = false;
+        currentTile = null;
+        lastCheckedTile = null;
+        currentRoom = null;
+        previousRoom = null;
+        currentTileAround = 0;
+        foodTarget = false;
+        recoltTarget = false;
+        currentGoal = null;
+        currentGoalPriority = 0;
+        CurrentTileCheck();
+        //CheckCurrentRoom();
         StartAllCoroutine();
         yield break;
     }
@@ -104,15 +125,17 @@ public class CreatureController : MonoBehaviour
         }
 
         CurrentTileCheck();
-        
 
-        if (hasDestination && agent.remainingDistance <= stoppingDistance)
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
-            hasDestination = false;
-        }
-        if (attackTimer > 0)
-        {
-            attackTimer -= Time.deltaTime;
+            if (hasDestination && agent.remainingDistance <= stoppingDistance)
+            {
+                hasDestination = false;
+            }
+            if (attackTimer > 0)
+            {
+                attackTimer -= Time.deltaTime;
+            }
         }
 
 
@@ -126,7 +149,15 @@ public class CreatureController : MonoBehaviour
     public virtual void SetDestination(Vector2 destination)
     {
         hasDestination = true;
-        agent.SetDestination(destination);
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.SetDestination(destination);
+        }
+        else
+        {
+            Debug.LogWarning($"{name}: Tried to SetDestination but agent is not active or not on NavMesh!");
+            hasDestination = false;
+        }
     }
 
     public virtual bool HasReachedDestination()
@@ -146,7 +177,7 @@ public class CreatureController : MonoBehaviour
         {
             OnDeath(attacker);
         }
-        else if (currentHP < data.maxLife / 2)
+        else if (currentHP < data.maxLife / 4)
         {
 
             // Change color to red
@@ -170,10 +201,37 @@ public class CreatureController : MonoBehaviour
                 relationship -= 2;
             }
         }
+        StopAllCoroutine();
         isDead = true;
         isCorpse = true;
         agent.isStopped = true;
+        agent.enabled = false;
+        currentFaction.members.Remove(this.gameObject);
+    }
 
+    public void IsEaten()
+    {
+        isCorpse = false;
+        spriteRenderer.sprite = data.skeletonSprite;
+        animator.enabled = false;
+        StartCoroutine(SkeletonDecay());
+    }
+
+    public IEnumerator SkeletonDecay()
+    {
+        int decayDelay = Random.Range(10, 20);
+        while (decayDelay > 0)
+        {
+            decayDelay--;
+            yield return new WaitForSeconds(1f);
+        }
+        OnRestDestroy();
+    }
+
+    public void OnRestDestroy()
+    {
+        this.gameObject.SetActive(false);
+        CreatureSpawner.Instance.creaturesGarbage.Add(this.gameObject);
     }
 
     public void StartAllCoroutine()
@@ -208,10 +266,10 @@ public class CreatureController : MonoBehaviour
     {
         while (true)
         {
-            RegisterNewTiles();
+            
             CheckSurroundingsCreatures();
 
-            if (!foodTarget  && currentHungerState != hungerState.Full)
+            if (!foodTarget && !recoltTarget && currentHungerState != hungerState.Full)
             {
                 if (data.carnivor)
                 {
@@ -219,7 +277,7 @@ public class CreatureController : MonoBehaviour
                     CheckCarnivor();
                 }
 
-                if (!foodTarget  && data.herbivor)
+                if (!foodTarget && data.herbivor)
                 {
                     //Debug.Log($"{name}" + " checking for herbivor targets");
                     CheckHerbivor();
@@ -249,22 +307,17 @@ public class CreatureController : MonoBehaviour
                 currentTile = tile;
                 CheckSurroundingsTiles();
                 CheckCurrentRoom();
+                RegisterNewTiles();
             }
         }
     }
     public void RegisterNewTiles()
     {
-        Vector3Int centerCell = Vector3Int.FloorToInt(transform.position);
-        centerCell.z = 0;
-
-        int range = Mathf.CeilToInt(data.detectionRange);
         var faction = currentFaction;
 
-        for (int dx = -range; dx <= range; dx++)
-        {
-            for (int dy = -range; dy <= range; dy++)
+            for (int t = 0; t < _surroundingTiles.Count; t++)
             {
-                Vector3Int checkPos = new Vector3Int(centerCell.x + dx, centerCell.y + dy, 0);
+                Vector3Int checkPos = new Vector3Int(_surroundingTiles[t].position.x, _surroundingTiles[t].position.y, 0);
 
                 if (DungeonGenerator.Instance.dungeonMap.TryGetValue(checkPos, out TileInfo tile))
                 {
@@ -281,15 +334,15 @@ public class CreatureController : MonoBehaviour
 
                 }
             }
-        }
+        
     }
 
     private void CheckHerbivor()
     {
         //Debug.Log($"{name}"  + " checking for herbivor targets");
-            for (int s = 0; s < SurroundingTiles.Count; s++)
+            for (int s = 0; s < __surroundingTiles.Count; s++)
             {
-                var tile = SurroundingTiles[s];
+                var tile = _surroundingTiles[s];
                 if (tile.objects != null && tile.objects.Count > 0)
                 {
                     for (int f = 0; f < tile.objects.Count; f++)
@@ -353,25 +406,30 @@ public class CreatureController : MonoBehaviour
 
     private void CheckSurroundingsTiles()
     {
-        SurroundingTiles.Clear();
-        int range = Mathf.CeilToInt(data.detectionRange);
+        _surroundingTiles.Clear();
+        currentTileAround = 0;
+        int range = data.detectionRange;
         for (int dx = -range; dx <= range; dx++)
         {
             for (int dy = -range; dy <= range; dy++)
             {
                 Vector3Int checkPos = new Vector3Int(currentTile.position.x + dx, currentTile.position.y + dy, 0);
-
-                RaycastHit2D hit = Physics2D.Raycast(transform.position,
-                    checkPos - transform.position,
-                    Vector2.Distance((Vector2)transform.position, new Vector2(checkPos.x, checkPos.y)),
+                Vector2 start = transform.position;
+                Vector2 end = new Vector2(checkPos.x, checkPos.y);
+                Vector2 direction = (end - start).normalized;
+                float distance = Vector2.Distance(start, end);
+                RaycastHit2D hit = Physics2D.Raycast(
+                    start,
+                    direction,
+                    distance,
                     LayerMask.GetMask("Wall"));
                 if (hit.collider == null)
                 {
                     if (DungeonGenerator.Instance.dungeonMap.TryGetValue(checkPos, out TileInfo tile))
                     {
-                        if (!SurroundingTiles.Contains(tile))
+                        if (tile.isFloor && !_surroundingTiles.Contains(tile))
                         {
-                            SurroundingTiles.Add(tile);
+                            _surroundingTiles.Add(tile);
                             currentTileAround++;
                         }
                     }
@@ -533,7 +591,7 @@ public class CreatureController : MonoBehaviour
             }
             return distance;
         }
-        return -1; // Path not found
+        return -1f; // Path not found
     }
 
     public IEnumerator GoEatTarget(GameObject target)
@@ -589,17 +647,10 @@ public class CreatureController : MonoBehaviour
         yield break;
     }
 
-    public void IsEaten()
-    {
-        isCorpse = false;
-        spriteRenderer.sprite = data.skeletonSprite;
-        animator.enabled = false;
-    }
-
     public void Rest()
     {
         if (sleeping) return;
-        Debug.Log("Resting");
+        //Debug.Log("Resting");
         sleeping = true;
         StartCoroutine(Sleep());
     }

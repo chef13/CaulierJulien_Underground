@@ -107,7 +107,7 @@ public class TileInspector : MonoBehaviour
                 {
                     CorridorInfo corridor = tile.corridor;
                     inspectorTxt.text = inspectorTxt.text + $"Corridor : {corridor.tiles.Count}";
-                    HashSet<RoomInfo> connection = corridor.connectedRooms;
+                    List<RoomInfo> connection = corridor.connectedRooms;
                     foreach (RoomInfo r in connection)
                     {
                         inspectorTxt.text = inspectorTxt.text + $"connected to : {r.index} \n";

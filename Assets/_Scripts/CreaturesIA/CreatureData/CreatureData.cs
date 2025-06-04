@@ -6,7 +6,7 @@ using UnityEngine;
 public class CreatureData : ScriptableObject
 {
     public string creatureName;
-    public Sprite skeletonSprite;
+    public Sprite sprite, skeletonSprite;
     public enum CreatureTypeEnum { Goblin, Lezard, Human, Mushroom, Skeleton }
     public CreatureTypeEnum CreatureType;
     public int maxLife, maxEnergy, maxHunger, attackPower, detectionRange;

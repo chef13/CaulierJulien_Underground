@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: LezardData
   m_EditorClassIdentifier: 
   creatureName: Lezard
+  sprite: {fileID: 1252937656544832989, guid: 2f42a91fc2626e44ca58c98dbc3dbc55, type: 3}
   skeletonSprite: {fileID: 1369372634922183146, guid: a0d3fbbc155eb404a87f827b40a48dfe, type: 3}
   CreatureType: 1
   maxLife: 150

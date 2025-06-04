@@ -15,7 +15,7 @@ public class TileInfo
     [HideInInspector]public bool isNature;
     [HideInInspector]public bool isDeadEnd;
    
-    [HideInInspector]public string faction;
+    [HideInInspector]public FactionBehaviour faction;
 
 
     public TileInfo() { }
@@ -52,7 +52,7 @@ public class RoomInfo
 public class CorridorInfo
 {
     [HideInInspector]public List<TileInfo> tiles;
-    [HideInInspector]public HashSet<RoomInfo> connectedRooms = new HashSet<RoomInfo>();
+    [HideInInspector]public List<RoomInfo> connectedRooms = new List<RoomInfo>();
     [HideInInspector]public bool connecting;
     [HideInInspector]public bool deadend;
 
@@ -60,7 +60,7 @@ public class CorridorInfo
     public CorridorInfo()
     {
         this.tiles = tiles ?? new List<TileInfo>();
-        this.connectedRooms = connectedRooms ?? new HashSet<RoomInfo>();
+        this.connectedRooms = connectedRooms ?? new List<RoomInfo>();
         if (connectedRooms.Count > 1)
             connecting = true;
     }

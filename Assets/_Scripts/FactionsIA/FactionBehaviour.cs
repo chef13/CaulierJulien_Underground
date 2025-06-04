@@ -2,10 +2,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using Unity.VisualScripting;
-
+using System.Collections;
 public class FactionBehaviour : MonoBehaviour
 {
     public FactionData factionData;
+    //public CreatureSpawner creatureSpawner;
     public int rooms, tiles, foodResources;
     static public FactionType currentFactionType;
     public string factionName;
@@ -17,7 +18,7 @@ public class FactionBehaviour : MonoBehaviour
     [SerializeField] public List<RoomInfo> currentHQ = new List<RoomInfo>();
     public enum FactionRelationship { Enemy = -10, Hostile = -5, Neutral = 0, Friendly = 5, Ally = 10 }
     public GameObject prefabCreature;
-    private Coroutine RegisterNewRoomsCoroutine;
+    private Coroutine mainGoalsCoroutine, checkFoodForNewMembersCoroutine;
 
 
 
@@ -31,7 +32,7 @@ public class FactionBehaviour : MonoBehaviour
 
     void Awake()
     {
-       
+
     }
 
     public FactionType GetFactionTypeInstance()
@@ -49,7 +50,7 @@ public class FactionBehaviour : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
 
 
     }
@@ -59,7 +60,7 @@ public class FactionBehaviour : MonoBehaviour
 
     }
 
-    private System.Collections.IEnumerator DelayedInit()
+    private IEnumerator DelayedInit()
     {
         // Wait until factionData is set by the spawner
         while (factionData == null)
@@ -75,7 +76,7 @@ public class FactionBehaviour : MonoBehaviour
 
         for (int i = 0; i < factionData.startingMembers; i++)
         {
-            StartCoroutine(SpawnCreatureInRoom(transform.position, prefabCreature));
+            StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(transform.position, prefabCreature, this));
         }
         yield break;
     }
@@ -103,7 +104,7 @@ public class FactionBehaviour : MonoBehaviour
         currentFactionType.AskForState();
     }
 
-    public System.Collections.IEnumerator SpawnCreatureInRoom(Vector2 pos, GameObject creaturePrefab)
+    public IEnumerator SpawnCreatureInRoom(Vector2 pos, GameObject creaturePrefab)
     {
 
         // Instantiate creature
@@ -127,13 +128,32 @@ public class FactionBehaviour : MonoBehaviour
     }
 
 
+
+
     private void StartAllCoroutines()
     {
-        StartCoroutine(currentFactionType.MainCoroutineForGoals());
+        if (mainGoalsCoroutine == null)
+        mainGoalsCoroutine = StartCoroutine(currentFactionType.MainCoroutineForGoals());
         //if (RegisterNewRoomsCoroutine == null)
         //   RegisterNewRoomsCoroutine = StartCoroutine(RegisterNewRooms());
+        if (checkFoodForNewMembersCoroutine == null)
+        checkFoodForNewMembersCoroutine = StartCoroutine(foodCheckCoroutine());
     }
-    
-    
 
+
+    private IEnumerator foodCheckCoroutine()
+    {
+        while (true)
+        {
+            if (foodResources > members.Count * 30)
+            {
+                foodResources /= 2;
+                RoomInfo randomHQroom = currentHQ[Random.Range(0, currentHQ.Count)];
+                TileInfo randomTile = randomHQroom.tiles[Random.Range(0, randomHQroom.tiles.Count)];
+                Vector2 spawnPoint = new Vector2(randomTile.position.x, randomTile.position.y);
+                StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPoint, prefabCreature, this));
+            }
+            yield return new WaitForSeconds(1f); // Adjust the wait time as needed
+        }
+    }
 }
