@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creatureName: Goblin
   sprite: {fileID: 2050859546, guid: 7baca7b8f2b528a429b64d72b3d65df8, type: 3}
+  deadsprite: {fileID: 1896936229, guid: 7baca7b8f2b528a429b64d72b3d65df8, type: 3}
   skeletonSprite: {fileID: 1369372634922183146, guid: a0d3fbbc155eb404a87f827b40a48dfe, type: 3}
+  animator: {fileID: 9100000, guid: 1f3ef8c35bcb5be40ae421a21dc921bc, type: 2}
   CreatureType: 0
   maxLife: 100
   maxEnergy: 100

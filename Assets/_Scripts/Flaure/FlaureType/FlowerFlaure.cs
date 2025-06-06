@@ -96,7 +96,7 @@ public class FlowerFlaure : FlaureType
     }
     
     Vector3 spawnPostion = selectedTile.position + new Vector3(Random.Range(0.1f,0.9f),Random.Range(0.1f,0.9f), 0);
-    flaure.flaureSpawner.SpawnFlaure(selectedTile, flaure.flaureData, spawnPostion);
+    flaure.flaureSpawner.spawnQueue.Enqueue((selectedTile, flaure.flaureData, spawnPostion));
     }
 
 

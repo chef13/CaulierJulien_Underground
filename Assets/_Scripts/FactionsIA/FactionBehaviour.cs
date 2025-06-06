@@ -5,13 +5,14 @@ using Unity.VisualScripting;
 using System.Collections;
 public class FactionBehaviour : MonoBehaviour
 {
+    
     public FactionData factionData;
     //public CreatureSpawner creatureSpawner;
     public int rooms, tiles, foodResources;
     static public FactionType currentFactionType;
     public string factionName;
     public int numberOfHQ = 0;
-    public List<GameObject> members = new List<GameObject>();
+    public List<CreatureController> members = new List<CreatureController>();
     public Dictionary<Vector3Int, TileInfo> knownTilesDict = new Dictionary<Vector3Int, TileInfo>();
     public Dictionary<Vector2Int, RoomInfo> knownRoomsDict = new Dictionary<Vector2Int, RoomInfo>();
     public Dictionary<FactionBehaviour, FactionRelationship> knownFactions = new Dictionary<FactionBehaviour, FactionRelationship>();
@@ -43,6 +44,8 @@ public class FactionBehaviour : MonoBehaviour
                 return new GobFaction(this);
             case FactionData.FactionTypeEnum.Lezard:
                 return new LezardFaction(this);
+            case FactionData.FactionTypeEnum.Wanderer:
+                return new WandererFaction(this);
             default:
                 return null;
         }
@@ -74,10 +77,13 @@ public class FactionBehaviour : MonoBehaviour
 
         StartAllCoroutines();
 
-        for (int i = 0; i < factionData.startingMembers; i++)
+        if (factionData.startingMembers != 0)
         {
-            StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(transform.position, prefabCreature, this));
-        }
+            for (int i = 0; i < factionData.startingMembers; i++)
+            {
+                StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(transform.position, prefabCreature, this));
+            }
+            }
         yield break;
     }
 
@@ -86,7 +92,7 @@ public class FactionBehaviour : MonoBehaviour
     {
 
         currentFactionType?.Update();
-        if (currentHQ == null && knownRoomsDict.Count > 0)
+        /*if (currentHQ == null && knownRoomsDict.Count > 0)
         {
             foreach (RoomInfo room in knownRoomsDict.Values)
             {
@@ -96,7 +102,7 @@ public class FactionBehaviour : MonoBehaviour
                     break;
                 }
             }
-        }
+        }*/
     }
 
     public void AskedForState(CreatureController unit)
@@ -104,7 +110,7 @@ public class FactionBehaviour : MonoBehaviour
         currentFactionType.AskForState();
     }
 
-    public IEnumerator SpawnCreatureInRoom(Vector2 pos, GameObject creaturePrefab)
+    /*public IEnumerator SpawnCreatureInRoom(Vector2 pos, GameObject creaturePrefab)
     {
 
         // Instantiate creature
@@ -113,10 +119,10 @@ public class FactionBehaviour : MonoBehaviour
         creatureGO.transform.SetParent(transform);
         CreatureController controller = creatureGO.GetComponent<CreatureController>();
         controller.currentFaction = this;
-        members.Add(creatureGO); // optional: track units
+        members.Add(controller); // optional: track units
         yield return new WaitForSeconds(0.1f); // wait a bit to ensure the creature is fully initialized
         creatureGO.SetActive(true);
-    }
+    }*/
 
     public void RegisterKnownFaction(FactionBehaviour otherFaction, FactionRelationship relationship)
     {

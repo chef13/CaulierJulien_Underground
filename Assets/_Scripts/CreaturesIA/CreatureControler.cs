@@ -24,12 +24,13 @@ public class CreatureController : MonoBehaviour
     public Vector2 destination, tempDestination;
     public NavMeshAgent agent;
     public CreatureAI creatureAI;
-    public CreatureType creatureType;
+    public CreatureType currentCreatureType;
     public CreatureData data;
     public bool hasDestination = false, sleeping = false, isDead = false, isCorpse = false, basicNeed = false;
     [HideInInspector] public RoomInfo currentRoom, previousRoom;
     public FactionBehaviour currentFaction;
     private Coroutine tileDetectionRoutine, hungerCheckRoutine, energyCheckRoutine;
+    public float coroutineDelay = 2f;
     [HideInInspector] public TileInfo currentTile, lastCheckedTile;
     [HideInInspector]private List<TileInfo> __surroundingTiles = new List<TileInfo>();
     public List<TileInfo> _surroundingTiles {
@@ -65,6 +66,7 @@ public class CreatureController : MonoBehaviour
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         StartCoroutine(DelayedInit());
+        CurrentTileCheck();
 
     }
 
@@ -72,7 +74,7 @@ public class CreatureController : MonoBehaviour
     {
         yield return null;
 
-
+        currentCreatureType = GetCreatureTypeInstance();
         currentEnergy = data.maxEnergy;
         currentHP = data.maxLife;
         currentHunger = data.maxHunger;
@@ -80,7 +82,9 @@ public class CreatureController : MonoBehaviour
         currentEnergyState = energyState.Full;
         agent.speed = data.speed;
         animator.enabled = true;
+        animator.runtimeAnimatorController = data.animator;
         spriteRenderer.sprite = data.sprite;
+        this.name = data.name;
         agent.enabled = true;
         agent.isStopped = false;
         lookingForRessource = false;
@@ -102,8 +106,27 @@ public class CreatureController : MonoBehaviour
         yield break;
     }
 
+    public CreatureType GetCreatureTypeInstance()
+    {
+        switch (data.CreatureType)
+        {
+            case CreatureData.CreatureTypeEnum.Goblin:
+                return new GobelinType(this);
+            case CreatureData.CreatureTypeEnum.Lezard:
+                return new LezardType(this);
+            case CreatureData.CreatureTypeEnum.Champi:
+                return new ChampiType(this);
+            default:
+                return null;
+        }
+    }
+
     protected virtual void Update()
     {
+        if (coroutineDelay >= 0)
+        {
+            coroutineDelay -= Time.deltaTime;
+        }
 
         // chnange sprite orientation based on movement direction
         if (agent.velocity.x > 0.1f)
@@ -124,7 +147,7 @@ public class CreatureController : MonoBehaviour
             animator.SetBool("isWalking", false);
         }
 
-        CurrentTileCheck();
+        //CurrentTileCheck();
 
         if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
@@ -155,7 +178,7 @@ public class CreatureController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"{name}: Tried to SetDestination but agent is not active or not on NavMesh!");
+            //Debug.LogWarning($"{name}: Tried to SetDestination but agent is not active or not on NavMesh!");
             hasDestination = false;
         }
     }
@@ -175,7 +198,7 @@ public class CreatureController : MonoBehaviour
         currentHP -= damage;
         if (currentHP <= 0)
         {
-            OnDeath(attacker);
+            currentCreatureType.OnDeath(attacker);
         }
         else if (currentHP < data.maxLife / 4)
         {
@@ -190,63 +213,33 @@ public class CreatureController : MonoBehaviour
             creatureAI.target = attacker;
             creatureAI.SwitchState(new StateAttack(creatureAI, attacker));
         }
-    }
 
-    public virtual void OnDeath(CreatureController attacker)
-    {
-        if (currentFaction != null && attacker != null && attacker != null)
+        if (sleeping)
         {
-            if (attacker != null && currentFaction.knownFactions.TryGetValue(attacker.currentFaction, out FactionBehaviour.FactionRelationship relationship))
-            {
-                relationship -= 2;
-            }
+            sleeping = false;
+            animator.SetBool("Sleep", false);
+            agent.isStopped = false;
+            creatureAI.SwitchState(new StateAttack(creatureAI,attacker));
         }
-        StopAllCoroutine();
-        isDead = true;
-        isCorpse = true;
-        agent.isStopped = true;
-        agent.enabled = false;
-        currentFaction.members.Remove(this.gameObject);
     }
 
-    public void IsEaten()
-    {
-        isCorpse = false;
-        spriteRenderer.sprite = data.skeletonSprite;
-        animator.enabled = false;
-        StartCoroutine(SkeletonDecay());
-    }
+    
 
-    public IEnumerator SkeletonDecay()
-    {
-        int decayDelay = Random.Range(10, 20);
-        while (decayDelay > 0)
-        {
-            decayDelay--;
-            yield return new WaitForSeconds(1f);
-        }
-        OnRestDestroy();
-    }
 
-    public void OnRestDestroy()
-    {
-        this.gameObject.SetActive(false);
-        CreatureSpawner.Instance.creaturesGarbage.Add(this.gameObject);
-    }
 
     public void StartAllCoroutine()
     {
-        if (tileDetectionRoutine == null)
+        /*if (tileDetectionRoutine == null)
             tileDetectionRoutine = StartCoroutine(TilesDetection());
         if (hungerCheckRoutine == null)
             hungerCheckRoutine = StartCoroutine(CheckHungerRoutine());
         if (energyCheckRoutine == null)
-            energyCheckRoutine = StartCoroutine(CheckEnergyRoutine());
+            energyCheckRoutine = StartCoroutine(CheckEnergyRoutine());*/
     }
 
     public void StopAllCoroutine()
     {
-        if (tileDetectionRoutine != null)
+        /*if (tileDetectionRoutine != null)
         {
             StopCoroutine(tileDetectionRoutine);
             tileDetectionRoutine = null;
@@ -260,29 +253,30 @@ public class CreatureController : MonoBehaviour
         {
             StopCoroutine(energyCheckRoutine);
             energyCheckRoutine = null;
-        }
+        }*/
     }
     IEnumerator TilesDetection()
     {
         while (true)
         {
-            
-            CheckSurroundingsCreatures();
-
-            if (!foodTarget && !recoltTarget && currentHungerState != hungerState.Full)
+            if (!sleeping)
             {
-                if (data.carnivor)
-                {
-                    //Debug.Log($"{name}" + " checking for carnivor targets");
-                    CheckCarnivor();
-                }
+                CheckSurroundingsCreatures();
 
-                if (!foodTarget && data.herbivor)
+                if (!foodTarget && !recoltTarget && currentHungerState != hungerState.Full)
                 {
-                    //Debug.Log($"{name}" + " checking for herbivor targets");
-                    CheckHerbivor();
+                    if (data.carnivor)
+                    {
+                        //Debug.Log($"{name}" + " checking for carnivor targets");
+                        CheckCarnivor();
+                    }
+
+                    if (!foodTarget && data.herbivor)
+                    {
+                        //Debug.Log($"{name}" + " checking for herbivor targets");
+                        CheckHerbivor();
+                    }
                 }
-                
             }
             
              yield return new WaitForSeconds(0.2f);
@@ -308,33 +302,35 @@ public class CreatureController : MonoBehaviour
                 CheckSurroundingsTiles();
                 CheckCurrentRoom();
                 RegisterNewTiles();
+                
             }
         }
     }
-    public void RegisterNewTiles()
+    
+    private void RegisterNewTiles()
     {
         var faction = currentFaction;
 
-            for (int t = 0; t < _surroundingTiles.Count; t++)
+        for (int t = 0; t < _surroundingTiles.Count; t++)
+        {
+            Vector3Int checkPos = new Vector3Int(_surroundingTiles[t].position.x, _surroundingTiles[t].position.y, 0);
+
+            if (DungeonGenerator.Instance.dungeonMap.TryGetValue(checkPos, out TileInfo tile))
             {
-                Vector3Int checkPos = new Vector3Int(_surroundingTiles[t].position.x, _surroundingTiles[t].position.y, 0);
-
-                if (DungeonGenerator.Instance.dungeonMap.TryGetValue(checkPos, out TileInfo tile))
+                if (!faction.knownTilesDict.ContainsKey(checkPos))
                 {
-                    if (!faction.knownTilesDict.ContainsKey(checkPos))
-                    {
-                        faction.knownTilesDict[checkPos] = tile;
-                        faction.tiles++;
-                    }
-                    else if (faction.knownTilesDict.TryGetValue(checkPos, out TileInfo knowntile))
-                    {
-                        if (knowntile != tile)
-                            faction.knownTilesDict[checkPos] = tile;
-                    }
-
+                    faction.knownTilesDict[checkPos] = tile;
+                    faction.tiles++;
                 }
+                else if (faction.knownTilesDict.TryGetValue(checkPos, out TileInfo knowntile))
+                {
+                    if (knowntile != tile)
+                        faction.knownTilesDict[checkPos] = tile;
+                }
+
             }
-        
+        }
+
     }
 
     private void CheckHerbivor()
@@ -438,6 +434,37 @@ public class CreatureController : MonoBehaviour
         }
     }
 
+    public void AllCheckForCoroutine()
+    {
+        if (!sleeping)
+        {
+            CurrentTileCheck();
+            //RegisterNewTiles();
+        }
+        CheckEnergy();   // Optional: move logic out of coroutine
+        CheckHunger();
+
+        if (!sleeping)
+            {
+                CheckSurroundingsCreatures();
+
+                if (!foodTarget && !recoltTarget && currentHungerState != hungerState.Full)
+                {
+                    if (data.carnivor)
+                    {
+                        //Debug.Log($"{name}" + " checking for carnivor targets");
+                        CheckCarnivor();
+                    }
+
+                    if (!foodTarget && data.herbivor)
+                    {
+                        //Debug.Log($"{name}" + " checking for herbivor targets");
+                        CheckHerbivor();
+                    }
+                }
+            }
+    }
+
     private void CheckCurrentRoom()
     {
         if (currentTile != null && DungeonGenerator.Instance.dungeonMap.TryGetValue(currentTile.position, out TileInfo tile) && tile.room != null)
@@ -485,20 +512,43 @@ public class CreatureController : MonoBehaviour
                 }
             }
         }
+
+
+        if (currentRoom != null && currentRoom.faction == currentFaction)
+        {
+            if (currentResources != 0)
+            {
+                currentFaction.foodResources += currentResources;
+                currentResources = 0;
+            }
+
+        }
+
     }
 
     private void CheckHunger()
     {
+        currentHunger -= 1;
+        if (currentRoom != null && currentRoom.faction != null && currentRoom.faction == currentFaction)
+        {
+            if (currentHungerState != hungerState.Full && currentFaction.foodResources > 0)
+            {
+
+                currentFaction.foodResources -= 2;
+                currentHunger += 2;
+            }
+        }
+
         if (currentHunger <= data.maxHunger * 0.1f)
         {
             currentHungerState = hungerState.Starving;
             currentHP--;
             if (currentHP <= 0)
             {
-                OnDeath(null); // No attacker since it's starvation
+                currentCreatureType.OnDeath(null); // No attacker since it's starvation
             }
             currentEnergy -= 1;
-            if (creatureAI.currentState is not StateAttack && creatureAI.currentState is not StateFlee)
+            if ((data.carnivor || data.herbivor) && creatureAI.currentState is not StateAttack && creatureAI.currentState is not StateFlee)
                 creatureAI.SwitchState(new StateNeedFood(creatureAI));
         }
         else if (currentHunger < data.maxHunger * 0.35f)
@@ -506,7 +556,7 @@ public class CreatureController : MonoBehaviour
 
             currentHungerState = hungerState.Hungry;
             currentEnergy -= 1;
-             if (!sleeping && creatureAI.currentState is not StateAttack && creatureAI.currentState is not StateFlee)
+            if ((data.carnivor || data.herbivor) && !sleeping && creatureAI.currentState is not StateAttack && creatureAI.currentState is not StateFlee)
                 creatureAI.SwitchState(new StateNeedFood(creatureAI));
         }
         else if (currentHunger < data.maxHunger * 0.80f)
@@ -514,10 +564,16 @@ public class CreatureController : MonoBehaviour
             currentHungerState = hungerState.Normal;
             basicNeed = false;
         }
-        else
+        else if (currentHunger >= data.maxHunger * 0.80f)
         {
             currentHungerState = hungerState.Full;
             basicNeed = false;
+        }
+        else if (currentHunger > data.maxHunger)
+        {
+            currentHungerState = hungerState.Full;
+            basicNeed = false;
+            currentEnergy -= 1;
         }
     }
 
@@ -526,6 +582,15 @@ public class CreatureController : MonoBehaviour
         while (true)
         {
             currentHunger -= 1;
+            if (currentRoom != null && currentRoom.faction != null && currentRoom.faction == currentFaction)
+            {
+                if (currentHungerState != hungerState.Full && currentFaction.foodResources > 0)
+                {
+                    
+                    currentFaction.foodResources -= 2;
+                    currentHunger += 2;
+                }
+            }
             CheckHunger();
             yield return new WaitForSeconds(2f);
         }
@@ -619,7 +684,7 @@ public class CreatureController : MonoBehaviour
                 animator.SetTrigger("Attack");
                 agent.isStopped = true; // Stop moving while attacking
 
-                yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+                yield return new WaitForSeconds(1);
                 agent.isStopped = false; // Resume moving after attack
                 flaure.IsEaten();
                 currentHunger += flaure.flaureData.edibleAmount;
@@ -631,9 +696,9 @@ public class CreatureController : MonoBehaviour
                 animator.SetTrigger("Attack");
                 agent.isStopped = true; // Stop moving while attacking
 
-                yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+                yield return new WaitForSeconds(1);
                 agent.isStopped = false; // Resume moving after attack
-                creature.IsEaten();
+                creature.currentCreatureType.IsEaten();
                 currentHunger += creature.data.maxLife / 2;
                 foodTarget = false;
             }
@@ -652,6 +717,7 @@ public class CreatureController : MonoBehaviour
         if (sleeping) return;
         //Debug.Log("Resting");
         sleeping = true;
+        animator.SetBool("Sleep", true);
         StartCoroutine(Sleep());
     }
     public IEnumerator Sleep()
@@ -694,6 +760,7 @@ public class CreatureController : MonoBehaviour
             {
                 currentEnergy = data.maxEnergy;
                 CheckEnergy();
+                animator.SetBool("Sleep", false);
                 sleeping = false;
                 basicNeed = false;
                 agent.isStopped = false;

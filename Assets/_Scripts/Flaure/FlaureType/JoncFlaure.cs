@@ -88,7 +88,7 @@ public class JoncFlaure : FlaureType
     }
     TileInfo selectedTile = emptyTiles[Random.Range(0, emptyTiles.Count)];
     Vector3 spawnPostion = selectedTile.position + new Vector3(0.5f, 1f, 0);
-    flaure.flaureSpawner.SpawnFlaure(selectedTile, flaure.flaureData, spawnPostion);
+    flaure.flaureSpawner.spawnQueue.Enqueue((selectedTile, flaure.flaureData, spawnPostion));
     }
 
 

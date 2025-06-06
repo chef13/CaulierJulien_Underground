@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creatureName: Lezard
   sprite: {fileID: 1252937656544832989, guid: 2f42a91fc2626e44ca58c98dbc3dbc55, type: 3}
+  deadsprite: {fileID: 1014054252, guid: 2f42a91fc2626e44ca58c98dbc3dbc55, type: 3}
   skeletonSprite: {fileID: 1369372634922183146, guid: a0d3fbbc155eb404a87f827b40a48dfe, type: 3}
+  animator: {fileID: 9100000, guid: e5b12cd8c8dbf0d4c9ac4d1ba99241f0, type: 2}
   CreatureType: 1
   maxLife: 150
   maxEnergy: 120
@@ -24,5 +26,5 @@ MonoBehaviour:
   attackRange: 0.5
   attackSpeed: 2
   speed: 1.5
-  herbivor: 0
+  herbivor: 1
   carnivor: 1

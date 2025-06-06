@@ -85,7 +85,7 @@ public class BushFlaure : FlaureType
     }
     TileInfo selectedTile = emptyTiles[Random.Range(0, emptyTiles.Count)];
     Vector3 spawnPostion = selectedTile.position + new Vector3(0.5f, 0.5f, 0);
-    flaure.flaureSpawner.SpawnFlaure(selectedTile, flaure.flaureData, spawnPostion);
+    flaure.flaureSpawner.spawnQueue.Enqueue((selectedTile, flaure.flaureData, spawnPostion));
     flaure.currentStage = flaure.currentStage - 2;
     flaure.spriteRenderer.sprite = flaure.flaureData.sprites[flaure.currentStage];
 
@@ -100,6 +100,8 @@ public class BushFlaure : FlaureType
     {
       flaure.isEdible = false;
     }
+    
+     flaure.currentStage = Mathf.Clamp(flaure.currentStage, 0, flaure.flaureData.sprites.Length - 1);
     flaure.spriteRenderer.sprite = flaure.flaureData.sprites[flaure.currentStage];
   }
 

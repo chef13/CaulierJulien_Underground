@@ -44,6 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b5f14660c4bd154ab78f77bfd8cdef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  champiPrefab: {fileID: 3239829643432152457, guid: df0fda09caa6a0b45ab65a538ff6b8d2, type: 3}
+  wandererFaction: {fileID: 0}
+  flaureBehaviours: []
   champiData: {fileID: 11400000, guid: 172cbad2416e3a24f95b53a45403120b, type: 2}
   fleureData: {fileID: 11400000, guid: 875272c3b34d58f4493b42592a3cecdc, type: 2}
   joncData: {fileID: 11400000, guid: 414783c8e8ca24342b954f06d321990c, type: 2}

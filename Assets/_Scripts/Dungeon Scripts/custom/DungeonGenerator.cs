@@ -7,11 +7,12 @@ using NavMeshPlus.Components;
 public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
     [SerializeField] private GameObject prefabFactionGenerator;
-    [SerializeField] private GameObject prefabFlaureSpawner;
+    [SerializeField] private GameObject prefabFlaureSpawner, prefabCreatureSpawner;
     public static DungeonGenerator Instance;
     public bool genReady;
     public bool navReady;
     public NavMeshSurface surface;
+    public int waterFactor = 3;
 
     public Dictionary<Vector3Int, TileInfo> dungeonMap = new();
     public List<TileInfo> natureTiles = new();
@@ -139,7 +140,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 
 
 
-            Debug.Log($"📦 Room at grid {gridIndex}, tiles: {roomTiles.Count}");
+            //Debug.Log($"📦 Room at grid {gridIndex}, tiles: {roomTiles.Count}");
         }
     }
 
@@ -271,7 +272,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     corridorsMap[(roomA, roomB)] = linkingCorridor;
                     linkingCorridor.connectedRooms.Add(roomA);
                     linkingCorridor.connectedRooms.Add(roomB);
-                    Debug.Log($"🔗 Connected room {current} <--> {next}");
+                    //Debug.Log($"🔗 Connected room {current} <--> {next}");
                 }
 
                 current = next;
@@ -325,7 +326,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                             }
                         }
                     }
-                    Debug.Log($"🔗 Extra connection for room {room.Value.index} to {neighbor.index}");
+                    //Debug.Log($"🔗 Extra connection for room {room.Value.index} to {neighbor.index}");
 
                 }
             }
@@ -385,7 +386,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 
     private void CreateWaterRandomly(List<BoundsInt> roomsList)
     {
-        for (int i = 0; i < roomsList.Count / 4; i++)
+        for (int i = 0; i < roomsList.Count / waterFactor; i++)
         {
             var roomBounds = roomsList[Random.Range(0, roomsList.Count)];
             var center = Vector2Int.RoundToInt(roomBounds.center);
@@ -453,10 +454,13 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         navReady = true;
 
         yield return new WaitForSeconds(1f);
-        GameObject factionSpawner = Instantiate(prefabFactionGenerator, transform.position, Quaternion.identity);
-        factionSpawner.name = "Faction Spawner";
         GameObject flaurSpawner = Instantiate(prefabFlaureSpawner, transform.position, Quaternion.identity);
         flaurSpawner.name = "Flaure Spawner";
+        GameObject factionSpawner = Instantiate(prefabFactionGenerator, transform.position, Quaternion.identity);
+        factionSpawner.name = "Faction Spawner";
+        
+        GameObject CreatureSpawner = Instantiate(prefabCreatureSpawner, transform.position, Quaternion.identity);
+        CreatureSpawner.name = "Creature Spawner";
         }
 
     private RoomInfo GetRandomRoom()

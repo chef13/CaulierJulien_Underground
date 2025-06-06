@@ -81,7 +81,7 @@ public class StateNeedFood : CreatureState
         }
         if (prey == null)
         {
-            Debug.Log("No prey found, switching to explore state.");
+            //Debug.Log("No prey found, switching to explore state.");
             creature.SwitchState(new StateExplore(creature));
             return;
         }
@@ -102,7 +102,7 @@ public class StateNeedFood : CreatureState
         }
         if (prey == null)
         {
-            Debug.Log("No prey found, switching to explore state.");
+            //Debug.Log("No prey found, switching to explore state.");
             creature.SwitchState(new StateExplore(creature));
             return;
         }

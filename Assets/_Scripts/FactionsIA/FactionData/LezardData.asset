@@ -16,5 +16,5 @@ MonoBehaviour:
   factionTypeEnum: 1
   prefabCreature:
   - {fileID: 4595724152688228843, guid: e665f6a00f491144da336a250e6e67eb, type: 3}
-  startingMembers: 2
+  startingMembers: 4
   maxMembersPerHQ: 10

@@ -8,7 +8,6 @@ public class StateExplore : CreatureState
     public NavMeshAgent agent;
     private Vector2Int cardinalExplo;
     private RoomInfo targetRoom;
-    private bool mission;
     private Coroutine exploreCurrentRoomCoroutine;
     public StateExplore(CreatureAI creature) : base(creature) 
     {
@@ -17,7 +16,6 @@ public class StateExplore : CreatureState
     public override void Enter()
     {
         
-        mission = false;
         agent = creature.GetComponent<NavMeshAgent>();
         cardinalExplo = Direction2D.cardinalDirectionsList[Random.Range(0, Direction2D.cardinalDirectionsList.Count)];
     }
@@ -38,17 +36,11 @@ public class StateExplore : CreatureState
             }
         }
 
-        if (DetectTreat(out CreatureController target))
+        if (Controller.data.carnivor && Controller.currentHungerState != CreatureController.hungerState.Full && DetectTreat(out CreatureController target))
         {
             creature.SwitchState(new StateAttack(creature, target));
         }
 
-        if (mission == true)
-        {
-            // Pass the appropriate argument(s) to AskedForState, e.g. the creature or relevant state
-            Controller.currentFaction.AskedForState(Controller);
-
-        }
     }
 
     public void SetNewDestination()

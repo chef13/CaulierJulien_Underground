@@ -9,13 +9,28 @@ using System;
 
 public class FlaureSpawner : MonoBehaviour
 {
+    public static FlaureSpawner instance;
+    public GameObject champiPrefab;
+    public FactionBehaviour wandererFaction;
     public List<FlaureBehaviour> flaureBehaviours = new List<FlaureBehaviour>();
-    [SerializeField] private FlaureData champiData, fleureData, joncData, bushData;
+    public Queue<(TileInfo, FlaureData, Vector3)> spawnQueue = new Queue<(TileInfo, FlaureData, Vector3)>();
+    public FlaureData champiData, fleureData, joncData, bushData;
     [SerializeField] private GameObject flaurePrefab;
+
     private bool init;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        StartCoroutine(SpawnFlaureQueueCoroutine());
         FirstSpawning();
     }
 
@@ -40,37 +55,37 @@ public class FlaureSpawner : MonoBehaviour
                         List<TileInfo> deadEnds = new List<TileInfo>();
                         if (tileInfo.isNature && tileInfo.objects.Count == 0 && i % 4 == 0)
                         {
-                                GameObject spawnedFlaur = null;
-                                FlaureData dataToUse = null;
-                                Vector3 spawnPos = tileInfo.position + new Vector3(0.5f, 0.5f, 0);
+                            GameObject spawnedFlaur = null;
+                            FlaureData dataToUse = null;
+                            Vector3 spawnPos = tileInfo.position + new Vector3(0.5f, 0.5f, 0);
 
-                                // Choose flaure type by logic, for example:
-                                int typeChoice = Random.Range(0, 2); // 0 = Jonc, 1 = Bush
+                            // Choose flaure type by logic, for example:
+                            int typeChoice = Random.Range(0, 2); // 0 = Jonc, 1 = Bush
 
-                                switch (typeChoice)
-                                {
-                                    case 0: // Jonc
-                                        dataToUse = joncData;
-                                        spawnPos = tileInfo.position + new Vector3(0.5f, 0.5f, 0); // or whatever offset you want
-                                        break;
-                                    case 1: // Bush
-                                        dataToUse = bushData;
-                                        spawnPos = tileInfo.position + new Vector3(0.5f, 0.5f, 0);
-                                        break;
+                            switch (typeChoice)
+                            {
+                                case 0: // Jonc
+                                    dataToUse = joncData;
+                                    spawnPos = tileInfo.position + new Vector3(0.5f, 0.5f, 0); // or whatever offset you want
+                                    break;
+                                case 1: // Bush
+                                    dataToUse = bushData;
+                                    spawnPos = tileInfo.position + new Vector3(0.5f, 0.5f, 0);
+                                    break;
                                     // Add more cases if needed
-                                }
+                            }
 
-                                if (dataToUse != null)
-                                    spawnedFlaur = SpawnFlaure(tileInfo, dataToUse, spawnPos);
+                            if (dataToUse != null)
+                                spawnedFlaur = SpawnFlaure(tileInfo, dataToUse, spawnPos);
 
-                                if (spawnedFlaur != null)
-                                {
-                                    var flaureBehaviour = spawnedFlaur.GetComponent<FlaureBehaviour>();
+                            if (spawnedFlaur != null)
+                            {
+                                var flaureBehaviour = spawnedFlaur.GetComponent<FlaureBehaviour>();
                                 if (flaureBehaviour != null)
                                 {
-                                    flaureBehaviour.currentStage = Random.Range(0, flaureBehaviour.flaureData.growthStages);
+                                    flaureBehaviour.currentStage = flaureBehaviour.flaureData.growthStages;
                                     flaureBehaviour.spriteRenderer.sprite = flaureBehaviour.flaureData.sprites[flaureBehaviour.currentStage];
-                                        if (flaureBehaviour.currentStage >= flaureBehaviour.flaureData.EdibleStage)
+                                    if (flaureBehaviour.currentStage >= flaureBehaviour.flaureData.EdibleStage)
                                     {
                                         flaureBehaviour.isEdible = true;
                                     }
@@ -79,11 +94,11 @@ public class FlaureSpawner : MonoBehaviour
                                 {
                                     Debug.LogError("FlaureBehaviour component missing on spawned flaure!");
                                 }
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("SpawnFlaure returned null. Flaure not spawned.");
-                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning("SpawnFlaure returned null. Flaure not spawned.");
+                            }
                         }
                         if (tileInfo.isDeadEnd && tileInfo.objects.Count == 0)
                         {
@@ -97,12 +112,12 @@ public class FlaureSpawner : MonoBehaviour
                                 tileInfo = deadEnds[d];
                                 GameObject spawnedFlaur = SpawnFlaure(tileInfo, champiData, tileInfo.position + new Vector3(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 0));
                                 var flaureBehaviour = spawnedFlaur.GetComponent<FlaureBehaviour>();
-                                flaureBehaviour.currentStage = Random.Range(0, flaureBehaviour.flaureData.growthStages);
+                                flaureBehaviour.currentStage = flaureBehaviour.flaureData.growthStages;
                                 flaureBehaviour.spriteRenderer.sprite = flaureBehaviour.flaureData.sprites[flaureBehaviour.currentStage];
-                                    if (flaureBehaviour.currentStage >= flaureBehaviour.flaureData.EdibleStage)
-                                    {
-                                        flaureBehaviour.isEdible = true;
-                                    }
+                                if (flaureBehaviour.currentStage >= flaureBehaviour.flaureData.EdibleStage)
+                                {
+                                    flaureBehaviour.isEdible = true;
+                                }
                             }
                         }
                     }
@@ -114,26 +129,26 @@ public class FlaureSpawner : MonoBehaviour
     public GameObject SpawnFlaure(TileInfo tileInfo, FlaureData data, Vector3 position)
     {
         GameObject newFlaure = null;
-            bool checkforpulling = false;
-            for (int i = 0; i < flaureBehaviours.Count; i++)
+        bool checkforpulling = false;
+        for (int i = 0; i < flaureBehaviours.Count; i++)
+        {
+            if (flaureBehaviours[i].isActiveAndEnabled == false)
             {
-                if (flaureBehaviours[i].isActiveAndEnabled == false)
-                {
-                    newFlaure = flaureBehaviours[i].gameObject;
-                    FlaureBehaviour flaureBehaviour = newFlaure.GetComponent<FlaureBehaviour>();
-                    flaureBehaviour.flaureData = data;
-                    flaureBehaviour.flaureSpawner = this;
-                    flaureBehaviour.currentTile = tileInfo;
-                    flaureBehaviour.currentStage = 0;
-                    flaureBehaviour.currentGrowthTime = 0f;
-                    newFlaure.transform.position = position;
-                    newFlaure.SetActive(true);
-                    newFlaure.name = data.flaureTypeEnum.ToString();
-                    tileInfo.objects.Add(newFlaure);
-                    checkforpulling = true;
-                    return  newFlaure;
-                }
+                newFlaure = flaureBehaviours[i].gameObject;
+                FlaureBehaviour flaureBehaviour = newFlaure.GetComponent<FlaureBehaviour>();
+                flaureBehaviour.flaureData = data;
+                flaureBehaviour.flaureSpawner = this;
+                flaureBehaviour.currentTile = tileInfo;
+                flaureBehaviour.currentStage = 0;
+                flaureBehaviour.currentGrowthTime = 0f;
+                newFlaure.transform.position = position;
+                newFlaure.SetActive(true);
+                newFlaure.name = data.flaureTypeEnum.ToString();
+                tileInfo.objects.Add(newFlaure);
+                checkforpulling = true;
+                return newFlaure;
             }
+        }
         if (!checkforpulling)
         {
             newFlaure = Instantiate(flaurePrefab, position, Quaternion.identity);
@@ -154,6 +169,19 @@ public class FlaureSpawner : MonoBehaviour
         {
             Debug.LogWarning("No FlaureBehaviour available to spawn new Flaure.");
             return null;
+        }
+    }
+
+    private IEnumerator SpawnFlaureQueueCoroutine()
+    {
+        while (true)
+        {
+            if (spawnQueue.Count > 0)
+            {
+                var (tileInfo, data, position) = spawnQueue.Dequeue();
+                SpawnFlaure(tileInfo, data, position);
+            }
+            yield return null;
         }
     }
 }

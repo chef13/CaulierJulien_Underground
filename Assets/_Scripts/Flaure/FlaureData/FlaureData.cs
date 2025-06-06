@@ -13,6 +13,7 @@ public class FlaureData : ScriptableObject
     public int growthStages;
     public int EdibleStage;
     public int edibleAmount;
+    public int spawnChance;
     public int range;
     public float waterFactor = 1f;
    

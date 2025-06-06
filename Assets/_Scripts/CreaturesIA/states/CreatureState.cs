@@ -75,7 +75,7 @@ public abstract class CreatureState
 
     public RoomInfo GetCloserHQ()
     {
-        float? minDistance = null;
+        float minDistance = 1000f;
         RoomInfo closerHQ = null;
         for (int i = 0; i < controller.currentFaction.currentHQ.Count; i++)
         {
@@ -84,7 +84,7 @@ public abstract class CreatureState
                     controller.agent,
                     controller.currentFaction.currentHQ[i].tiles
                     [Random.Range(0, controller.currentFaction.currentHQ[i].tiles.Count)].position);
-            if (minDistance == null || distanceFromHQ < minDistance)
+            if (distanceFromHQ < minDistance)
             {
                 minDistance = distanceFromHQ;
                 closerHQ = controller.currentFaction.currentHQ[i];
@@ -97,6 +97,8 @@ public abstract class CreatureState
     {
         List<CreatureController> targets = new List<CreatureController>();
         RoomInfo room = null;
+        List<RoomInfo> roomRange1 = new List<RoomInfo>();
+        List<RoomInfo> roomRange2 = new List<RoomInfo>();
         if (Controller.currentRoom == null)
         {
             room = Controller.currentTile.corridor.connectedRooms[0];
@@ -114,7 +116,7 @@ public abstract class CreatureState
                 {
                     foreach (CreatureController c in t.creatures)
                     {
-                        if (c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
+                        if (c.gameObject.activeInHierarchy && c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
                         {
                             targets.Add(c);
                         }
@@ -125,46 +127,57 @@ public abstract class CreatureState
         }
         else if (range == 1)
         {
-            for (int i = 0; i <room.connectedRooms.Count; i++)
+            for (int i = 0; i < room.connectedRooms.Count; i++)
             {
-                for (int j = 0; j < room.connectedRooms[i].tiles.Count; j++)
+                roomRange1.Add(room.connectedRooms[i]);
+                if (range == 1)
                 {
-                    if (room.connectedRooms[i].tiles[j].creatures != null &&
-                    room.connectedRooms[i].tiles[j].creatures.Count != 0)
+                    for (int j = 0; j < room.connectedRooms[i].tiles.Count; j++)
                     {
-                        foreach (CreatureController c in room.connectedRooms[i].tiles[j].creatures)
+                        if (room.connectedRooms[i].tiles[j].creatures != null &&
+                        room.connectedRooms[i].tiles[j].creatures.Count != 0)
                         {
-                            if (c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
+                            foreach (CreatureController c in room.connectedRooms[i].tiles[j].creatures)
                             {
-                                targets.Add(c);
+                                if (c.gameObject.activeInHierarchy && c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
+                                {
+                                    targets.Add(c);
+                                }
                             }
+
                         }
 
                     }
-
                 }
             }
         }
         else if (range >= 2)
         {
-            for (int i = -range; i < range; i++)
+            for (int r = 0; r < roomRange1.Count; r++)
             {
-                for (int j = -range; j < range; j++)
+                for (int i = 0; i < roomRange1[r].connectedRooms.Count; i++)
                 {
-                    if (DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(room.index.x + i,room.index.y + j), out RoomInfo roomInRange))
+                    if (!roomRange2.Contains(roomRange1[r].connectedRooms[i]) && roomRange1[r].connectedRooms[i] != room)
                     {
-                        foreach (TileInfo t in roomInRange.tiles)
+                        roomRange2.Add(roomRange1[r].connectedRooms[i]);
+                    }
+                    if (range == 2)
+                    {
+                        for (int j = 0; j < room.connectedRooms[i].tiles.Count; j++)
                         {
-                            if (t.creatures != null && t.creatures.Count != 0)
+                            if (room.connectedRooms[i].tiles[j].creatures != null &&
+                            room.connectedRooms[i].tiles[j].creatures.Count != 0)
                             {
-                                foreach (CreatureController c in t.creatures)
+                                foreach (CreatureController c in room.connectedRooms[i].tiles[j].creatures)
                                 {
-                                    if (c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
+                                    if ( c.gameObject.activeInHierarchy && c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
                                     {
-                                        targets.Add(c);
+                                        return c;
                                     }
                                 }
+
                             }
+
                         }
                     }
                 }
@@ -194,9 +207,11 @@ public abstract class CreatureState
         List<FlaureBehaviour> targets = new List<FlaureBehaviour>();
         //RoomInfo room = null;
         RoomInfo room = null;
+        List<RoomInfo> roomRange1 = new List<RoomInfo>();
+        List<RoomInfo> roomRange2 = new List<RoomInfo>();
         if (Controller.currentRoom == null)
         {
-            room = Controller.currentTile.corridor.connectedRooms[0];
+            room = Controller.currentTile.corridor.connectedRooms[Random.Range(0, Controller.currentTile.corridor.connectedRooms.Count)];
         }
         else
         {
@@ -211,7 +226,7 @@ public abstract class CreatureState
                     foreach (GameObject c in t.objects)
                     {
                         FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
-                        if (flaureBehaviour != null && flaureBehaviour.isEdible)
+                        if (flaureBehaviour != null&& flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
                         {
                             targets.Add(flaureBehaviour);
                         }
@@ -220,55 +235,63 @@ public abstract class CreatureState
 
             }
         }
-        else if (range == 1)
+        else if (range >= 1)
         {
             for (int i = 0; i < room.connectedRooms.Count; i++)
             {
-                for (int j = 0; j < room.connectedRooms[i].tiles.Count; j++)
+                roomRange1.Add(room.connectedRooms[i]);
+                if (range == 1)
                 {
-                    if (room.connectedRooms[i].tiles[j].objects != null &&
-                    room.connectedRooms[i].tiles[j].objects.Count != 0)
+                    for (int j = 0; j < room.connectedRooms[i].tiles.Count; j++)
                     {
-                        foreach (GameObject c in room.connectedRooms[i].tiles[j].objects)
+                        if (room.connectedRooms[i].tiles[j].objects != null &&
+                            room.connectedRooms[i].tiles[j].objects.Count != 0)
                         {
-                            FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
-                            if (flaureBehaviour != null && flaureBehaviour.isEdible)
+                            foreach (GameObject c in room.connectedRooms[i].tiles[j].objects)
                             {
-                                targets.Add(flaureBehaviour);
-                            }
-                        }
-
-                    }
-
-                }
-            }
-        }
-        /*else if (range >= 2)
-        {
-            for (int i = -range; i < range; i++)
-            {
-                for (int j = -range; j < range; j++)
-                {
-                    if (DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(room.index.x + i, Controller.currentRoom.index.y + j), out RoomInfo roomInRange))
-                    {
-                        foreach (TileInfo t in roomInRange.tiles)
-                        {
-                            if (t.objects != null && t.objects.Count != 0)
-                            {
-                                foreach (GameObject c in t.objects)
+                                FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
+                                if (flaureBehaviour != null && flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
                                 {
-                                    FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
-                                    if (flaureBehaviour != null && flaureBehaviour.isEdible)
-                                    {
-                                        targets.Add(flaureBehaviour);
-                                    }
+                                    targets.Add(flaureBehaviour);
                                 }
                             }
                         }
                     }
                 }
             }
-        }*/
+        }
+        else if (range >= 2)
+        {
+            for (int r = 0; r < roomRange1.Count; r++)
+            {
+                for (int i = 0; i < roomRange1[r].connectedRooms.Count; i++)
+                {
+                    if (!roomRange2.Contains(roomRange1[r].connectedRooms[i]) && roomRange1[r].connectedRooms[i] != room)
+                    {
+                        roomRange2.Add(roomRange1[r].connectedRooms[i]);
+                    }
+                    if (range == 2)
+                    {
+                        for (int j = 0; j < roomRange1[r].connectedRooms[j].tiles.Count; j++)
+                        {
+                            TileInfo t = roomRange1[r].connectedRooms[i].tiles[j];
+                            if (t.objects != null && t.objects.Count != 0)
+                            {
+                                foreach (GameObject c in t.objects)
+                                {
+                                    FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
+                                    if (flaureBehaviour != null&& flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
+                                    {
+                                        return flaureBehaviour;
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
 
         float minDistance = 1000f;
         for (int i = 0; i < targets.Count; i++)
@@ -277,7 +300,7 @@ public abstract class CreatureState
                 Controller.GetPathDistance(
                     Controller.agent,
                     targets[i].transform.position);
-            if (distanceFromTarget < minDistance)
+            if (distanceFromTarget >= 0 && distanceFromTarget < minDistance)
             {
                 minDistance = distanceFromTarget;
                 flaure = targets[i];
@@ -287,4 +310,46 @@ public abstract class CreatureState
         return flaure;
     }
 
+    public RoomInfo GetRandomRoom(RoomInfo room, int range)
+    {
+            if (room == null)
+        {
+            return null;
+        }
+        List<RoomInfo> roomRange1 = new List<RoomInfo>();
+        List<RoomInfo> roomRange2 = new List<RoomInfo>();
+        if (range == 0)
+        {
+            return room;
+        }
+        else if (range == 1)
+        {
+            for (int i = 0; i < room.connectedRooms.Count; i++)
+            {
+                if (Controller.previousRoom != null && room.connectedRooms[i] != Controller.previousRoom)
+                roomRange1.Add(room.connectedRooms[i]);
+            }
+             if (roomRange1.Count == 0)
+                return room; // fallback or return null
+             return roomRange1[Random.Range(0, roomRange1.Count)];
+        }
+        else if (range == 2 && roomRange1.Count > 0)
+        {
+            for (int r = 0; r < roomRange1.Count; r++)
+            {
+                for (int i = 0; i < roomRange1[r].connectedRooms.Count; i++)
+                {
+                    if (!roomRange2.Contains(roomRange1[r].connectedRooms[i]) && roomRange1[r].connectedRooms[i] != room)
+                    {
+                        if (roomRange2.Count == 0)
+                            return room; // fallback or return null
+                        roomRange2.Add(roomRange1[r].connectedRooms[i]);
+                    }
+                }
+            }
+            return roomRange2[Random.Range(0, roomRange2.Count)];
+        }
+
+        return null;
+    }
 }

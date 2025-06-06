@@ -41,6 +41,20 @@ public class RoomInfo
     [HideInInspector] public List<CorridorInfo> corridors = new List<CorridorInfo>();
 
     [HideInInspector] public List<RoomInfo> connectedRooms = new List<RoomInfo>();
+    public Vector2Int tileCenter    
+    {
+        get
+        {
+            if (tiles.Count == 0) return Vector2Int.zero;
+            int x = 0, y = 0;
+            foreach (TileInfo tile in tiles)
+            {
+                x += tile.position.x;
+                y += tile.position.y;
+            }
+            return new Vector2Int(x / tiles.Count, y / tiles.Count);
+        }
+    }
 
     public RoomInfo()
     {

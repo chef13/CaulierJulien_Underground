@@ -26,5 +26,6 @@ MonoBehaviour:
   growthStages: 6
   EdibleStage: 4
   edibleAmount: 10
-  range: 1
+  spawnChance: 0
+  range: 10
   waterFactor: 1

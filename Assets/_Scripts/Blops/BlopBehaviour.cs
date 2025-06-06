@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 using UnityEngine;
-
+/*
 public class BlopBehaviour : MonoBehaviour
 {
     static public BlopType currentblopType;
@@ -21,7 +21,7 @@ public class BlopBehaviour : MonoBehaviour
     /*public enum blopType
     { grey,blue,red,green,black }
     [SerializeField] public blopType type;
-    [SerializeField] Color color;*/
+    [SerializeField] Color color;*//*
     public void SwitchType(BlopType newType)
     {
         currentblopType?.Exit();
@@ -191,3 +191,4 @@ public class BlopBehaviour : MonoBehaviour
         return target;
     }
 }
+*/

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
+using Vector2 = UnityEngine.Vector2;
 public class ChampiFlaure : FlaureType
 {
 
@@ -68,6 +69,16 @@ public class ChampiFlaure : FlaureType
 
   public override void Expand()
   {
+    int randomSpawn = Random.Range(0, 20);
+    if (randomSpawn < flaure.flaureData.spawnChance)
+    {
+      Vector3 spawnPosition = new Vector2(flaure.currentTile.position.x, flaure.currentTile.position.y);
+      Debug.Log("Spawning creature at " + spawnPosition + " with prefab " + flaure.flaureSpawner.champiPrefab + " and faction " + flaure.flaureSpawner.wandererFaction);
+      CreatureSpawner.Instance.StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPosition, flaure.flaureSpawner.champiPrefab, flaure.flaureSpawner.wandererFaction));
+      Debug.Log("succes " + spawnPosition);
+      Eaten();
+      return;
+    }
     TileInfo selectedTile = null;
     List<TileInfo> emptyTiles = new List<TileInfo>();
     List<TileInfo> deadEndTiles = new List<TileInfo>();
@@ -109,7 +120,7 @@ public class ChampiFlaure : FlaureType
     }
     
     Vector3 spawnPostion = selectedTile.position + new Vector3(Random.Range(0.1f,0.9f),Random.Range(0.1f,0.9f), 0);
-    flaure.flaureSpawner.SpawnFlaure(selectedTile, flaure.flaureData, spawnPostion);
+    flaure.flaureSpawner.spawnQueue.Enqueue((selectedTile, flaure.flaureData, spawnPostion));
 
           
         

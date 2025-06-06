@@ -1,7 +1,7 @@
 
 using UnityEngine;
-
-public abstract class BlopType
+/*
+public abstract class BlopType 
 {
     protected BlopBehaviour blop;
     virtual public int maxHP { get; set; } = 100;
@@ -22,4 +22,4 @@ public abstract class BlopType
     public virtual void Attack(GameObject target) { }
 
     public virtual void OnHit(GameObject attacker) { }
-}
+}*/

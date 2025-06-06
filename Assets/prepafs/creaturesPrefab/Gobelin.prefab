@@ -48,20 +48,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f8277f75f28ca34089afea40c60d4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentIAstate: 
+  currentGoal: 
+  currentGoalPriority: 0
+  lookingForRessource: 0
   position: {x: 0, y: 0}
-  room: 0
   currentHP: 100
   currentEnergy: 100
   currentHunger: 0
+  currentResources: 0
   stoppingDistance: 1
   attackTimer: 0
   destination: {x: 0, y: 0}
+  tempDestination: {x: 0, y: 0}
   agent: {fileID: 0}
   creatureAI: {fileID: 7433787118684670183}
   data: {fileID: 11400000, guid: a8d19e04f73c8254abfdc3d6fd35550c, type: 2}
   hasDestination: 0
+  sleeping: 0
+  isDead: 0
+  isCorpse: 0
+  basicNeed: 0
   currentFaction: {fileID: 0}
+  coroutineDelay: 2
+  currentTileAround: 0
   currentHungerState: 0
+  foodTarget: 0
+  recoltTarget: 0
+  recoltarget: {fileID: 0}
+  currentEnergyState: 0
+  creaturesInRange: []
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
 --- !u!212 &5503300554037909847
@@ -87,7 +103,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 47e5be479f8520846a69b5087c0c184a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -177,4 +193,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   attacker: {fileID: 0}
-  controller: {fileID: 0}

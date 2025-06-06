@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 using System.Linq;
-
+/*
 public class BlopSpawner : MonoBehaviour
 {
     public Tilemap natureTilemap, waterTilemap;
@@ -114,3 +114,4 @@ public class BlopSpawner : MonoBehaviour
         randomPos = new Vector2(randomTile.position.x + 0.5f, randomTile.position.y + 0.5f);
     }
 }
+*/

@@ -9,7 +9,7 @@ public class CreatureSpawner : MonoBehaviour
     public static CreatureSpawner Instance;
     
     public List<GameObject> creaturesGarbage = new List<GameObject>(); 
-
+    public List<CreatureController> livingCreatures = new List<CreatureController>();
     private void Awake()
     {
         if (Instance == null)
@@ -38,26 +38,27 @@ public class CreatureSpawner : MonoBehaviour
         if (creaturesGarbage.Count == 0)
         {
             GameObject creatureGO = GameObject.Instantiate(creaturePrefab, pos, Quaternion.identity);
-            creatureGO.GetComponent<NavMeshAgent>().enabled = true;
             creatureGO.SetActive(false);
             creatureGO.transform.SetParent(faction.transform);
             CreatureController controller = creatureGO.GetComponent<CreatureController>();
             controller.currentFaction = faction;
-            faction.members.Add(creatureGO); // optional: track units
+            livingCreatures.Add(controller); // track living creatures
+            faction.members.Add(controller); // optional: track units
             yield return new WaitForSeconds(0.1f); // wait a bit to ensure the creature is fully initialized
             creatureGO.SetActive(true);
         }
         else
         {
             GameObject creatureGO = creaturesGarbage[0];
-            creatureGO.GetComponent<NavMeshAgent>().enabled = true;
             creaturesGarbage.RemoveAt(0);
+            creatureGO = GameObject.Instantiate(creaturePrefab, pos, Quaternion.identity);
             creatureGO.transform.position = pos;
             creatureGO.SetActive(false);
             creatureGO.transform.SetParent(faction.transform);
             CreatureController controller = creatureGO.GetComponent<CreatureController>();
             controller.currentFaction = faction;
-            faction.members.Add(creatureGO); // optional: track units
+            livingCreatures.Add(controller); // track living creatures
+            faction.members.Add(controller); // optional: track units
             yield return new WaitForSeconds(0.1f); // wait a bit to ensure the creature is fully initialized
             creatureGO.SetActive(true);
         }
