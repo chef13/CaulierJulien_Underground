@@ -35,8 +35,17 @@ public class CreatureAI : MonoBehaviour
 
     public void SwitchState(CreatureState newState)
     {
+        if (newState == null)
+            return;
+
         if (currentState != null && currentState.GetType() == newState.GetType())
+            return;
+        
+        bool isCurrentNeed = currentState is StateNeedFood || currentState is StateNeedRest;
+        bool isNewGoal = newState is StateRecolt || newState is StateWander || newState is StatePatrol || newState is StateExplore;
+        if (isCurrentNeed && isNewGoal)
         return;
+
         previousState = currentState;
         currentState?.Exit();
         currentState = newState;

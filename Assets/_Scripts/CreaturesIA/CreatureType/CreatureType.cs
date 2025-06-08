@@ -32,7 +32,7 @@ public abstract class CreatureType
         }
         Controller.animator.SetTrigger("Attack");
         Controller.agent.isStopped = true; // Stop moving while attacking
-        Controller.currentEnergy -= Controller.data.attackPower / 5;
+        Controller.ChangeEnergy(Controller.data.attackPower / 5);
 
         target.OnHit(Controller, Controller.data.attackPower);
         Controller.attackTimer = Controller.data.attackSpeed;
@@ -77,7 +77,7 @@ public abstract class CreatureType
         Controller.isCorpse = true;
         Controller.agent.isStopped = true;
         Controller.agent.speed = 0f;
-        Controller.currentFaction.members.Remove(Controller);
+        Controller.currentFaction.UnassigneCreatreAtDeath(Controller);
         CreatureSpawner.Instance.livingCreatures.Remove(Controller);
     }
 

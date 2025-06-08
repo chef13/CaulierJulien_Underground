@@ -8,9 +8,7 @@ public class StatePatrol : CreatureState
     private Queue<Vector2> patrolQueue = new Queue<Vector2>();
     private int currentIndex = 0;
     private Queue<Vector2> patrolQueueHQ = new Queue<Vector2>();
-
-    bool patrolAroundHQ = false;
-    bool patrolToOtherHQ = false;
+    private RoomInfo currentHQpatrol;
 
     public StatePatrol(CreatureAI creature) : base(creature)
     {
@@ -19,93 +17,83 @@ public class StatePatrol : CreatureState
 
     public override void Enter()
     {
-        if (Controller.currentRoom == null || Controller.currentRoom != null && Controller.currentRoom.faction != Controller.currentFaction)
-        {
-            RoomInfo closerHQ = GetCloserHQ();
-            Controller.SetDestination(closerHQ.tileCenter);
-        }
-        else if (Controller.currentRoom != null && Controller.currentRoom.faction == Controller.currentFaction)
-        {
-           
-                patrolAroundHQ = true;
-                GetPatrolAroundHQ();
-                Vector2 nextPosition = patrolQueue.Dequeue();
-                Controller.SetDestination(nextPosition);
-            
-        }
+        patrolQueue.Clear();
+        patrolQueueHQ.Clear();
+
+       
+        RoomInfo closerHQ = GetCloserHQ();
+        GetPatrolAroundHQ(closerHQ);
+
+        if (patrolQueue.Count == 0)
+            patrolQueue.Enqueue(Controller.currentRoom.tileCenter); // fallback
+
+        Controller.SetDestination(patrolQueue.Dequeue());
     }
 
     public override void Update()
     {
-        if (!Controller.hasDestination && patrolAroundHQ)
+        if (!Controller.hasDestination)
         {
+
             if (patrolQueue.Count > 0)
             {
-                Vector2 nextPosition = patrolQueue.Dequeue();
-                Controller.SetDestination(nextPosition);
+                Controller.SetDestination(patrolQueue.Dequeue());
+                return;
             }
-            else
+
+            if (patrolQueue.Count == 0 && Controller.currentFaction.currentHQ.Count == 1)
             {
-                patrolAroundHQ = false;
-                if (patrolQueueHQ.Count > 0)
+                GetPatrolAroundHQ(currentHQpatrol);
+                return;
+            }
+
+            if (patrolQueue.Count == 0 && Controller.currentFaction.currentHQ.Count > 1)
+            {
+                foreach (var hq in Controller.currentFaction.currentHQ)
                 {
-                    Vector2 nextPosition = patrolQueueHQ.Dequeue();
-                    Controller.SetDestination(nextPosition);
-                    patrolToOtherHQ = true;
-                }
-                else
-                {
-                    GetHQpos();
-                    if (patrolQueueHQ.Count > 0)
+                    if (hq != currentHQpatrol)
                     {
-                        Vector2 nextPosition = patrolQueueHQ.Dequeue();
-                        Controller.SetDestination(nextPosition);
+                        currentHQpatrol = hq;
+                        GetPatrolAroundHQ(currentHQpatrol);
+                        return;
                     }
                 }
             }
-            
-        }
 
-        if (!Controller.hasDestination && patrolToOtherHQ)
-        {
-            GetPatrolAroundHQ();
-            patrolToOtherHQ = false;
-            patrolAroundHQ = true;
-            if (patrolQueue.Count > 0)
-            {
-                Vector2 nextPosition = patrolQueue.Dequeue();
-                Controller.SetDestination(nextPosition);
-            }
-            // else: optionally handle idle or fallback
+
+            
+            
         }
 
     }
 
     public void GetHQpos()
     {
-        for (int i = 0; i < Controller.currentFaction.currentHQ.Count; i++)
-        {
-            Vector2Int hqPos = Controller.currentFaction.currentHQ[i].tileCenter;
-            if (!patrolQueueHQ.Contains(hqPos))
-            {
-                patrolQueueHQ.Enqueue(hqPos);
-            }
-        }
+                for (int i = 0; i < Controller.currentFaction.currentHQ.Count; i++)
+                {
+                    Vector2Int hqPos = Controller.currentFaction.currentHQ[i].tileCenter;
+                    if (!patrolQueueHQ.Contains(hqPos))
+                    {
+                        patrolQueueHQ.Enqueue(hqPos);
+                    }
+                }
     }
 
-    public void GetPatrolAroundHQ()
+    public void GetPatrolAroundHQ(RoomInfo HQ)
     {
-        if (Controller.currentRoom != null && Controller.currentRoom.faction == Controller.currentFaction)
+        
+        if (HQ == null || HQ.connectedRooms == null)
+        return;
+
+            for (int i = 0; i < HQ.connectedRooms.Count; i++)
         {
-            for (int i = 0; i < Controller.currentRoom.connectedRooms.Count; i++)
+            Vector2 pos = HQ.connectedRooms[i].tileCenter;
+            if (!patrolQueue.Contains(pos))
             {
-                Vector2 pos = Controller.currentRoom.connectedRooms[i].tileCenter;
-                if (!patrolQueue.Contains(pos))
-                {
-                    patrolQueue.Enqueue(pos);
-                }
+                patrolQueue.Enqueue(pos);
             }
         }
+        
     }
 
 

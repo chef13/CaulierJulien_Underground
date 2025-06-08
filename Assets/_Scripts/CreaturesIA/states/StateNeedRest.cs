@@ -40,17 +40,14 @@ public class StateNeedRest : CreatureState
     {
         if (Controller.sleeping) return;
 
-        if (Controller.currentEnergy >= Controller.data.maxEnergy - 5)
+        if (Controller.currentEnergy >= Controller.data.maxEnergy - 5 || Controller.currentHP >= Controller.data.maxLife - 5)
         {
-            Controller.basicNeed = false;
-            if (creature.previousState is not StateNeedFood)
-                creature.SwitchState(creature.previousState);
-            else
+            
                 creature.SwitchState(new StateIdle(creature));
             return;
         }
 
-        if (Controller.currentEnergyState != CreatureController.energyState.Full)
+        if (Controller.currentEnergyState != CreatureController.energyState.Full || Controller.currentHP < Controller.data.maxLife -5)
         {
             if (CheckIfInHQ())
             {
@@ -58,7 +55,7 @@ public class StateNeedRest : CreatureState
                 return;
             }
             
-            if (Controller.currentRoom != null && Controller.currentFaction.currentHQ.Count > 0 && Controller.currentRoom.faction == Controller.currentFaction)
+            if (!Controller.hasDestination && Controller.currentRoom != null && Controller.currentFaction.currentHQ.Count > 0 && Controller.currentRoom.faction != Controller.currentFaction)
             {
                 RoomInfo closerHQ = GetCloserHQ();
                 if (closerHQ != null)

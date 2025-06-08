@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using System.Linq;
 
 public class StateRecolt : CreatureState
 {
@@ -14,16 +16,27 @@ public class StateRecolt : CreatureState
     public override void Enter()
     {
     }
+    
+    public override void Exit()
+    {
+        if (Controller != null && recoltCoroutine != null)
+        {
+            Controller.StopCoroutine(recoltCoroutine);
+            recoltCoroutine = null;
+        }
+        if (Controller != null)
+        {
+            Controller.recoltTarget = false;
+            Controller.currentRecoltTarget = null;
+        }
+    }
 
     public override void Update()
     {
 
-        if (Controller.data.carnivor && DetectTreat(out CreatureController target))
-            {
-                creature.SwitchState(new StateAttack(creature, target));
-            }
 
-            
+
+
         //Debug.Log($"{Controller.name} is in Recolt state");
         if (Controller.currentResources >= Controller.data.maxEnergy / 2)
         {
@@ -41,92 +54,147 @@ public class StateRecolt : CreatureState
             Controller.SetDestination(new Vector2Int(destinationTile.position.x, destinationTile.position.y));
         }
 
-        if (Controller.lookingForRessource && !Controller.foodTarget && !Controller.recoltTarget)
+        /*if (Controller.lookingForRessource && Controller.currentFoodTarget == null && Controller.currentRecoltTarget == null && recoltCoroutine == null)
         {
             //Debug.Log($"{Controller.name} looking for resources");
             if (Controller.data.carnivor)
             {
                 CheckCarnivor();
-                
-                //Debug.Log($"{Controller.name} checking for carnivor targets");
             }
             if (Controller.data.herbivor && !Controller.recoltTarget)
             {
                 CheckHerbivor();
                 //Debug.Log($"{Controller.name} checking for herbivor targets");
             }
-        }
-
-        if (!Controller.hasDestination && Controller.lookingForRessource)
+        }*/
+        /*if (!Controller.hasDestination && Controller.currentFoodTarget == null && Controller.currentRecoltTarget == null)
         {
+            //Debug.Log($"{Controller.name} looking for resources");
             if (Controller.data.carnivor)
             {
-                HuntPrey();
+                CheckCarnivor();
             }
-            if (!Controller.hasDestination && Controller.data.herbivor)
+            if (Controller.data.herbivor && !Controller.recoltTarget)
             {
-                SearchForVegetable();
+                CheckHerbivor();
+                //Debug.Log($"{Controller.name} checking for herbivor targets");
+            }
+        }*/
+
+        if (Controller.hasDestination || Controller.currentFoodTarget != null || Controller.currentRecoltTarget != null)
+        return;
+
+
+        {
+            RoomInfo Room = null;
+            if (Controller.currentRoom == null)
+            {
+                Room = Controller.currentTile.corridor.connectedRooms[Random.Range(0, Controller.currentTile.corridor.connectedRooms.Count)];
+            }
+            else
+            {
+                Room = Controller.currentRoom;
             }
 
-            
+            if (Controller.data.carnivor && Controller.currentFoodTarget == null)
+            {
+                //HuntPrey();
+                if (Controller.currentRoom == null)
+                {
+                    creature.SwitchState(new StateExplore(creature));
+                    return;
+                }
+
+                RoomInfo enemyRoom = FindRoom(
+                                    Room,
+                                    1,
+                                    room => room.tiles.Any(t => t.creatures.Any(c => c.currentFaction != Controller.currentFaction))
+                                );
+
+
+                if (enemyRoom != null)
+                {
+                    Debug.Log($"{Controller.name} found enemy room at {enemyRoom.index}");
+                    Controller.SetDestination(enemyRoom.tileCenter);
+                }
+            }
+            if (Controller.data.herbivor && Controller.currentFoodTarget == null)
+            {
+                RoomInfo foodRoom = FindRoom(
+                                Room,
+                                2,
+                                room => room.tiles.Any(t => t.objects.Any(o => o.GetComponent<FlaureBehaviour>()?.isEdible == true))
+                            );
+                if (foodRoom != null)
+                {
+                    Debug.Log($"{Controller.name} found food room at {foodRoom.index}");
+                    Controller.SetDestination(foodRoom.tileCenter);
+                }
+                //TryEatVegetable();
+                //if (Controller.currentHungerState != CreatureController.hungerState.Full)
+                //SearchForVegetable();
+            }
+            if (!Controller.hasDestination)
+            {
+                Debug.Log($"{Controller.name} has no destination, finding a random room");
+                RoomInfo randomRoom = FindRoom(Room, 2);
+                Controller.SetDestination(randomRoom.tileCenter);
+            }
         }
     }
 
     public IEnumerator GoRecoltTarget(GameObject target)
     {
-        while (Controller.recoltTarget)
+        if (target == null) yield break;
+
+        Vector2 previousDestination = Controller.destination;
+        Controller.tempDestination = target.transform.position;
+        Controller.SetDestination(Controller.tempDestination);
+
+        while (target != null && target.activeInHierarchy && Controller.recoltTarget)
         {
-            //Debug.Log($"{name} GoEatTarget coroutine started for {target?.name}");
-            Vector2 previousDestination = Controller.destination;
+            // Revalidate target
+            if (!Controller.CheckOntargetValidity(target))
+                break;
+
+            float distance = Vector2.Distance(Controller.transform.position, Controller.tempDestination);
             Controller.tempDestination = target.transform.position;
-            Controller.SetDestination(Controller.tempDestination);
-            yield return new WaitUntil(() => !Controller.hasDestination || Vector2.Distance(Controller.transform.position, Controller.tempDestination) <= 1f);
-            if (target == null || !target.activeInHierarchy)
-            {
-                target = null;
-                Controller.recoltTarget = false;
 
-                //Debug.LogWarning($"{name} tried to eat a target that is null or inactive.");
-                yield break;
-            }
-            if (target.GetComponent<FlaureBehaviour>() != null)
+            // If close enough, interact
+            if (!Controller.hasDestination || distance <= 1.5f)
             {
-                FlaureBehaviour flaure = target.GetComponent<FlaureBehaviour>();
+                Controller.agent.isStopped = true;
                 Controller.animator.SetTrigger("Attack");
-                Controller.agent.isStopped = true; // Stop moving while attacking
+                yield return new WaitForSeconds(1f);
+                Controller.agent.isStopped = false;
 
-                yield return new WaitForSeconds(1);
-                Controller.agent.isStopped = false; // Resume moving after attack
-                flaure.IsEaten();
-                Controller.currentResources += flaure.flaureData.edibleAmount;
-                Controller.recoltTarget = false;
-                recoltCoroutine = null;
-                Controller.StopCoroutine(GoRecoltTarget(target));
-                yield break;
-            }
-            if (target.GetComponent<CreatureController>() != null)
-            {
-                CreatureController creature = target.GetComponent<CreatureController>();
-                Controller.animator.SetTrigger("Attack");
-                Controller.agent.isStopped = true; // Stop moving while attacking
+                if (target.TryGetComponent(out FlaureBehaviour flaure))
+                {
+                    flaure.IsEaten();
+                    Controller.currentResources += flaure.flaureData.edibleAmount;
+                }
+                else if (target.TryGetComponent(out CreatureController corpse))
+                {
+                    corpse.currentCreatureType.IsEaten();
+                    Controller.currentResources += corpse.data.maxLife / 2;
+                }
 
-                yield return new WaitForSeconds(1);
-                Controller.agent.isStopped = false; // Resume moving after attack
-                creature.currentCreatureType.IsEaten();
-                Controller.currentResources += creature.data.maxLife / 2;
-                Controller.recoltTarget = false;
-                recoltCoroutine = null;
-                Controller.StopCoroutine(GoRecoltTarget(target));
-                yield break;
+                break;
             }
-            Controller.tempDestination = Vector2.zero;
-            Controller.SetDestination(previousDestination);
+
+            // Maintain destination if needed
+            if (!Controller.hasDestination)
+                Controller.SetDestination(Controller.tempDestination);
+
+            yield return new WaitForSeconds(0.1f);
         }
-        recoltCoroutine = null;
-        Controller.StopCoroutine(GoRecoltTarget(target));
-        yield break;
-    }
 
+        // Cleanup
+        Controller.SetDestination(previousDestination);
+        Controller.currentRecoltTarget = null;
+        Controller.recoltTarget = false;
+        recoltCoroutine = null;
+    }
     /*public IEnumerator Recolt()
     {
         
@@ -196,7 +264,7 @@ public class StateRecolt : CreatureState
     }
     
 
-    private void CheckHerbivor()
+    public override void CheckHerbivor()
     {
         //Debug.Log($"{name}"  + " checking for herbivor targets");
             for (int s = 0; s < Controller._surroundingTiles.Count; s++)
@@ -204,23 +272,22 @@ public class StateRecolt : CreatureState
                 var tile = Controller._surroundingTiles[s];
                 if (tile.objects != null && tile.objects.Count > 0)
                 {
-                    for (int f = 0; f < tile.objects.Count; f++)
+                for (int f = 0; f < tile.objects.Count; f++)
+                {
+                    var flaureComp = tile.objects[f].GetComponent<FlaureBehaviour>();
+                    if (flaureComp != null && flaureComp.gameObject.activeInHierarchy && flaureComp.isEdible)
                     {
-                        var flaureComp = tile.objects[f].GetComponent<FlaureBehaviour>();
-                        if (flaureComp != null && flaureComp.gameObject.activeInHierarchy && flaureComp.isEdible)
-                        {
-                            Controller.recoltTarget = true;
-                           // Debug.Log($"{name} found edible Flaure {flaureComp.name} at {tile.position}");
-                            recoltCoroutine = Controller.StartCoroutine(GoRecoltTarget(tile.objects[f]));
-                            break;
-                        }
-                        //else
-                           // Debug.Log($"{name} found Flaure {flaureComp.name} at {tile.position}, but it is not edible.");
+                        Controller.currentRecoltTarget = tile.objects[f];
+                        Controller.recoltTarget = true;
+                        // Debug.Log($"{name} found edible Flaure {flaureComp.name} at {tile.position}");
+                        recoltCoroutine = Controller.StartCoroutine(GoRecoltTarget(Controller.currentRecoltTarget));
+                        return;
                     }
+                }
                 }
             }
     }
-    private void CheckCarnivor()
+    public override void CheckCarnivor()
     {
         //Debug.Log($"{name}"  + " checking for carnivor targets");
         for (int i = 0; i < Controller.CreaturesInRange.Count; i++)
@@ -231,17 +298,19 @@ public class StateRecolt : CreatureState
             {
                 //Debug.Log($"Found creature to prey {creature.name} at {creature.currentTile.position}");
                 
-                this.creature.SwitchState(new StateAttack(this.creature, creature));
-                break;
+                Controller.creatureAI.SwitchState(new StateAttack(Controller.creatureAI, creature));
+                return;
             }
             
             //Debug.Log($"No creature found in range.");        
             if (!Controller.recoltTarget && creature.gameObject.activeInHierarchy && creature != null && creature.isDead && creature.isCorpse)
             {
-                //Debug.Log($"Found dead creature {creature.name} at {creature.currentTile.position}");
-                Controller.recoltTarget = true;
-                recoltCoroutine = Controller.StartCoroutine(GoRecoltTarget(creature.gameObject));
-                break;
+                
+                    Controller.recoltTarget = true;
+                    Controller.currentRecoltTarget = creature.gameObject;
+                    recoltCoroutine = Controller.StartCoroutine(GoRecoltTarget(Controller.currentRecoltTarget));
+                    return;
+                
             }
         }
     }

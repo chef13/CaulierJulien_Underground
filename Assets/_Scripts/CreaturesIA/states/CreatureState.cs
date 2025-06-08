@@ -23,6 +23,16 @@ public abstract class CreatureState
     public virtual void Enter() { }
     public virtual void Exit() { }
     public virtual void Update() { }
+    public void FixedUpdate()
+    {
+        if (Controller.data.carnivor && Controller.currentHungerState != CreatureController.hungerState.Full && DetectTreat(out CreatureController target))
+        {
+            creature.SwitchState(new StateAttack(creature, target));
+        }
+    }
+
+    public virtual void CheckCarnivor() { }
+    public virtual void CheckHerbivor() { }
 
     public CreatureController DetectTreat(out CreatureController target)
     {
@@ -170,7 +180,7 @@ public abstract class CreatureState
                             {
                                 foreach (CreatureController c in room.connectedRooms[i].tiles[j].creatures)
                                 {
-                                    if ( c.gameObject.activeInHierarchy && c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
+                                    if (c.gameObject.activeInHierarchy && c.isDead && c.isCorpse || !c.isDead && c.currentFaction != Controller.currentFaction)
                                     {
                                         return c;
                                     }
@@ -226,7 +236,7 @@ public abstract class CreatureState
                     foreach (GameObject c in t.objects)
                     {
                         FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
-                        if (flaureBehaviour != null&& flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
+                        if (flaureBehaviour != null && flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
                         {
                             targets.Add(flaureBehaviour);
                         }
@@ -280,7 +290,7 @@ public abstract class CreatureState
                                 foreach (GameObject c in t.objects)
                                 {
                                     FlaureBehaviour flaureBehaviour = c.GetComponent<FlaureBehaviour>();
-                                    if (flaureBehaviour != null&& flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
+                                    if (flaureBehaviour != null && flaureBehaviour.gameObject.activeInHierarchy && flaureBehaviour.isEdible)
                                     {
                                         return flaureBehaviour;
                                     }
@@ -312,7 +322,7 @@ public abstract class CreatureState
 
     public RoomInfo GetRandomRoom(RoomInfo room, int range)
     {
-            if (room == null)
+        if (room == null)
         {
             return null;
         }
@@ -327,11 +337,11 @@ public abstract class CreatureState
             for (int i = 0; i < room.connectedRooms.Count; i++)
             {
                 if (Controller.previousRoom != null && room.connectedRooms[i] != Controller.previousRoom)
-                roomRange1.Add(room.connectedRooms[i]);
+                    roomRange1.Add(room.connectedRooms[i]);
             }
-             if (roomRange1.Count == 0)
+            if (roomRange1.Count == 0)
                 return room; // fallback or return null
-             return roomRange1[Random.Range(0, roomRange1.Count)];
+            return roomRange1[Random.Range(0, roomRange1.Count)];
         }
         else if (range == 2 && roomRange1.Count > 0)
         {
@@ -351,5 +361,41 @@ public abstract class CreatureState
         }
 
         return null;
+    }
+
+
+    public RoomInfo FindRoom(RoomInfo origin, int range, System.Func<RoomInfo, bool> predicate = null)
+    {
+        if (origin == null || range < 0)
+            return null;
+
+        HashSet<RoomInfo> visited = new() { origin };
+        Queue<(RoomInfo room, int depth)> queue = new();
+        List<RoomInfo> candidates = new();
+
+        queue.Enqueue((origin, 0));
+
+        while (queue.Count > 0)
+        {
+            var (room, depth) = queue.Dequeue();
+
+            if (predicate == null || predicate(room))
+            {
+                candidates.Add(room);
+            }
+
+            if (depth < range)
+            {
+                foreach (var neighbor in room.connectedRooms)
+                {
+                    if (visited.Add(neighbor))
+                    {
+                        queue.Enqueue((neighbor, depth + 1));
+                    }
+                }
+            }
+        }
+
+        return candidates.Count > 0 ? candidates[Random.Range(0, candidates.Count)] : null;
     }
 }

@@ -93,9 +93,9 @@ public class GobFaction : FactionType
             if (tile.isNature) natureCount++;
             if (tile.isWater) waterCount++;
         }
-        Debug.Log($"Checking room {room.index}: nature={natureCount}, water={waterCount}");
-        if (natureCount >= 3 && waterCount >= 2)
-            return true;
+       // Debug.Log($"Checking room {room.index}: nature={natureCount}, water={waterCount}");
+        if (natureCount < 5 && waterCount < 5)
+           
 
         // Optionally check connected rooms as well
         foreach (var connectedroom in room.connectedRooms)
@@ -107,8 +107,8 @@ public class GobFaction : FactionType
                 if (tile.isNature) natureCount++;
                 if (tile.isWater) waterCount++;
             }
-            Debug.Log($"Checking connected room {connectedroom.index}: nature={natureCount}, water={waterCount}");
-            if (natureCount >= 3 && waterCount >= 2)
+           // Debug.Log($"Checking connected room {connectedroom.index}: nature={natureCount}, water={waterCount}");
+            if (natureCount <= 3 && waterCount >= 5)
                 return true;
         }
         return false;

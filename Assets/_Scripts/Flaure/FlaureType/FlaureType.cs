@@ -27,6 +27,8 @@ public abstract class FlaureType
         yield return null;
     }
 
+    public virtual void Growing() { return; }
+
     public virtual void Expand()
     {
 

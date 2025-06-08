@@ -5,10 +5,14 @@ using Random = UnityEngine.Random;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Rendering;
 
 
 public class FlaureSpawner : MonoBehaviour
 {
+    public float coroutineDelay = 2f; // Delay for the growth coroutine
+    public int flaureBatchSize = 10;
+    public Coroutine growCoroutine, spawnCoroutine;
     public static FlaureSpawner instance;
     public GameObject champiPrefab;
     public FactionBehaviour wandererFaction;
@@ -30,7 +34,7 @@ public class FlaureSpawner : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        StartCoroutine(SpawnFlaureQueueCoroutine());
+        LaucheCoroutine();
         FirstSpawning();
     }
 
@@ -38,6 +42,18 @@ public class FlaureSpawner : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void LaucheCoroutine()
+    {
+        if (growCoroutine == null)
+        {
+            growCoroutine = StartCoroutine(FlaureGrowthCoroutine());
+        }
+        if (spawnCoroutine == null)
+        {
+            spawnCoroutine = StartCoroutine(SpawnFlaureQueueCoroutine());
+        }
     }
 
     private void FirstSpawning()
@@ -181,7 +197,44 @@ public class FlaureSpawner : MonoBehaviour
                 var (tileInfo, data, position) = spawnQueue.Dequeue();
                 SpawnFlaure(tileInfo, data, position);
             }
-            yield return null;
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    private IEnumerator FlaureGrowthCoroutine()
+    {
+        yield return new WaitForSeconds(5f);
+        int index = 0;
+        //Debug.Log("CheckCreatureMaster coroutine started");
+        while (true)
+        {
+            if (flaureBehaviours.Count > 0)
+            {
+                int flaureBatch = flaureBatchSize;
+                while (flaureBatch > 0)
+                {
+                    int checkedCount = 0;
+                    bool found = false;
+                    while (checkedCount < flaureBehaviours.Count && !found)
+                    {
+                        var flaureToGrow = flaureBehaviours[index];
+                        if (flaureToGrow != null && flaureToGrow.isActiveAndEnabled && flaureToGrow.coroutineDelay <= 0.1f)
+                        {
+                            flaureToGrow.currentFlaureType.Growing();
+                            flaureToGrow.coroutineDelay = coroutineDelay;
+                            found = true;
+                            index = (index + 1) % flaureBehaviours.Count;
+                            break;
+                        }
+                        index = (index + 1) % flaureBehaviours.Count;
+                        checkedCount++;
+                    }
+                    flaureBatch--;
+                }
+                yield return new WaitForEndOfFrame();
+            }
+
+            yield return new WaitForEndOfFrame();
         }
     }
 }

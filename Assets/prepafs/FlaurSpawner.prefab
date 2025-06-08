@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b5f14660c4bd154ab78f77bfd8cdef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  coroutineDelay: 10
+  flaureBatchSize: 1
   champiPrefab: {fileID: 3239829643432152457, guid: df0fda09caa6a0b45ab65a538ff6b8d2, type: 3}
   wandererFaction: {fileID: 0}
   flaureBehaviours: []

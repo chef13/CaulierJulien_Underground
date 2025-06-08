@@ -22,6 +22,7 @@ MonoBehaviour:
   growingTime: 70
   growthStages: 3
   EdibleStage: 2
-  edibleAmount: 20
-  range: 2
+  edibleAmount: 30
+  spawnChance: 0
+  range: 3
   waterFactor: 1

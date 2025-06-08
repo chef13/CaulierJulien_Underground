@@ -107,7 +107,7 @@ public class LezardFaction : FactionType
                 if (tile.isWater) waterCount++;
             }
            // Debug.Log($"Checking connected room {connectedroom.index}: nature={natureCount}, water={waterCount}");
-            if (natureCount >= 3 && waterCount >= 2)
+            if (waterCount <= 2)
                 return true;
         }
         return false;

@@ -13,6 +13,7 @@ public class FlaureBehaviour : MonoBehaviour
     public Coroutine growthCoroutine;
     public int currentStage = 0;
     public float currentGrowthTime = 0f;
+    public float coroutineDelay = 2f;
     public bool isEdible = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
@@ -41,8 +42,8 @@ public class FlaureBehaviour : MonoBehaviour
     void OnEnable()
     {
         currentFlaureType = GetFlaureTypeInstance();
-        if (growthCoroutine == null)
-            growthCoroutine = StartCoroutine(currentFlaureType.Grow());
+        //if (growthCoroutine == null)
+         //   growthCoroutine = StartCoroutine(currentFlaureType.Grow());
 
         if (currentStage >= flaureData.EdibleStage)
         {
@@ -74,8 +75,7 @@ public class FlaureBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
+        currentFlaureType?.Update();
     }
 
     public void SwitchType(FlaureType newType)

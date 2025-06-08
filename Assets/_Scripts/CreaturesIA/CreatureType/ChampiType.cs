@@ -35,12 +35,11 @@ public class ChampiType : CreatureType
 
     public override void IsEaten()
     {
-        int randomChampi = Random.Range(0, 3);
+        int randomChampi = Random.Range(2, 5);
         while (randomChampi != 0)
         {
-            TileInfo tile = DungeonGenerator.Instance.dungeonMap.TryGetValue(new Vector3Int(
-            Controller.currentTile.position.x + Random.Range(-1, 2), Controller.currentTile.position.y + Random.Range(-1, 2), 0), out TileInfo tileInfo) ? tileInfo : null;
-            FlaureSpawner.instance.spawnQueue.Enqueue((tile, FlaureSpawner.instance.champiData, tile.position + new Vector3(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 0)));
+            if (Controller.currentTile == null && Controller.currentTile.objects.Count < 4)
+            FlaureSpawner.instance.spawnQueue.Enqueue((Controller.currentTile, FlaureSpawner.instance.champiData, Controller.currentTile.position + new Vector3(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 0)));
             randomChampi--;
 
         }
@@ -72,7 +71,7 @@ public class ChampiType : CreatureType
     
     public override IEnumerator DeathDecay()
     {
-        int decayDelay = Random.Range(10, 20);
+        int decayDelay = Random.Range(60, 120);
         while (decayDelay > 0)
         {
             decayDelay--;

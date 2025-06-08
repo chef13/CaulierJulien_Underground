@@ -20,6 +20,51 @@ public class BushFlaure : FlaureType
   {
 
   }
+  public override void Update()
+  {
+    if (flaure.coroutineDelay >= 0)
+        {
+            flaure.coroutineDelay -= Time.deltaTime;
+        }
+
+  }
+    public override void Growing()
+  {
+    flaure.currentGrowthTime++;
+    List<TileInfo> waterTiles = new List<TileInfo>();
+    for (int dx = -flaure.flaureData.range; dx <= flaure.flaureData.range; dx++)
+    {
+      for (int dy = -flaure.flaureData.range; dy <= flaure.flaureData.range; dy++)
+      {
+        Vector3Int checkPos = new Vector3Int(flaure.currentTile.position.x + dx, flaure.currentTile.position.y + dy, 0);
+        if (DungeonGenerator.Instance.dungeonMap.TryGetValue(checkPos, out TileInfo tile))
+        {
+          if (tile.objects.Count == 0 && tile.isWater)
+          {
+            waterTiles.Add(tile);
+          }
+        }
+      }
+    }
+
+
+    if (waterTiles.Count != 0)
+      flaure.currentGrowthTime += waterTiles.Count / flaure.flaureData.waterFactor;
+
+    if (flaure.currentGrowthTime >= flaure.flaureData.growingTime)
+    {
+      flaure.currentGrowthTime = 0f;
+      if (flaure.currentStage < flaure.flaureData.growthStages)
+      {
+        flaure.GrowingStage();
+      }
+      else
+      {
+        Expand();
+      }
+
+    }
+  }
 
   public override IEnumerator Grow()
   {

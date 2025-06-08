@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Numerics;
+using Vector2 = UnityEngine.Vector2;
 
 public class StateFlee : CreatureState
 {
@@ -24,10 +26,19 @@ public class StateFlee : CreatureState
             DetectTreat(out attacker);
             if (attacker != null)
             {
-                Vector2 retreatPos = FindRetreatPosition(attacker);
-                Vector2 away = ((Vector2)creature.transform.position - retreatPos).normalized;
-                Vector2 destination = (Vector2)creature.transform.position + away * fleeDistance;
-                Controller.SetDestination(destination);
+                if (Controller.currentFaction.currentHQ.Count > 0)
+                {
+                    RoomInfo posHQ = GetCloserHQ();
+                    Controller.SetDestination(posHQ.tileCenter);
+
+                }
+                else
+                {
+                    Vector2 retreatPos = FindRetreatPosition(attacker);
+                    Vector2 away = ((Vector2)creature.transform.position - retreatPos).normalized;
+                    Vector2 destination = (Vector2)creature.transform.position + away * fleeDistance;
+                    Controller.SetDestination(destination);
+                }
             }
             else
             {

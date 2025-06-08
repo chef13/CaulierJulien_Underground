@@ -18,9 +18,9 @@ MonoBehaviour:
   skeletonSprite: {fileID: 0}
   animator: {fileID: 9100000, guid: aae5630a51e27704fb6cb2cff6329522, type: 2}
   CreatureType: 3
-  maxLife: 40
+  maxLife: 60
   maxEnergy: 60
-  maxHunger: 100
+  maxHunger: 0
   attackPower: 5
   detectionRange: 2
   attackRange: 0.5

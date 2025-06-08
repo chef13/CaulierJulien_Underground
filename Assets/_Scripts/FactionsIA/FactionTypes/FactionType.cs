@@ -8,16 +8,24 @@ using Unity.VisualScripting;
 public abstract class FactionType
 {
     [SerializeField] protected float coroutineDelay = 2f;
+    public enum FactionGoal
+    {
+        None,
+        RecoltFood,
+        FindHQ,
+        Wander,
+        Patrol
+    }
     public FactionBehaviour faction;
     public Coroutine mainCoroutineForGoals;
     public Coroutine findHQCoroutine;
     public Coroutine recoltFoodCoroutine;
     public Coroutine wanderingGoalCoroutine;
     public Coroutine patrolCoroutine;
-    public List<CreatureController> membersPatrol = new List<CreatureController>();
+    /*public List<CreatureController> membersPatrol = new List<CreatureController>();
     public List<CreatureController> membersWander = new List<CreatureController>();
     public List<CreatureController> membersRecoltFood = new List<CreatureController>();
-    public List<CreatureController> membersFindHQ = new List<CreatureController>();
+    public List<CreatureController> membersFindHQ = new List<CreatureController>();*/
     //protected float goalCheckTime = 1f;
 
 
@@ -53,34 +61,110 @@ public abstract class FactionType
         }
     }
 
-    protected virtual void CheckGoals() { }
-
-    protected void AssigningMember(List<CreatureController> GoalMembers, string goal, int goalPriority, int maxMember)
+    public virtual void MainCheckForGoals()
     {
-        if (faction.members != null && faction.members.Count > 0)
-        {
-            CreatureController member = faction.members[Random.Range(0, faction.members.Count)].GetComponent<CreatureController>();
-            if ((member.currentGoal == null || member.currentGoalPriority < goalPriority) && !GoalMembers.Contains(member))
-            {
-                member.currentGoal = goal;
-                member.currentGoalPriority = goalPriority;
-                GoalMembers.Add(member);
-            }
-        }
 
     }
 
-    protected void UnAssigningMember(List<CreatureController> GoalMembers, CreatureController GoalMember, string goal)
+    protected virtual void CheckGoals() { }
+
+    protected void AssigningMember(List<CreatureController> GoalMembers, FactionGoal goal, int goalPriority, int maxMember)
+    {
+        if (faction.members == null || faction.members.Count == 0)
+            return;
+
+        // Find all eligible members not already assigned to this goal
+        var eligible = new List<CreatureController>();
+        foreach (var member in faction.members)
+        {
+            if (member == null || member.isDead || !member.isActiveAndEnabled)
+                break;
+            if (member.currentGoalPriority < goalPriority && !GoalMembers.Contains(member))
+                    eligible.Add(member);
+        }
+
+        // Shuffle eligible list for randomness
+        for (int i = eligible.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            var temp = eligible[i];
+            eligible[i] = eligible[j];
+            eligible[j] = temp;
+        }
+
+        // Assign up to maxMember
+        int toAssign = Mathf.Min(maxMember - GoalMembers.Count, eligible.Count);
+        for (int i = 0; i < toAssign; i++)
+        {
+            var member = eligible[i];
+            var previousGoal = member.currentGoal;
+            switch (previousGoal)
+            {
+                case CreatureController.CreatureGoal.RecoltFood:
+                    faction.membersRecoltFood.Remove(member);
+                    break;
+                case CreatureController.CreatureGoal.FindHQ:
+                    faction.membersFindHQ.Remove(member);
+                    break;
+                case CreatureController.CreatureGoal.Wander:
+                    faction.membersWander.Remove(member);
+                    break;
+                case CreatureController.CreatureGoal.Patrol:
+                    faction.membersPatrol.Remove(member);
+                    break;
+            }
+            if (!member.basicNeed
+                && member.currentState is not StateNeedFood 
+                 && member.currentState is not StateNeedRest 
+                && member.currentState is not StateAttack 
+                && member.currentState is not StateFlee)
+            {
+                switch (goal)
+                {
+                    case FactionGoal.RecoltFood:
+                        member.creatureAI.SwitchState(new StateRecolt(member.creatureAI));
+                        break;
+                    case FactionGoal.FindHQ:
+                        member.creatureAI.SwitchState(new StateExplore(member.creatureAI));
+                        break;
+                    case FactionGoal.Wander:
+                        member.creatureAI.SwitchState(new StateWander(member.creatureAI));
+                        break;
+                    case FactionGoal.Patrol:
+                        member.creatureAI.SwitchState(new StatePatrol(member.creatureAI));
+                        break;
+                }
+            }
+            member.currentGoal = (CreatureController.CreatureGoal)goal;
+            member.currentGoalPriority = goalPriority;
+            GoalMembers.Add(member);
+        }
+    }
+
+    protected void UnAssigningMember(List<CreatureController> GoalMembers, CreatureController GoalMember, FactionGoal goal)
     {
         if (GoalMembers.Contains(GoalMember))
         {
-            GoalMember.currentGoal = null;
-            GoalMember.currentGoalPriority = 0;
-            GoalMembers.Remove(GoalMember);
-            if (GoalMember.creatureAI.currentState is not StateAttack && GoalMember.creatureAI.currentState is not StateFlee)
+            switch (goal)
             {
-                GoalMember.creatureAI.SwitchState(new StateIdle(GoalMember.creatureAI));
+                case FactionGoal.RecoltFood:
+                    faction.membersRecoltFood.Remove(GoalMember);
+                    break;
+                case FactionGoal.FindHQ:
+                    faction.membersFindHQ.Remove(GoalMember);
+                    break;
+                case FactionGoal.Wander:
+                    faction.membersWander.Remove(GoalMember);
+                    break;
+                case FactionGoal.Patrol:
+                    faction.membersPatrol.Remove(GoalMember);
+                    break;
             }
+            GoalMember.currentGoal = (CreatureController.CreatureGoal)FactionGoal.None;
+            GoalMember.currentGoalPriority = 0;
+            if (GoalMembers.Contains(GoalMember))
+            GoalMembers.Remove(GoalMember);
+            
         }
         else
         {
@@ -104,15 +188,15 @@ public abstract class FactionType
             int maxMembers = faction.currentHQ.Count * 4;
 
 
-            if (membersRecoltFood.Count <= faction.currentHQ.Count)
+            if (faction.membersRecoltFood.Count <= faction.currentHQ.Count)
             {
-                AssigningMember(membersRecoltFood, "Recolt Food", 5, faction.currentHQ.Count);
+                AssigningMember(faction.membersRecoltFood, FactionGoal.RecoltFood, 5, faction.currentHQ.Count);
                 yield return new WaitForSeconds(coroutineDelay);
             }
 
             if (faction.foodResources == 0)
             {
-                baseNeededMembers += Mathf.RoundToInt(faction.members.Count * 0.5f); // Ensure at least one member is assigned
+                baseNeededMembers += faction.members.Count; // Ensure at least one member is assigned
                 basePriority += 3;
             }
 
@@ -128,29 +212,30 @@ public abstract class FactionType
                 basePriority++;
             }
 
-            if (membersRecoltFood.Count < baseNeededMembers)
+            if (faction.membersRecoltFood.Count < baseNeededMembers)
             {
-                AssigningMember(membersRecoltFood, "Recolt Food", basePriority, baseNeededMembers);
+                AssigningMember(faction.membersRecoltFood, FactionGoal.RecoltFood, basePriority, baseNeededMembers);
                 yield return new WaitForSeconds(coroutineDelay);
             }
 
 
 
-            if (membersRecoltFood.Count == 0)
+            if (faction.membersRecoltFood.Count == 0)
             {
                 Debug.Log("GobFaction: No members assigned to Recolt Food");
             }
 
 
-            if (membersRecoltFood.Count > baseNeededMembers)
+            if (faction.membersRecoltFood.Count > baseNeededMembers)
             {
-                int excessMembers = membersRecoltFood.Count - baseNeededMembers;
+                int excessMembers = faction.membersRecoltFood.Count - baseNeededMembers;
 
-                if (membersRecoltFood.Count > baseNeededMembers)
+                if (faction.membersRecoltFood.Count > baseNeededMembers)
                 {
                     List<CreatureController> excessMembersList = new List<CreatureController>();
-                    foreach (CreatureController excessmember in membersRecoltFood)
+                    for (int i = faction.membersRecoltFood.Count -1; i >= 0; i--)
                     {
+                        var excessmember = faction.membersRecoltFood[i];
                         if (
                             excessmember.currentRoom != null &&
                             excessmember.currentRoom.faction != null &&
@@ -160,11 +245,11 @@ public abstract class FactionType
                             excessMembersList.Add(excessmember);
                         }
                     }
-                    for (int i = excessMembersList.Count - 1; i >= 0; i--)
+                    for (int i = 0;  i < excessMembersList.Count; i++)
                     {
                         CreatureController excessMember = excessMembersList[i];
 
-                        UnAssigningMember(membersRecoltFood, excessMember, "Recolt Food");
+                        UnAssigningMember(faction.membersRecoltFood, excessMember, FactionGoal.RecoltFood);
 
                     }
 
@@ -173,12 +258,22 @@ public abstract class FactionType
             }
 
 
-            for (int m = 0; m < membersRecoltFood.Count; m++)
+            for (int m = 0; m < faction.membersRecoltFood.Count; m++)
             {
-                CreatureController member = membersRecoltFood[m];
-                if (!member.basicNeed && member.currentState is not StateAttack && member.currentState is not StateFlee)
+                CreatureController member = faction.membersRecoltFood[m];
+
+                if (!member.basicNeed
+                        && member.currentState is not StateNeedFood
+                        && member.currentState is not StateNeedRest
+                        && member.currentState is not StateAttack
+                        && member.currentState is not StateFlee
+                        && member != null && !member.isDead && member.isActiveAndEnabled)
                 {
                     member.creatureAI.SwitchState(new StateRecolt(member.creatureAI));
+                }
+                    if (member.currentGoal != CreatureController.CreatureGoal.RecoltFood)
+                {
+                    UnAssigningMember(faction.membersRecoltFood, member, FactionGoal.RecoltFood);
                 }
             }
 
@@ -193,19 +288,23 @@ public abstract class FactionType
     {
         while (true)
         {
+            int baseNeededMembers = 1;
+            baseNeededMembers += faction.currentHQ.Count;
+            int basePriority = 1;
+            basePriority += baseNeededMembers - faction. membersFindHQ.Count;
             //Debug.Log("GobFaction: Checking for available HQ");
 
-            if (faction.currentHQ.Count == 0 && membersFindHQ.Count == 0)
+            if (faction.currentHQ.Count == 0 && faction.membersFindHQ.Count == 0)
             {
-                AssigningMember(membersFindHQ, "Finding HQ", 3, faction.members.Count);
+                AssigningMember(faction.membersFindHQ, FactionGoal.FindHQ, 3, faction.members.Count);
                 yield return new WaitForSeconds(coroutineDelay); // Wait a bit before starting the search
             }
             // Loop through all known rooms
 
             if (faction.currentHQ.Count * faction.members.Count > faction.currentHQ.Count * faction.factionData.maxMembersPerHQ
-            && membersFindHQ.Count < 3)
+            && faction.membersFindHQ.Count < 3)
             {
-                AssigningMember(membersFindHQ, "Finding HQ", 3, faction.members.Count / 2);
+                AssigningMember(faction.membersFindHQ, FactionGoal.FindHQ, 3, faction.members.Count / 2);
                 //Debug.Log("GobFaction: Members are looking for HQ");
             }
 
@@ -229,19 +328,21 @@ public abstract class FactionType
 
                     }
                 }
-                foreach (var room in roomsToAdd)
-                {                    // If a potential HQ is found, assign it to the faction
-                    faction.currentHQ.Add(room);
-                    room.faction = faction; // Assign the faction to the room
-                    foreach (TileInfo tile in room.tiles)
+                if (roomsToAdd.Count > 0)
+                {
+                    RoomInfo roomToAdd = roomsToAdd[Random.Range(0, roomsToAdd.Count)];
+                
+                    faction.currentHQ.Add(roomToAdd);
+                    roomToAdd.faction = faction; // Assign the faction to the room
+                    foreach (TileInfo tile in roomToAdd.tiles)
                     {
                         tile.faction = faction; // Assign the faction to the tiles
                     }
                     faction.numberOfHQ++;
                     //Debug.Log($"HQ found at {room.index}");
-                    for (int i = membersFindHQ.Count - 1; i >= 0; i--)
+                    for (int i = faction.membersFindHQ.Count - 1; i >= 0; i--)
                     {
-                        UnAssigningMember(membersFindHQ, membersFindHQ[i], "Finding HQ");
+                        UnAssigningMember(faction.membersFindHQ, faction.membersFindHQ[i], FactionGoal.FindHQ);
                     }
                 }
 
@@ -249,12 +350,24 @@ public abstract class FactionType
 
             }
 
-            foreach (var member in membersFindHQ)
+            foreach (var member in faction.membersFindHQ)
             {
-                // If no potential HQ found, switch member state to explore
-                if (member.currentState is StateIdle)
+
+
+                if (!member.basicNeed
+                        && member.currentState is not StateNeedFood
+                        && member.currentState is not StateNeedRest
+                        && member.currentState is not StateAttack
+                        && member.currentState is not StateFlee
+                        && member != null && !member.isDead && member.isActiveAndEnabled)
                 {
+                    // If the member is assigned to FindHQ, switch to Explore state
                     member.creatureAI.SwitchState(new StateExplore(member.creatureAI));
+                }
+                
+                if (member.currentGoal != CreatureController.CreatureGoal.FindHQ)
+                {
+                    UnAssigningMember(faction.membersFindHQ, member, FactionGoal.FindHQ);
                 }
             }
             yield return new WaitForSeconds(coroutineDelay);
@@ -267,28 +380,40 @@ public abstract class FactionType
         while (true)
         {
             int baseNeededMembers = 0;
-            baseNeededMembers = faction.currentHQ.Count;
-            int basePriority = 1;
-            basePriority += baseNeededMembers - membersWander.Count;
+            baseNeededMembers += faction.currentHQ.Count;
+            int basePriority = 0;
+            basePriority += baseNeededMembers -faction. membersWander.Count;
 
-            if (membersWander.Count < baseNeededMembers)
+            if (faction.membersWander.Count < baseNeededMembers)
             {
-                AssigningMember(membersWander, "Wandering", 1, baseNeededMembers);
+                AssigningMember(faction.membersWander, FactionGoal.Wander, 1, baseNeededMembers);
                 yield return new WaitForSeconds(coroutineDelay);
             }
 
-            if (membersWander.Count > baseNeededMembers)
+            if (faction.membersWander.Count > baseNeededMembers)
             {
-                CreatureController excessMember = membersWander[Random.Range(0, membersWander.Count)];
-                UnAssigningMember(membersWander, excessMember, "Wandering");
+                CreatureController excessMember = faction.membersWander[Random.Range(0, faction.membersWander.Count)];
+                UnAssigningMember(faction.membersWander, excessMember, FactionGoal.Wander);
             }
 
-            for (int m = 0; m < membersWander.Count; m++)
+            for (int m = 0; m < faction.membersWander.Count; m++)
             {
-                CreatureController member = membersWander[m];
-                if (!member.basicNeed && member.currentState is not StateAttack && member.currentState is not StateFlee)
+                CreatureController member = faction.membersWander[m];
+
+
+                if (!member.basicNeed
+                        && member.currentState is not StateNeedFood
+                        && member.currentState is not StateNeedRest
+                        && member.currentState is not StateAttack
+                        && member.currentState is not StateFlee
+                        && member != null && !member.isDead && member.isActiveAndEnabled)
                 {
                     member.creatureAI.SwitchState(new StateWander(member.creatureAI));
+                }
+                
+                if (member.currentGoal != CreatureController.CreatureGoal.Wander)
+                {
+                    UnAssigningMember(faction.membersWander, member, FactionGoal.Wander);
                 }
             }
             yield return new WaitForSeconds(coroutineDelay); // Adjust the wait time as needed
@@ -299,29 +424,40 @@ public abstract class FactionType
     {
         while (true)
         {
-            int baseNeededMembers = 0;
-            baseNeededMembers = faction.currentHQ.Count * 2;
+            int baseNeededMembers = 1;
+            baseNeededMembers += faction.currentHQ.Count * 2;
             int basePriority = 1;
-            basePriority += (baseNeededMembers * 2) - membersPatrol.Count;
+            basePriority += (baseNeededMembers * 2) - faction.membersPatrol.Count;
 
-            if (membersPatrol.Count < baseNeededMembers)
+            if (faction.membersPatrol.Count < baseNeededMembers)
             {
-                AssigningMember(membersPatrol, "Patrolling", 1, baseNeededMembers);
+                AssigningMember(faction.membersPatrol, FactionGoal.Patrol, 1, baseNeededMembers);
                 yield return new WaitForSeconds(coroutineDelay);
             }
 
-            if (membersPatrol.Count > baseNeededMembers)
+            if (faction.membersPatrol.Count > baseNeededMembers)
             {
-                CreatureController excessMember = membersPatrol[Random.Range(0, membersPatrol.Count)];
-                UnAssigningMember(membersPatrol, excessMember, "Patrolling");
+                CreatureController excessMember = faction.membersPatrol[Random.Range(0, faction.membersPatrol.Count)];
+                UnAssigningMember(faction.membersPatrol, excessMember, FactionGoal.Patrol);
             }
 
-            for (int m = 0; m < membersPatrol.Count; m++)
+            for (int m = 0; m < faction.membersPatrol.Count; m++)
             {
-                CreatureController member = membersPatrol[m];
-                if (!member.basicNeed && member.currentState is not StateAttack && member.currentState is not StateFlee)
+                CreatureController member = faction.membersPatrol[m];
+                
+                if (!member.basicNeed
+                        && member.currentState is not StateNeedFood
+                        && member.currentState is not StateNeedRest
+                        && member.currentState is not StateAttack
+                        && member.currentState is not StateFlee
+                        && member != null && !member.isDead && member.isActiveAndEnabled)
                 {
                     member.creatureAI.SwitchState(new StatePatrol(member.creatureAI));
+                }
+                
+                if (member.currentGoal != CreatureController.CreatureGoal.Patrol)
+                {
+                    UnAssigningMember(faction.membersPatrol, member, FactionGoal.Patrol);
                 }
             }
             yield return new WaitForSeconds(coroutineDelay); // Adjust the wait time as needed

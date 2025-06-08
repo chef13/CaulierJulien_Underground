@@ -50,7 +50,7 @@ public class WandererFaction : FactionType
 
     public override IEnumerator WandererCoroutine()
     {
-        AssigningMember(wanderingCreatures, "Wanderer", 5, 10);
+        AssigningMember(wanderingCreatures, FactionGoal.Wander, 5, 10);
         yield return null; // Placeholder for coroutine logic
     }
 

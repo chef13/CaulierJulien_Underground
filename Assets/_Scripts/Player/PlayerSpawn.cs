@@ -16,11 +16,5 @@ public class PlayerSpawn : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isSpawned && DungeonGenerator.Instance.navReady)
-        {
-            GameObject player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
-            isSpawned = true;
-            //tileInspector.player = player;
-        }
     }
 }

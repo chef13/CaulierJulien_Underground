@@ -5,10 +5,17 @@ using Unity.VisualScripting;
 using System.Collections;
 public class FactionBehaviour : MonoBehaviour
 {
-    
+
+    public List<CreatureController> membersPatrol = new List<CreatureController>();
+    public List<CreatureController> membersWander = new List<CreatureController>();
+    public List<CreatureController> membersRecoltFood = new List<CreatureController>();
+    public List<CreatureController> membersFindHQ = new List<CreatureController>();
+
+
     public FactionData factionData;
     //public CreatureSpawner creatureSpawner;
     public int rooms, tiles, foodResources;
+    public bool foodAvaible { get { return foodResources > members.Count * 10; } }
     static public FactionType currentFactionType;
     public string factionName;
     public int numberOfHQ = 0;
@@ -83,7 +90,7 @@ public class FactionBehaviour : MonoBehaviour
             {
                 StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(transform.position, prefabCreature, this));
             }
-            }
+        }
         yield break;
     }
 
@@ -92,17 +99,8 @@ public class FactionBehaviour : MonoBehaviour
     {
 
         currentFactionType?.Update();
-        /*if (currentHQ == null && knownRoomsDict.Count > 0)
-        {
-            foreach (RoomInfo room in knownRoomsDict.Values)
-            {
-                if (currentFactionType.PotencialHQ(room))
-                {
-                    currentHQ.Add(room);
-                    break;
-                }
-            }
-        }*/
+
+
     }
 
     public void AskedForState(CreatureController unit)
@@ -139,11 +137,11 @@ public class FactionBehaviour : MonoBehaviour
     private void StartAllCoroutines()
     {
         if (mainGoalsCoroutine == null)
-        mainGoalsCoroutine = StartCoroutine(currentFactionType.MainCoroutineForGoals());
+            mainGoalsCoroutine = StartCoroutine(currentFactionType.MainCoroutineForGoals());
         //if (RegisterNewRoomsCoroutine == null)
         //   RegisterNewRoomsCoroutine = StartCoroutine(RegisterNewRooms());
         if (checkFoodForNewMembersCoroutine == null)
-        checkFoodForNewMembersCoroutine = StartCoroutine(foodCheckCoroutine());
+            checkFoodForNewMembersCoroutine = StartCoroutine(foodCheckCoroutine());
     }
 
 
@@ -161,5 +159,22 @@ public class FactionBehaviour : MonoBehaviour
             }
             yield return new WaitForSeconds(1f); // Adjust the wait time as needed
         }
+    }
+    
+
+    public void UnassigneCreatreAtDeath(CreatureController creature)
+    {
+        if (creature == null || !members.Contains(creature))
+            return;
+
+        members.Remove(creature);
+        if (membersPatrol.Contains(creature))
+            membersPatrol.Remove(creature);
+        if (membersWander.Contains(creature))
+            membersWander.Remove(creature);
+        if (membersRecoltFood.Contains(creature))
+            membersRecoltFood.Remove(creature);
+        if (membersFindHQ.Contains(creature))
+            membersFindHQ.Remove(creature);
     }
 }

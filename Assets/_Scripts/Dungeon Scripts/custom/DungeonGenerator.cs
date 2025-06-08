@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using NavMeshPlus.Components;
+using Unity.VisualScripting;
 
 public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 {
-    [SerializeField] private GameObject prefabFactionGenerator;
+    [SerializeField] private GameObject prefabFactionGenerator, prefabManaCore;
     [SerializeField] private GameObject prefabFlaureSpawner, prefabCreatureSpawner;
     public static DungeonGenerator Instance;
     public bool genReady;
@@ -23,6 +24,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
     public Dictionary<(RoomInfo from, RoomInfo to), CorridorInfo> corridorsMap = new();
 
     [Range(3, 10)] public int roomGrid = 5;
+    [Range(1, 8)] public int startingfactionCount = 4;
     [SerializeField] public int dungeonWidth = 100;
     [SerializeField] public int dungeonHeight = 100;
     [SerializeField] private int minRoomWidth = 4;
@@ -400,6 +402,74 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                 Instance.waterTiles.Add(tile);
             }
         }
+
+        int cornerHQs = 4;
+        while (cornerHQs > 0)
+        {
+            RoomInfo room = null;
+            Vector3Int HQroomCenter = Vector3Int.zero;
+            HashSet<Vector2Int> HQwaterTiles = new HashSet<Vector2Int>();
+            switch (cornerHQs)
+            {
+                case 4:
+                    roomsMap.TryGetValue(new Vector2Int(1, 1), out room);
+                    Debug.Log($"Creating water HQ in room {room.index}");
+                    HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    foreach (var pos in HQwaterTiles)
+                    {
+                        Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
+                        if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
+                            tile.isWater = true;
+                        Instance.waterTiles.Add(tile);
+                    }
+                    cornerHQs--;
+                    break;
+                case 3:
+                    roomsMap.TryGetValue(new Vector2Int(1, roomGrid-2), out room);
+                    Debug.Log($"Creating water HQ in room {room.index}");
+                    HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    foreach (var pos in HQwaterTiles)
+
+                    {
+                        Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
+                        if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
+                            tile.isWater = true;
+                        Instance.waterTiles.Add(tile);
+                    }
+                    cornerHQs--;
+                    break;
+                case 2:
+                    roomsMap.TryGetValue(new Vector2Int(roomGrid-2, 1), out room);
+                    Debug.Log($"Creating water HQ in room {room.index}");
+                    HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    foreach (var pos in HQwaterTiles)
+                    {
+                        Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
+                        if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
+                            tile.isWater = true;
+                        Instance.waterTiles.Add(tile);
+                    }
+                    cornerHQs--;
+                    break;
+                case 1:
+                    roomsMap.TryGetValue(new Vector2Int(roomGrid-2, roomGrid-2), out room);
+                    Debug.Log($"Creating water HQ in room {room.index}");
+                    HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    foreach (var pos in HQwaterTiles)
+                    {
+                        Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
+                        if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
+                            tile.isWater = true;
+                        Instance.waterTiles.Add(tile);
+                    }
+                    cornerHQs--;
+                    break;
+            }
+        }
     }
 
     private void CreateNatureRandomly(List<BoundsInt> roomsList)
@@ -418,19 +488,29 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
             }
         }
 
-        for (int i = 0; i < roomsList.Count / 4; i++)
+        foreach (var kvp in roomsMap)
         {
-            var roomBounds = roomsList[Random.Range(0, roomsList.Count)];
-            var center = Vector2Int.RoundToInt(roomBounds.center);
-            var natureFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(center, Random.Range(10, 30));
-
-            foreach (var pos in natureFloor)
+            RoomInfo room = kvp.Value;
+            bool hasNature = false;
+            foreach (var tile in room.tiles)
             {
-                Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
-                if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
-                    tile.isNature = true;
-                Instance.natureTiles.Add(tile);
-
+                if (tile.isNature)
+                {
+                    hasNature = true;
+                    break;
+                }
+            }
+            if (!hasNature)
+            {
+                var center = Vector2Int.RoundToInt(room.tileCenter);
+                var natureFloor = ProceduralGenerationAlgorithms.SimpleRandomWalk(center, Random.Range(10, 30));
+                foreach (var pos in natureFloor)
+                {
+                    Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
+                    if (dungeonMap.TryGetValue(p3, out TileInfo tile) && tile.isFloor)
+                        tile.isNature = true;
+                    Instance.natureTiles.Add(tile);
+                }
             }
         }
     }
@@ -458,9 +538,12 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         flaurSpawner.name = "Flaure Spawner";
         GameObject factionSpawner = Instantiate(prefabFactionGenerator, transform.position, Quaternion.identity);
         factionSpawner.name = "Faction Spawner";
-        
+
         GameObject CreatureSpawner = Instantiate(prefabCreatureSpawner, transform.position, Quaternion.identity);
         CreatureSpawner.name = "Creature Spawner";
+
+        GameObject manaCore = Instantiate(prefabManaCore, new Vector2(dungeonHeight / 2, dungeonWidth / 2), Quaternion.identity);
+        manaCore.name = "Mana Core";
         }
 
     private RoomInfo GetRandomRoom()

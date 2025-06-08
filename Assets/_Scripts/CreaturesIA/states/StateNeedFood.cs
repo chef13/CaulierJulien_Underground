@@ -14,57 +14,97 @@ public class StateNeedFood : CreatureState
 
     public override void Enter()
     {
-        Controller.basicNeed = true;
-        CheckForFoodHQ();
+        
+       // Controller.basicNeed = true;
+       // CheckForFoodHQ();
 
     }
 
     public override void Exit()
     {
-        Controller.basicNeed = false;
+       // Controller.basicNeed = false;
     }
 
     public override void Update()
     {
-        if (Controller.currentHungerState == CreatureController.hungerState.Full || Controller.currentHungerState == CreatureController.hungerState.Normal)
+        if (Controller.currentHungerState == CreatureController.hungerState.Full)
         {
-            if (creature.previousState is not StateNeedRest)
+            creature.SwitchState(new StateIdle(creature));
+            return;
+
+        }
+
+        /*if (!Controller.hasDestination && Controller.currentHungerState == CreatureController.hungerState.Starving && Controller.currentFaction != null && Controller.currentFaction.currentHQ.Count > 0)
+        {
+            CheckForFoodHQ();
+        }*/
+        if (Controller.hasDestination || Controller.currentFoodTarget != null)
+         return;
+
+        if (!Controller.hasDestination)
+        {
+            RoomInfo Room = null;
+            if (Controller.currentRoom == null)
             {
-                creature.SwitchState(creature.previousState);
-                return;
+                Room = Controller.currentTile.corridor.connectedRooms[Random.Range(0, Controller.currentTile.corridor.connectedRooms.Count)];
             }
             else
             {
-                creature.SwitchState(new StateIdle(creature));
-                return;
+                Room = Controller.currentRoom;
+            }
+
+            if (Controller.data.carnivor && Controller.currentFoodTarget == null)
+            {
+                //HuntPrey();
+                if (Controller.currentRoom == null)
+                {
+                    creature.SwitchState(new StateExplore(creature));
+                    return;
+                }
+
+                RoomInfo enemyRoom = FindRoom(
+                                    Room,
+                                    2,
+                                    room => room.tiles.Any(t => t.creatures.Any(c => c.currentFaction != Controller.currentFaction))
+                                );
+                if (enemyRoom != null)
+                {
+                    Debug.Log($"{Controller.name} found prey in room {enemyRoom.index}");
+                    Controller.SetDestination(enemyRoom.tileCenter);
+                }
+            }
+            if (Controller.data.herbivor && Controller.currentFoodTarget == null)
+            {
+                RoomInfo foodRoom = FindRoom(
+                                Room,
+                                3,
+                                room => room.tiles.Any(t => t.objects.Any(o => o.GetComponent<FlaureBehaviour>()?.isEdible == true))
+                            );
+                if (foodRoom != null)
+                {
+                    Debug.Log($"{Controller.name} found food in room {foodRoom.index}");
+                    Controller.SetDestination(foodRoom.tileCenter);
+                }
+                //TryEatVegetable();
+                //if (Controller.currentHungerState != CreatureController.hungerState.Full)
+                //SearchForVegetable();
+            }
+            if (!Controller.hasDestination)
+            {
+                Debug.Log($"{Controller.name} has no destination in needfood, finding a random room");
+                RoomInfo randomRoom = FindRoom(Room, 2);
+                Controller.SetDestination(randomRoom.tileCenter);
             }
         }
-
-        if (!Controller.hasDestination && Controller.currentFaction != null && Controller.currentFaction.currentHQ.Count > 0)
-        {
-            CheckForFoodHQ();
-        }
-        else if (!Controller.hasDestination && !Controller.data.carnivor)
-        {
-
-            //TryEatVegetable();
-            //if (Controller.currentHungerState != CreatureController.hungerState.Full)
-            SearchForVegetable();
-        }
-        else if (!Controller.hasDestination && Controller.data.carnivor)
-        {
-            HuntPrey();
-        }
+        
     }
 
     private void CheckForFoodHQ()
     {
-        if (Controller.currentFaction.foodResources > 0)
-        {
             RoomInfo closerHQ = GetCloserHQ();
-            TileInfo destinationTile = closerHQ.tiles[Random.Range(0, closerHQ.tiles.Count)];
-            Controller.SetDestination(new Vector2Int(destinationTile.position.x, destinationTile.position.y));
-        }
+            var pos  = closerHQ.tileCenter;
+            Controller.SetDestination(pos);
+        
     }
 
     private void HuntPrey()

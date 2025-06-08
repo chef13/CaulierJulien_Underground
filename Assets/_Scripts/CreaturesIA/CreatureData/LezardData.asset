@@ -20,11 +20,11 @@ MonoBehaviour:
   CreatureType: 1
   maxLife: 150
   maxEnergy: 120
-  maxHunger: 120
+  maxHunger: 200
   attackPower: 10
   detectionRange: 4
   attackRange: 0.5
   attackSpeed: 2
-  speed: 1.5
-  herbivor: 1
+  speed: 2
+  herbivor: 0
   carnivor: 1

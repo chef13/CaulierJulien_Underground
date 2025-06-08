@@ -20,7 +20,7 @@ MonoBehaviour:
   CreatureType: 0
   maxLife: 100
   maxEnergy: 100
-  maxHunger: 100
+  maxHunger: 200
   attackPower: 10
   detectionRange: 3
   attackRange: 1
