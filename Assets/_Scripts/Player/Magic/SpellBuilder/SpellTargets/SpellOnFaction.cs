@@ -1,20 +1,13 @@
 using UnityEngine;
-
+using System.Collections;
 public class SpellOnFaction : SpellTarget
 {
     public TileInfo targetTile;
         public SpellOnFaction(Spell spell) : base(spell)
     {
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override IEnumerator CastingSpell()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        yield break;
     }
 }

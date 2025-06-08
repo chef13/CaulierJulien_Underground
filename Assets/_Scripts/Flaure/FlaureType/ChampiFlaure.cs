@@ -122,9 +122,9 @@ public override IEnumerator Grow()
     if (randomSpawn < flaure.flaureData.spawnChance)
     {
       Vector3 spawnPosition = new Vector2(flaure.currentTile.position.x, flaure.currentTile.position.y);
-      Debug.Log("Spawning creature at " + spawnPosition + " with prefab " + flaure.flaureSpawner.champiPrefab + " and faction " + flaure.flaureSpawner.wandererFaction);
+     // Debug.Log("Spawning creature at " + spawnPosition + " with prefab " + flaure.flaureSpawner.champiPrefab + " and faction " + flaure.flaureSpawner.wandererFaction);
       CreatureSpawner.Instance.StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPosition, flaure.flaureSpawner.champiPrefab, flaure.flaureSpawner.wandererFaction));
-      Debug.Log("succes " + spawnPosition);
+     // Debug.Log("succes " + spawnPosition);
       Eaten();
       return;
     }

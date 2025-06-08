@@ -1,6 +1,7 @@
 using Mono.Cecil.Cil;
+using Unity.VisualScripting;
 using UnityEngine;
-
+using System.Collections;
 public abstract class SpellTarget
 {
     public enum SpellTargets
@@ -54,8 +55,8 @@ public abstract class SpellTarget
 
         SwitchTarget(spell);
     }
-    
-    
+
+
     public void SwitchTarget(Spell spell)
     {
         switch (spell.spellTarget)
@@ -80,4 +81,7 @@ public abstract class SpellTarget
                 break;
         }
     }
+    
+    public abstract IEnumerator CastingSpell();
+    
 }

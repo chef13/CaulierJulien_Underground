@@ -114,7 +114,7 @@ public class StateRecolt : CreatureState
 
                 if (enemyRoom != null)
                 {
-                    Debug.Log($"{Controller.name} found enemy room at {enemyRoom.index}");
+                   // Debug.Log($"{Controller.name} found enemy room at {enemyRoom.index}");
                     Controller.SetDestination(enemyRoom.tileCenter);
                 }
             }
@@ -127,7 +127,7 @@ public class StateRecolt : CreatureState
                             );
                 if (foodRoom != null)
                 {
-                    Debug.Log($"{Controller.name} found food room at {foodRoom.index}");
+                    //Debug.Log($"{Controller.name} found food room at {foodRoom.index}");
                     Controller.SetDestination(foodRoom.tileCenter);
                 }
                 //TryEatVegetable();
@@ -136,7 +136,7 @@ public class StateRecolt : CreatureState
             }
             if (!Controller.hasDestination)
             {
-                Debug.Log($"{Controller.name} has no destination, finding a random room");
+                //Debug.Log($"{Controller.name} has no destination, finding a random room");
                 RoomInfo randomRoom = FindRoom(Room, 2);
                 Controller.SetDestination(randomRoom.tileCenter);
             }

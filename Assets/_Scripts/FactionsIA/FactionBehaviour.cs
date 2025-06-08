@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using Random = UnityEngine.Random;
 using Unity.VisualScripting;
 using System.Collections;
@@ -153,7 +154,14 @@ public class FactionBehaviour : MonoBehaviour
             {
                 foodResources /= 2;
                 RoomInfo randomHQroom = currentHQ[Random.Range(0, currentHQ.Count)];
-                TileInfo randomTile = randomHQroom.tiles[Random.Range(0, randomHQroom.tiles.Count)];
+                    var floorTiles = randomHQroom.tiles.Where(t => t.isFloor).ToList();
+                    if (floorTiles.Count == 0)
+                    {
+                        Debug.LogWarning("No floor tiles available for spawning!");
+                        yield break; // or handle as needed
+                    }
+                    TileInfo randomTile = floorTiles[Random.Range(0, floorTiles.Count)];
+                
                 Vector2 spawnPoint = new Vector2(randomTile.position.x, randomTile.position.y);
                 StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPoint, prefabCreature, this));
             }

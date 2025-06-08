@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class Spell : MonoBehaviour
@@ -23,8 +24,15 @@ public class Spell : MonoBehaviour
 
     public SpellColors spellColor;
     public SpellTargets spellTarget;
-    private SpellColor colorHandler;
-    private SpellTarget targetHandler;
+    public SpellColor colorHandler;
+    public SpellTarget targetHandler;
+    public SpellEffectSO effect;
+    public ManaCore manaCore;
+
+    [SerializeField] private int spellPower = 1;
+    [SerializeField] private int spellRange = 1;
+    [SerializeField] private int spellDuration = 1;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -32,11 +40,17 @@ public class Spell : MonoBehaviour
         targetHandler = CreateTargetHandler(spellTarget);
     }
 
-    public void Cast(GameObject target)
+    public void Build(GameObject target)
     {
         targetHandler?.SwitchTarget(this);
         colorHandler?.ApplyColorEffect(this);
 
+    }
+
+    public void Cast()
+    {
+        Debug.Log($"Casting spell with color: {spellColor} and target: {spellTarget}");
+        effect?.ApplyEffect(this, null,spellRange, spellPower, spellDuration);
     }
 
     private SpellColor CreateColorHandler(SpellColors color)
@@ -51,7 +65,7 @@ public class Spell : MonoBehaviour
             _ => throw new ArgumentOutOfRangeException(nameof(color), color, null)
         };
     }
-    
+
     private SpellTarget CreateTargetHandler(SpellTargets target)
     {
         return target switch
@@ -65,5 +79,6 @@ public class Spell : MonoBehaviour
             _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
         };
     }
+
 
 }

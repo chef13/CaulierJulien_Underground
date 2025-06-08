@@ -60,6 +60,15 @@ using System.Linq;
         PaintTiles(naturePositions, natureTilemap, natureTile);
     }
 
+    public void PaintNatureTiles2(Dictionary<Vector3Int, TileInfo> dungeonMap)
+    {
+        var naturePositions = dungeonMap
+            .Where(kvp => kvp.Value.isFloor && kvp.Value.isNature)
+            .Select(kvp => new Vector2Int(kvp.Key.x, kvp.Key.y));// ensure Z is 0 if needed
+
+        PaintTiles(naturePositions, natureTilemap, natureTile);
+    }
+
     internal void PaintSingleNatureTile(Vector2Int position)
     {
         PaintSingleTile(natureTilemap, natureTile, position);
@@ -71,6 +80,11 @@ using System.Linq;
             PaintSingleTile(tilemap, tile, position);
         }
     }
+    
+    public void EraseWallTile(Vector2Int position)
+    {
+        wallTilemap.SetTile((Vector3Int)position, null);
+    }
 
     internal void PaintSingleBasicWall(Vector2Int position, string binaryType)
     {
@@ -79,7 +93,8 @@ using System.Linq;
         if (WallTypesHelper.wallTop.Contains(typeAsInt))
         {
             tile = wallTop;
-        }else if (WallTypesHelper.wallSideRight.Contains(typeAsInt))
+        }
+        else if (WallTypesHelper.wallSideRight.Contains(typeAsInt))
         {
             tile = wallSideRight;
         }
@@ -96,7 +111,7 @@ using System.Linq;
             tile = wallFull;
         }
 
-        if (tile!=null)
+        if (tile != null)
             PaintSingleTile(wallTilemap, tile, position);
     }
 

@@ -377,14 +377,14 @@ public class CreatureController : MonoBehaviour
         {
 
             var flaure = flaureInRange[i];
-            Debug.Log($"{name} checking for herbivor targets in range: {flaureInRange.Count}");
+           // Debug.Log($"{name} checking for herbivor targets in range: {flaureInRange.Count}");
             if (flaure != null && flaure.isActiveAndEnabled && flaure.isEdible)
             {
                 if (currentRecoltTarget != null)
                 {
                     currentRecoltTarget = null;
                 }  
-                Debug.Log($"{name} found a flaure target: {flaure.gameObject.name}");
+               // Debug.Log($"{name} found a flaure target: {flaure.gameObject.name}");
                 currentFoodTarget = flaure.gameObject;
                 foodTarget = true;
                 goEatTargetRoutine = StartCoroutine(GoEatTarget(currentFoodTarget));

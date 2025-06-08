@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections;
 public class SpellOnTile : SpellTarget
 {
 
@@ -7,15 +7,8 @@ public class SpellOnTile : SpellTarget
     {
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+      public override IEnumerator CastingSpell()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        yield break;
     }
 }

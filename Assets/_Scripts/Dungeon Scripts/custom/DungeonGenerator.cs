@@ -21,7 +21,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
     public List<TileInfo> deadEndTiles = new();
 
     public Dictionary<Vector2Int, RoomInfo> roomsMap = new();
-    public Dictionary<(RoomInfo from, RoomInfo to), CorridorInfo> corridorsMap = new();
+    public HashSet<CorridorInfo> corridorsMap = new();
 
     [Range(3, 10)] public int roomGrid = 5;
     [Range(1, 8)] public int startingfactionCount = 4;
@@ -128,6 +128,11 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                         tile.isFloor = true;
                         roomTiles.Add(tile);
                     }
+                    else if (!randomPath.Contains(pos2D) && dungeonMap.TryGetValue(pos3D, out TileInfo walltile))
+                    {
+                        walltile.isFloor = false;
+                        roomTiles.Add(walltile);
+                    }
                 }
             }
 
@@ -159,17 +164,17 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     List<TileInfo> neighborPos = new List<TileInfo>();
                     for (int h = -1; h <= 1; h += 1)
                     {
-                        
+
                         Vector3Int neighborPos3DY = new Vector3Int(currentRoom.tiles[i].position.x, currentRoom.tiles[i].position.y + h, 0);
                         if (neighborPos3DY != currentTile.position && dungeonMap.TryGetValue(neighborPos3DY, out TileInfo neighborTile))
                         {
                             if (neighborTile.isFloor)
                             {
-                            neighborPos.Add(neighborTile);
+                                neighborPos.Add(neighborTile);
                             }
                         }
 
-                        
+
                     }
                     for (int w = -1; w <= 1; w += 1)
                     {
@@ -182,10 +187,10 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                             }
                         }
                     }
-                    if (neighborPos.Count == 1)
-                        {
-                            currentRoom.tiles[i].isDeadEnd = true;
-                        }
+                    if (neighborPos.Count == 1 && currentTile.isFloor)
+                    {
+                        currentRoom.tiles[i].isDeadEnd = true;
+                    }
                 }
             }
         }
@@ -271,7 +276,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                 {
                     roomA.connectedRooms.Add(roomB);
                     roomB.connectedRooms.Add(roomA);
-                    corridorsMap[(roomA, roomB)] = linkingCorridor;
+                    corridorsMap.Add(linkingCorridor);
                     linkingCorridor.connectedRooms.Add(roomA);
                     linkingCorridor.connectedRooms.Add(roomB);
                     //Debug.Log($"🔗 Connected room {current} <--> {next}");
@@ -305,7 +310,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     room.Value.connectedRooms.Add(neighbor);
                     neighbor.connectedRooms.Add(room.Value);
                     CorridorInfo linkingCorridor = new();
-                    corridorsMap[(room.Value, neighbor)] = linkingCorridor;
+                    corridorsMap.Add(linkingCorridor);
                     linkingCorridor.connectedRooms.Add(room.Value);
                     linkingCorridor.connectedRooms.Add(neighbor);
                     // Optionally, create a corridor here as well
@@ -415,7 +420,7 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     roomsMap.TryGetValue(new Vector2Int(1, 1), out room);
                     Debug.Log($"Creating water HQ in room {room.index}");
                     HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
-                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int(HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
                     foreach (var pos in HQwaterTiles)
                     {
                         Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
@@ -426,10 +431,10 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     cornerHQs--;
                     break;
                 case 3:
-                    roomsMap.TryGetValue(new Vector2Int(1, roomGrid-2), out room);
+                    roomsMap.TryGetValue(new Vector2Int(1, roomGrid - 2), out room);
                     Debug.Log($"Creating water HQ in room {room.index}");
                     HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
-                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int(HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
                     foreach (var pos in HQwaterTiles)
 
                     {
@@ -441,10 +446,10 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     cornerHQs--;
                     break;
                 case 2:
-                    roomsMap.TryGetValue(new Vector2Int(roomGrid-2, 1), out room);
+                    roomsMap.TryGetValue(new Vector2Int(roomGrid - 2, 1), out room);
                     Debug.Log($"Creating water HQ in room {room.index}");
                     HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
-                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int(HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
                     foreach (var pos in HQwaterTiles)
                     {
                         Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
@@ -455,10 +460,10 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
                     cornerHQs--;
                     break;
                 case 1:
-                    roomsMap.TryGetValue(new Vector2Int(roomGrid-2, roomGrid-2), out room);
+                    roomsMap.TryGetValue(new Vector2Int(roomGrid - 2, roomGrid - 2), out room);
                     Debug.Log($"Creating water HQ in room {room.index}");
                     HQroomCenter = room.tiles[Random.Range(0, room.tiles.Count)].position;
-                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int (HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
+                    HQwaterTiles = ProceduralGenerationAlgorithms.SimpleRandomWalk(new Vector2Int(HQroomCenter.x, HQroomCenter.y), Random.Range(10, 30));
                     foreach (var pos in HQwaterTiles)
                     {
                         Vector3Int p3 = new Vector3Int(pos.x, pos.y, 0);
@@ -544,12 +549,80 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 
         GameObject manaCore = Instantiate(prefabManaCore, new Vector2(dungeonHeight / 2, dungeonWidth / 2), Quaternion.identity);
         manaCore.name = "Mana Core";
-        }
+    }
 
     private RoomInfo GetRandomRoom()
     {
         if (roomsMap.Count == 0) return null;
         return roomsMap.Values.ElementAt(Random.Range(0, roomsMap.Count));
+    }
+
+
+    public void ModifieTileRunTime(TileInfo tile)
+    {
+        
+
+
+            List<CorridorInfo> nearbyCorridors = new();
+            RoomInfo nearbyRoom = null;
+            int numberOfTilesAround = 0;
+            foreach (var dir in Direction2D.cardinalDirectionsList)
+            {
+                
+                Vector3Int neighborPos = tile.position + new Vector3Int(dir.x, dir.y, 0);
+                if (dungeonMap.TryGetValue(neighborPos, out TileInfo neighborTile) && neighborTile.isFloor)
+                {
+                    numberOfTilesAround++;
+                    if (neighborTile.room != null)
+                    nearbyRoom = neighborTile.room;
+
+                    if (neighborTile.corridor != null && !nearbyCorridors.Contains(neighborTile.corridor))
+                        nearbyCorridors.Add(neighborTile.corridor);
+                }
+            }
+            if (numberOfTilesAround < 2)
+            {
+                tile.isDeadEnd = true; // Mark as dead end if less than 2 neighbors
+            }
+            else
+            {
+                tile.isDeadEnd = false; // Reset if more than 2 neighbors
+            }
+
+            if (tile.room != null)
+            return; // Already in a room — skip
+
+            CorridorInfo corridorToUse = null;
+
+            if (nearbyCorridors.Count == 0)
+            {
+                // No corridor around — create new one
+                corridorToUse = new CorridorInfo();
+                corridorsMap.Add(corridorToUse); // Replace logic later if needed
+            }
+            else
+            {
+                corridorToUse = nearbyCorridors[0];
+                // Merge additional corridors
+                for (int i = 1; i < nearbyCorridors.Count; i++)
+                {
+                    foreach (var t in nearbyCorridors[i].tiles)
+                    {
+                        t.corridor = corridorToUse;
+                        corridorToUse.tiles.Add(t);
+                    }
+                }
+            }
+
+            // Final link and register
+            tile.corridor = corridorToUse;
+            corridorToUse.tiles.Add(tile);
+
+            if (nearbyRoom != null && !corridorToUse.connectedRooms.Contains(nearbyRoom))
+            {
+                corridorToUse.connectedRooms.Add(nearbyRoom);
+                nearbyRoom.corridors.Add(corridorToUse);
+            }
     }
 
 }
