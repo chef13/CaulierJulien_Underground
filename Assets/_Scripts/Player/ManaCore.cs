@@ -9,6 +9,18 @@ using System;
 [RequireComponent(typeof(LineRenderer))]
 public class ManaCore : MonoBehaviour
 {
+    public static ManaCore Instance; // Singleton instance
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this; // Set the singleton instance
+        }
+        else
+        {
+            Destroy(gameObject); // Ensure only one instance exists
+        }
+    }
     public List<GameObject> spellObjects = new();
     public Spell currentSpell;
     public SpriteRenderer renderer;
@@ -40,9 +52,10 @@ public class ManaCore : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && castingCoroutine == null) // Example input to cast a spell
+        if (spellObjects.Count > 0)
+        { if (Input.GetMouseButtonDown(0) && castingCoroutine == null) // Example input to cast a spell
         {
-            currentSpell.Build(gameObject); // Build the spell with the current target
+            
             Debug.Log("Casting spell: " + currentSpell.gameObject.name);
             castingCoroutine = StartCoroutine(currentSpell.targetHandler.CastingSpell());
         }
@@ -68,7 +81,7 @@ public class ManaCore : MonoBehaviour
                 Debug.Log("Current spell: " + currentSpell.gameObject.name);
                 UpdateSpellColorVisual();
             }
-        }
+        }}
     }
 
     /*private IEnumerator CastingSpell()

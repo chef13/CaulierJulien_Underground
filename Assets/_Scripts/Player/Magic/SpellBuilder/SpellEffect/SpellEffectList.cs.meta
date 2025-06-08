@@ -1,0 +1,41 @@
+fileFormatVersion: 2
+guid: 17b4eeb1986c1234da3252de9bbe9587
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - brownBeam: {instanceID: 0}
+  - greenBeam: {instanceID: 0}
+  - whiteBeam: {instanceID: 0}
+  - blackBeam: {instanceID: 0}
+  - blueBeam: {instanceID: 0}
+  - brownTile: {instanceID: 0}
+  - greenTile: {instanceID: 0}
+  - whiteTile: {instanceID: 0}
+  - blackTile: {instanceID: 0}
+  - blueTile: {instanceID: 0}
+  - blueCreature: {instanceID: 0}
+  - brownCreature: {instanceID: 0}
+  - greenCreature: {instanceID: 0}
+  - whiteCreature: {instanceID: 0}
+  - blackCreature: {instanceID: 0}
+  - blueRoom: {instanceID: 0}
+  - brownRoom: {instanceID: 0}
+  - greenRoom: {instanceID: 0}
+  - whiteRoom: {instanceID: 0}
+  - blackRoom: {instanceID: 0}
+  - blueFaction: {instanceID: 0}
+  - brownFaction: {instanceID: 0}
+  - greenFaction: {instanceID: 0}
+  - whiteFaction: {instanceID: 0}
+  - blackFaction: {instanceID: 0}
+  - blueDungeon: {instanceID: 0}
+  - brownDungeon: {instanceID: 0}
+  - greenDungeon: {instanceID: 0}
+  - whiteDungeon: {instanceID: 0}
+  - blackDungeon: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

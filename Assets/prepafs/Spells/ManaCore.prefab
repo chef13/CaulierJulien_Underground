@@ -104,11 +104,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddbd49717d9ca5245a85419f92f7435f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spellObjects:
-  - {fileID: 5312673921304051513, guid: d6bc2fb054cd3264184007fbcde925da, type: 3}
-  - {fileID: 5312673921304051513, guid: bfe760c4676e30f479ff4a97b5a16379, type: 3}
-  - {fileID: 5312673921304051513, guid: f9af5584f6903ca4b8bd8c8967dfbbc1, type: 3}
+  spellObjects: []
   currentSpell: {fileID: 0}
+  renderer: {fileID: 0}
   beamLength: 10
   lineRenderer: {fileID: 0}
   mana: 100

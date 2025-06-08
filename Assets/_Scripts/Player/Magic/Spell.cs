@@ -36,12 +36,19 @@ public class Spell : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        colorHandler = CreateColorHandler(spellColor);
-        targetHandler = CreateTargetHandler(spellTarget);
     }
 
-    public void Build(GameObject target)
+    public void Build(SpellColors color, SpellTargets target, SpellEffectSO effect, ManaCore manaCore)
     {
+        this.spellColor = color;
+        this.spellTarget = target;
+        this.effect = effect;
+        this.manaCore = manaCore;
+
+        colorHandler = CreateColorHandler(color);
+        targetHandler = CreateTargetHandler(target);
+
+
         targetHandler?.SwitchTarget(this);
         colorHandler?.ApplyColorEffect(this);
 
@@ -50,7 +57,7 @@ public class Spell : MonoBehaviour
     public void Cast()
     {
         Debug.Log($"Casting spell with color: {spellColor} and target: {spellTarget}");
-        effect?.ApplyEffect(this, null,spellRange, spellPower, spellDuration);
+        effect?.ApplyEffect(this, null, spellRange, spellPower, spellDuration);
     }
 
     private SpellColor CreateColorHandler(SpellColors color)
