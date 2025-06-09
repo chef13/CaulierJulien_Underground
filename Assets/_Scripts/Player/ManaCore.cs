@@ -6,7 +6,7 @@ using System.Collections;
 using UnityEditor.Experimental.GraphView;
 using System;
 
-[RequireComponent(typeof(LineRenderer))]
+
 public class ManaCore : MonoBehaviour
 {
     public static ManaCore Instance; // Singleton instance
@@ -24,7 +24,7 @@ public class ManaCore : MonoBehaviour
     public List<GameObject> spellObjects = new();
     public Spell currentSpell;
     public SpriteRenderer renderer;
-    public int beamLength = 10; // Length of the spell beam
+    public GameObject controlledAvatar;
     private Color spellColor; // Color of the currently selected spell
     public LineRenderer lineRenderer; // Line renderer for visual effects
     public int mana = 100; // Initial mana value
@@ -84,40 +84,20 @@ public class ManaCore : MonoBehaviour
         }}
     }
 
-    /*private IEnumerator CastingSpell()
+
+    public void SetControlledAvatar(GameObject avatar)
     {
-        lineRenderer.enabled = true;
-        lineRenderer.positionCount = 2;
-        lineRenderer.startColor = GetColorFromSpellColor(currentSpell.spellColor);
-        lineRenderer.endColor = GetColorFromSpellColor(currentSpell.spellColor);
-
-        while (!Input.GetMouseButtonUp(0))
+    controlledAvatar = avatar;
+    }
+    
+        public void CastCurrentSpellFromAvatar(CreatureController avatar)
+    {
+        if (currentSpell != null)
         {
-            currentSpell.transform.position = transform.position; // Update spell position to the player's position
-            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorld.z = 0;
-            Vector2 direction = (mouseWorld - transform.position).normalized;
-            RaycastHit2D hits = Physics2D.Raycast(transform.position, direction, beamLength, LayerMask.GetMask("wall"));
-            Vector3 hitPos = hits.collider != null ? hits.point : transform.position + Vector3.ClampMagnitude(mouseWorld - transform.position, beamLength);
-            lineRenderer.SetPosition(0, transform.position);
-            lineRenderer.SetPosition(1, hitPos);
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Debug.Log("Casting cancelled");
-                lineRenderer.enabled = false;
-                castingCoroutine = null;
-                yield break;
-            }
-
-            yield return null; // Wait for next frame
+            currentSpell.transform.position = avatar.transform.position;
+            currentSpell.Cast();
         }
-
-        lineRenderer.enabled = false; // Turn off visual after casting
-        currentSpell.Cast();
-        castingCoroutine = null;
-        yield break;
-    }*/
+    }
 
     public Color GetColorFromSpellColor(Spell.SpellColors spellColor)
     {

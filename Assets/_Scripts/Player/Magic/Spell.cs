@@ -29,9 +29,9 @@ public class Spell : MonoBehaviour
     public SpellEffectSO effect;
     public ManaCore manaCore;
 
-    [SerializeField] private int spellPower = 1;
-    [SerializeField] private int spellRange = 1;
-    [SerializeField] private int spellDuration = 1;
+    [SerializeField] public int spellPower = 1;
+    [SerializeField] public int spellRange = 1;
+    [SerializeField] public int spellDuration = 1;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

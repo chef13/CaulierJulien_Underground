@@ -68,20 +68,22 @@ public class CreatureController : MonoBehaviour
 
     [HideInInspector] public Animator animator;
     [HideInInspector] public SpriteRenderer spriteRenderer;
-
-    private float staticCheckDelay = 5f;
+    public bool isPlayer = false;
 
     protected virtual void OnEnable()
     {
-        creatureAI = GetComponent<CreatureAI>();
+        
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
-        StartCoroutine(DelayedInit());
-        CurrentTileCheck();
-
+        if (!isPlayer)
+        {
+            creatureAI = GetComponent<CreatureAI>();
+            StartCoroutine(DelayedInit());
+            CurrentTileCheck();
+        }
     }
 
     private IEnumerator DelayedInit()

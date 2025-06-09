@@ -21,8 +21,8 @@ public class SpellBeam : SpellTarget
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mouseWorld.z = 0;
             Vector2 direction = (mouseWorld - spell.manaCore.transform.position).normalized;
-            RaycastHit2D hits = Physics2D.Raycast(spell.manaCore.transform.position, direction, spell.manaCore.beamLength, LayerMask.GetMask("wall"));
-            Vector3 hitPos = hits.collider != null ? hits.point : spell.manaCore.transform.position + Vector3.ClampMagnitude(mouseWorld - spell.manaCore.transform.position, spell.manaCore.beamLength);
+            RaycastHit2D hits = Physics2D.Raycast(spell.manaCore.transform.position, direction, spell.effect.beamLength * (spell.spellRange/2f), LayerMask.GetMask("wall"));
+            Vector3 hitPos = hits.collider != null ? hits.point : spell.manaCore.transform.position + Vector3.ClampMagnitude(mouseWorld - spell.manaCore.transform.position, spell.effect.beamLength * (spell.spellRange/2f));
             manaCore.lineRenderer.SetPosition(0, spell.manaCore.transform.position);
             manaCore.lineRenderer.SetPosition(1, hitPos);
 
