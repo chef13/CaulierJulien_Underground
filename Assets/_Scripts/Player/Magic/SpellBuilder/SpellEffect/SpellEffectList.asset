@@ -14,31 +14,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   brownBeam: {fileID: 11400000, guid: 3e2dc08edfc6030418f760dfdba9adf4, type: 2}
   greenBeam: {fileID: 11400000, guid: aaa201fba2b2ce648afcfb8c0d570ecb, type: 2}
-  whiteBeam: {fileID: 0}
-  blackBeam: {fileID: 0}
+  whiteBeam: {fileID: 11400000, guid: c78ac12d8d2cc0441bb74270bcb0f09f, type: 2}
+  blackBeam: {fileID: 11400000, guid: e98dedaf1b24f064191f4492ecd8aea6, type: 2}
   blueBeam: {fileID: 11400000, guid: 2b8e5d8573cd72f4b9041621dc4b5285, type: 2}
-  brownTile: {fileID: 0}
-  greenTile: {fileID: 0}
-  whiteTile: {fileID: 0}
-  blackTile: {fileID: 0}
-  blueTile: {fileID: 0}
-  blueCreature: {fileID: 0}
-  brownCreature: {fileID: 0}
-  greenCreature: {fileID: 0}
-  whiteCreature: {fileID: 0}
-  blackCreature: {fileID: 0}
-  blueRoom: {fileID: 0}
-  brownRoom: {fileID: 0}
-  greenRoom: {fileID: 0}
-  whiteRoom: {fileID: 0}
-  blackRoom: {fileID: 0}
-  blueFaction: {fileID: 0}
-  brownFaction: {fileID: 0}
-  greenFaction: {fileID: 0}
-  whiteFaction: {fileID: 0}
-  blackFaction: {fileID: 0}
-  blueDungeon: {fileID: 0}
-  brownDungeon: {fileID: 0}
-  greenDungeon: {fileID: 0}
-  whiteDungeon: {fileID: 0}
-  blackDungeon: {fileID: 0}
+  brownTile: {fileID: 11400000, guid: f538430930254be4d928fe0a78d2fe50, type: 2}
+  greenTile: {fileID: 11400000, guid: 1f17e17c649a25147a347c6140ccbe9a, type: 2}
+  whiteTile: {fileID: 11400000, guid: d28958edff96642469aaea1af7e3fab8, type: 2}
+  blackTile: {fileID: 11400000, guid: 17e3f29ddf00ccd47a70fa7b5f849211, type: 2}
+  blueTile: {fileID: 11400000, guid: ea0d783b02e27604dbcfc7e8ba0cf985, type: 2}
+  blueCreature: {fileID: 11400000, guid: 3d43fc833e44c1a48b4e3e5e18d8a5c8, type: 2}
+  brownCreature: {fileID: 11400000, guid: 6351d5c44c9e6a24eac7cf5105b5f27c, type: 2}
+  greenCreature: {fileID: 11400000, guid: 05ecd66c87d78b3449e364daa6e554c6, type: 2}
+  whiteCreature: {fileID: 11400000, guid: 0525635e43defce46b43b19970c813b1, type: 2}
+  blackCreature: {fileID: 11400000, guid: 88e0527303ec48d46aeb746e99535056, type: 2}
+  blueRoom: {fileID: 11400000, guid: 78440fdf844ada74aa6c045655c8d76f, type: 2}
+  brownRoom: {fileID: 11400000, guid: e3b563b9c98f7974eabb982c9c6c9b5b, type: 2}
+  greenRoom: {fileID: 11400000, guid: 28a01e320ea634043b5402ee86d3fbbc, type: 2}
+  whiteRoom: {fileID: 11400000, guid: 3d98b43c5cbb64d41b099e1c5acb4984, type: 2}
+  blackRoom: {fileID: 11400000, guid: c6475e4dba8588a419982f20be36e8f0, type: 2}
+  blueFaction: {fileID: 11400000, guid: 18a6edf319b8ba8408f2f4bc72cbd3a8, type: 2}
+  brownFaction: {fileID: 11400000, guid: 34c5b6c064c6ac340a666b8d837bd5ed, type: 2}
+  greenFaction: {fileID: 11400000, guid: 75260f08dda92ac4db55e93af4d1d653, type: 2}
+  whiteFaction: {fileID: 11400000, guid: 64898fb95124b5a4e85ffaa8e9556e20, type: 2}
+  blackFaction: {fileID: 11400000, guid: f560f924e1adf4b408c8d841cca09118, type: 2}
+  blueDungeon: {fileID: 11400000, guid: 8c92e4a42321c934bbf156dc825f69b5, type: 2}
+  brownDungeon: {fileID: 11400000, guid: d01a06fce84df51429faa668b91f73fa, type: 2}
+  greenDungeon: {fileID: 11400000, guid: 436a7d97470069a4f9627e93107173a9, type: 2}
+  whiteDungeon: {fileID: 11400000, guid: 6ae56b843f65fe547a0ec73c61f0eb4a, type: 2}
+  blackDungeon: {fileID: 11400000, guid: 30394cce482bceb4eb72b41754a798f2, type: 2}
+  blueRoomRitual: {fileID: 11400000, guid: f02666a686a74b44ab25b762a270e85c, type: 2}
+  brownRoomRitual: {fileID: 11400000, guid: e3b563b9c98f7974eabb982c9c6c9b5b, type: 2}
+  greenRoomRitual: {fileID: 11400000, guid: a45dd52dcb2737a418c432f3e7573aa1, type: 2}
+  whiteRoomRitual: {fileID: 11400000, guid: d49ee4c8ddd27834b86334bf45b67b4b, type: 2}
+  blackRoomRitual: {fileID: 11400000, guid: ca01d541080a55541b14eb815824ec17, type: 2}

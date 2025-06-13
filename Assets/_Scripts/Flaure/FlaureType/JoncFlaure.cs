@@ -34,7 +34,7 @@ public class JoncFlaure : FlaureType
     public override void Growing()
   {
 
-    flaure.currentGrowthTime += 2;
+    flaure.currentGrowthTime += 3 * flaure.flaureSpawner.growthFactor;
     List<TileInfo> waterTiles = new List<TileInfo>();
     for (int dx = -flaure.flaureData.range; dx <= flaure.flaureData.range; dx++)
     {

@@ -42,10 +42,6 @@ public class StateFlee : CreatureState
             }
             else
             {
-                // No attacker detected, switch to idle or explore state
-                if (creature.previousState != null)
-                    creature.SwitchState(creature.previousState);
-                else
                     creature.SwitchState(new StateIdle(creature));
             }
         }

@@ -44,10 +44,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04c0375788df470469e6d933579da5af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  membersPatrol: []
+  membersWander: []
+  membersRecoltFood: []
+  membersFindHQ: []
+  membersAttackCore: []
+  membersChangeFaction: []
+  membersEscort: []
+  gobelins: []
+  Lezards: []
+  Champs: []
   factionData: {fileID: 0}
   rooms: 0
   tiles: 0
   foodResources: 0
   factionName: 
+  numberOfHQ: 0
   members: []
+  dungeonFav: 0
   prefabCreature: {fileID: 3239829643432152457, guid: 1d24f3a1cfceeea4d848cf264073faac, type: 3}

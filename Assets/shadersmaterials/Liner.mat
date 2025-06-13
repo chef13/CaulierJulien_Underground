@@ -47,6 +47,14 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3fbc988e154854b4c87a3a9e2bc79b44, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_f50f17ae4dee4edfa21a413f5cd3dc56_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: c02bdf8e7a5c9e24390ebe1bbfc161fc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -63,8 +71,15 @@ Material:
     m_Floats:
     - _EnableExternalAlpha: 0
     - _ZWrite: 0
+    - _dissolveAmount: 0
+    - _outlineTickness: 0.1
     m_Colors:
     - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _ColorClair: {r: 0.62264144, g: 0.53746885, b: 0.53746885, a: 1}
+    - _ColorDisolve: {r: 0, g: 3.56487, b: 3.422548, a: 0}
+    - _ColorEffect: {r: 0.8867924, g: 0.0543788, b: 0.113978, a: 1}
+    - _ColorFonce: {r: 0.26415086, g: 0.14578137, b: 0.14578137, a: 1}
+    - _ColorLiner: {r: 0.5188679, g: 0.4417824, b: 0.3842559, a: 1}
     - _Color_1: {r: 0.3922549, g: 0, b: 1.498039, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

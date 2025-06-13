@@ -64,6 +64,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f87cf75ec987c604b8ddbc6f64c3734e, type: 2}
   - {fileID: 11400000, guid: 8871937ba718ff44c9ef63d4ef1852ea, type: 2}
   factionWanderer: {fileID: 11400000, guid: 28fcbff0cc1c1104abb0fd02d7f66fa2, type: 2}
+  factionDungeon: {fileID: 11400000, guid: b1a34e068dbea084ea138d19461f56c9, type: 2}
   spawners:
   - {fileID: 0}
   - {fileID: 0}

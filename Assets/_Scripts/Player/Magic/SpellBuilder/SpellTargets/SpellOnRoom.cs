@@ -6,7 +6,7 @@ public class SpellOnRoom : SpellTarget
         public SpellOnRoom(Spell spell) : base(spell)
     {
     }
-        public override IEnumerator CastingSpell()
+        public override IEnumerator CastingSpell(Spell spell)
     {
         yield break;
     }

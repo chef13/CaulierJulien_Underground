@@ -39,10 +39,12 @@ public abstract class FlaureType
         if (flaure.currentTile == null)
         {
             flaure.currentTile.objects.Remove(flaure.gameObject);
-        flaure.currentTile = null;
+            flaure.currentTile = null;
         }
-        
+
         flaure.gameObject.SetActive(false);
     }
+    
+    public virtual void TurnLivingCreature(FactionBehaviour faction) {}
 
 }

@@ -40,11 +40,16 @@ public class CreatureAI : MonoBehaviour
 
         if (currentState != null && currentState.GetType() == newState.GetType())
             return;
-        
+
+        // Prevent switching from a major goal
+        bool isCurrentMajorGoal = currentState is StateAttackCore || currentState is StateChangeFaction || currentState is StateAttack || currentState is StateFlee;
+        if (isCurrentMajorGoal && newState is not StateIdle)
+            return;
+
         bool isCurrentNeed = currentState is StateNeedFood || currentState is StateNeedRest;
         bool isNewGoal = newState is StateRecolt || newState is StateWander || newState is StatePatrol || newState is StateExplore;
         if (isCurrentNeed && isNewGoal)
-        return;
+            return;
 
         previousState = currentState;
         currentState?.Exit();

@@ -1,8 +1,4 @@
 
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,7 +6,7 @@ public class GobelinType : CreatureType
 {
     
 
-    public GobelinType(CreatureController gob) : base(gob)
+    public GobelinType(CreatureController creature) : base(creature)
     {
 
     }
@@ -22,6 +18,7 @@ public class GobelinType : CreatureType
 
     public override void Enter()
     {
+        Controller.currentFaction.gobelins.Add(Controller);
     }
     public override void Exit()
     {

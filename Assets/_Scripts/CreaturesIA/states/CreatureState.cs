@@ -25,7 +25,21 @@ public abstract class CreatureState
     public virtual void Update() { }
     public void FixedUpdate()
     {
-        if (Controller.data.carnivor && Controller.currentHungerState != CreatureController.hungerState.Full && DetectTreat(out CreatureController target))
+        CreatureController target;
+        if (
+            DetectTreat(out target)&&
+            Controller.data.carnivor &&
+            Controller.currentHungerState != CreatureController.hungerState.Full ||
+
+            DetectTreat(out target) &&
+            target.currentFaction == FactionSpawner.instance.dungeonFaction &&
+            Controller.currentFaction.dungeonFav < -2 ||
+
+            DetectTreat(out target) &&
+            Controller.currentFaction != FactionSpawner.instance.dungeonFaction &&
+            Controller.currentFaction.dungeonFav < -2 &&
+            target.currentFaction == FactionSpawner.instance.dungeonFaction
+        )
         {
             creature.SwitchState(new StateAttack(creature, target));
         }

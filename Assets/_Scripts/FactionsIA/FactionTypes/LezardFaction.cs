@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor.Rendering;
+
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -74,9 +74,16 @@ public class LezardFaction : FactionType
         {
             if (WanderCoroutine == null)
                 WanderCoroutine = faction.StartCoroutine(WandererCoroutine());
-                
-                if (PatrolerCoroutine == null)
+
+            if (PatrolerCoroutine == null)
                 PatrolerCoroutine = faction.StartCoroutine(PatrolCoroutine());
+        }
+                if (faction.currentHQ.Count != 0)
+        {
+            if (checkDungeonRelationshipCoroutine == null)
+            {
+                checkDungeonRelationshipCoroutine = faction.StartCoroutine(CheckDungeonRelationshipCoroutine());
+            }
         }
     }
 

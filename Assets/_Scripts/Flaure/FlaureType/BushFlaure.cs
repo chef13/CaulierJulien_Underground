@@ -30,7 +30,7 @@ public class BushFlaure : FlaureType
   }
     public override void Growing()
   {
-    flaure.currentGrowthTime++;
+    flaure.currentGrowthTime += 2 * flaure.flaureSpawner.growthFactor;
     List<TileInfo> waterTiles = new List<TileInfo>();
     for (int dx = -flaure.flaureData.range; dx <= flaure.flaureData.range; dx++)
     {

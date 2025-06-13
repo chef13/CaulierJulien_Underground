@@ -1,8 +1,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -35,27 +33,33 @@ public class ChampiType : CreatureType
 
     public override void IsEaten()
     {
-        int randomChampi = Random.Range(2, 5);
-        while (randomChampi != 0)
-        {
-            if (Controller.currentTile == null && Controller.currentTile.objects.Count < 4)
-            FlaureSpawner.instance.spawnQueue.Enqueue((Controller.currentTile, FlaureSpawner.instance.champiData, Controller.currentTile.position + new Vector3(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 0)));
-            randomChampi--;
-
-        }
         Destroy();
     }
 
-
-    public override void OnDeath(CreatureController attacker)
+    public void SpreadChampi()
     {
-        if (Controller.currentFaction != null && attacker != null && attacker != null)
+         int randomChampi = Random.Range(2, 5);
+        while (randomChampi != 0)
+        {
+            var randomTile = Controller._surroundingTiles[Random.Range(0, Controller._surroundingTiles.Count)];
+            if (randomTile.objects.Count < 4)
+                FlaureSpawner.instance.spawnQueue.Enqueue((randomTile, FlaureSpawner.instance.champiData, randomTile.position + new Vector3(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 0)));
+            randomChampi--;
+
+        }
+    }
+
+
+    public override void OnDeath(CreatureController attacker, bool spell = false)
+    {
+        /*if (Controller.currentFaction != null && attacker != null && attacker != null)
         {
             if (attacker != null && Controller.currentFaction.knownFactions.TryGetValue(attacker.currentFaction, out FactionBehaviour.FactionRelationship relationship))
             {
                 relationship -= 2;
             }
-        }
+        }*/
+        SpreadChampi();
         Controller.StopAllCoroutine();
         Controller.StartCoroutine(DeathDecay());
         Controller.spriteRenderer.sprite = Controller.data.deadsprite;

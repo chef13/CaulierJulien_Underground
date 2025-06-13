@@ -538,7 +538,8 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
         yield return new WaitForSeconds(1f);
         navReady = true;
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1f); 
+
         GameObject flaurSpawner = Instantiate(prefabFlaureSpawner, transform.position, Quaternion.identity);
         flaurSpawner.name = "Flaure Spawner";
         GameObject factionSpawner = Instantiate(prefabFactionGenerator, transform.position, Quaternion.identity);
@@ -546,9 +547,9 @@ public class DungeonGenerator : SimpleRandomWalkDungeonGenerator
 
         GameObject CreatureSpawner = Instantiate(prefabCreatureSpawner, transform.position, Quaternion.identity);
         CreatureSpawner.name = "Creature Spawner";
-
         GameObject manaCore = Instantiate(prefabManaCore, new Vector2(dungeonHeight / 2, dungeonWidth / 2), Quaternion.identity);
-        manaCore.name = "Mana Core";
+        manaCore.name = "Mana Core";   
+
     }
 
     private RoomInfo GetRandomRoom()

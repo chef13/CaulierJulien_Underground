@@ -4,11 +4,15 @@ using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 public class FactionSpawner : MonoBehaviour
 {
-    FactionSpawner instance;
+    public static FactionSpawner instance;
     private bool init;
 
     [SerializeField] private FactionData[] factionData;
     [SerializeField] private FactionData factionWanderer;
+    [SerializeField] private FactionData factionDungeon;
+    public List<FactionBehaviour> factionsIA = new List<FactionBehaviour>();
+
+    public FactionBehaviour dungeonFaction, wandererFaction, topLeftFaction, topRightFaction, bottomLeftFaction, bottomRightFaction, lezardFactionLeft, lezardFactionRight;
     public GameObject[] spawners;
     public List<GameObject> factions = new List<GameObject>();
     [SerializeField] private GameObject factionPrefab;
@@ -26,38 +30,47 @@ public class FactionSpawner : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        
+        factionsIA = new List<FactionBehaviour>() {
+            topLeftFaction,
+            topRightFaction,
+            bottomLeftFaction,
+            bottomRightFaction,
+            lezardFactionLeft
+            , lezardFactionRight};
 
 
          for (int i = 0; i < spawners.Length; i++)
 
+        {
+            RoomInfo room;
+            if (i == 0)
             {
-                RoomInfo room;
-                if (i == 0)
-                {
-                    DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(1, 1), out room);
-                }
-                else if (i == 1)
-                {
-                    DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(DungeonGenerator.Instance.roomGrid - 2, 1), out room);
-                }
-                else if (i == 2)
-                {
-                    DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(DungeonGenerator.Instance.roomGrid - 2, DungeonGenerator.Instance.roomGrid - 2), out room);
-                }
-                else
-                {
-                    DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(1, DungeonGenerator.Instance.roomGrid - 2), out room);
-                }
-
-                GameObject spawner = Instantiate(spawnerPrefab, room.roomBounds.center, Quaternion.identity);
-                spawner.name = "Spawner " + i;
-
-                spawners[i] = spawner;
+                DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(1, 1), out room);
             }
+            else if (i == 1)
+            {
+                DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(DungeonGenerator.Instance.roomGrid - 2, 1), out room);
+            }
+            else if (i == 2)
+            {
+                DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(DungeonGenerator.Instance.roomGrid - 2, DungeonGenerator.Instance.roomGrid - 2), out room);
+            }
+            else
+            {
+                DungeonGenerator.Instance.roomsMap.TryGetValue(new Vector2Int(1, DungeonGenerator.Instance.roomGrid - 2), out room);
+            }
+
+            GameObject spawner = Instantiate(spawnerPrefab, room.roomBounds.center, Quaternion.identity);
+            spawner.name = "Spawner " + i;
+
+            spawners[i] = spawner;
+        }
     }
     void Start()
     {
         int countOffactions = DungeonGenerator.Instance.startingfactionCount;
+        int factionIAindex = 0;
         while (countOffactions > 0)
         {
             RoomInfo factionRoomStart = null;
@@ -98,19 +111,28 @@ public class FactionSpawner : MonoBehaviour
             }
             var faction = factionData[Random.Range(0, factionData.Length)];
             var pos = new Vector3(factionRoomStart.roomBounds.center.x, factionRoomStart.roomBounds.center.y, 0);
-            var newfaction = SpawnFaction(faction, pos);
-            newfaction.currentHQ.Add(factionRoomStart);
-            factionRoomStart.faction = newfaction;
+
+            factionsIA[factionIAindex] = SpawnFaction(faction, pos);
+            factionsIA[factionIAindex].currentHQ.Add(factionRoomStart);
+            factionRoomStart.faction = factionsIA[factionIAindex];
             foreach (var tile in factionRoomStart.tiles)
             {
-                tile.faction = newfaction;
+                tile.faction = factionsIA[factionIAindex];
             }
-            newfaction.numberOfHQ++;
+            factionsIA[factionIAindex].numberOfHQ++;
+            factionIAindex++;
         }
 
-        FactionBehaviour wandererFaction = SpawnFaction(factionWanderer, this.transform.position);
+        dungeonFaction = SpawnFaction(factionDungeon, new Vector3(DungeonGenerator.Instance.dungeonWidth / 2f, DungeonGenerator.Instance.dungeonHeight / 2f, 0));
+        FlaureSpawner.instance.dungeonFaction = dungeonFaction.GetComponent<FactionBehaviour>();
+        dungeonFaction.name = "Dungeon Faction";
+
+
+        wandererFaction = SpawnFaction(factionWanderer, new Vector3(DungeonGenerator.Instance.dungeonWidth / 2f, DungeonGenerator.Instance.dungeonHeight / 2f, 0));
         FlaureSpawner.instance.wandererFaction = wandererFaction.GetComponent<FactionBehaviour>();
         FlaureSpawner.instance.wandererFaction.name = "Wanderer Faction";
+
+        
     }
 
     // Update is called once per frame

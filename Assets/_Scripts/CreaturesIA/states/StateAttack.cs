@@ -15,19 +15,18 @@ public class StateAttack : CreatureState
 
     public override void Update()
     {
-        if (target == null || !target.gameObject.activeInHierarchy || target.isDead)
+        if (creature == null || creature.transform == null ||
+            target == null || target.transform == null ||
+            !target.gameObject.activeInHierarchy || target.isDead)
         {
             target = null;
-            if (creature.previousState != null)
-            creature.SwitchState(creature.previousState);
-            else
-            creature.SwitchState(new StateIdle(creature));
-            
+            if (creature != null)
+                creature.SwitchState(new StateIdle(creature));
             return;
         }
 
-        float distance = Vector2.Distance(creature.transform.position, target.transform.position);
-        Vector2 directionToTarget = (target.transform.position - creature.transform.position).normalized;
+        float distance = Vector2.Distance(Controller.transform.position, target.transform.position);
+        Vector2 directionToTarget = (target.transform.position - Controller.transform.position).normalized;
 
         if (Controller.attackTimer <= 0)
         {

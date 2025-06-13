@@ -1,11 +1,7 @@
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Unity.VisualScripting;
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -21,7 +17,10 @@ public class CreatureController : MonoBehaviour
         RecoltFood,
         FindHQ,
         Wander,
-        Patrol
+        Patrol,
+        AttackCore,
+        ChangeFaction,
+        Escort,
     }
     public CreatureGoal currentGoal;
     public int currentGoalPriority;
@@ -38,7 +37,7 @@ public class CreatureController : MonoBehaviour
     public bool hasDestination = false, sleeping = false, isDead = false, isCorpse = false, basicNeed = false;
     [HideInInspector] public RoomInfo currentRoom, previousRoom;
     public FactionBehaviour currentFaction;
-    public Coroutine tileDetectionRoutine, hungerCheckRoutine, energyCheckRoutine, goEatTargetRoutine;
+    public Coroutine tileDetectionRoutine, hungerCheckRoutine, energyCheckRoutine, goEatTargetRoutine, attackCoreRoutine;
     public float coroutineDelay = 2f;
     [HideInInspector] public TileInfo currentTile, lastCheckedTile;
     [HideInInspector]private List<TileInfo> __surroundingTiles = new List<TileInfo>();
@@ -69,10 +68,16 @@ public class CreatureController : MonoBehaviour
     [HideInInspector] public Animator animator;
     [HideInInspector] public SpriteRenderer spriteRenderer;
     public bool isPlayer = false;
+    public Vector2 moveDirection = Vector2.zero;
+    public bool casting = false;
 
+    public float moved = 0.2f;
+
+    private bool checkedStuck = false;
+    private float staticCheckDelay = 0.2f; // Delay before checking if stuck
     protected virtual void OnEnable()
     {
-        
+
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -80,12 +85,40 @@ public class CreatureController : MonoBehaviour
         agent.updateUpAxis = false;
         if (!isPlayer)
         {
+
             creatureAI = GetComponent<CreatureAI>();
             StartCoroutine(DelayedInit());
             CurrentTileCheck();
+
+
+        }
+        if (isPlayer)
+        {
+            StartCoroutine(PlayerDelayedInit());
         }
     }
 
+    private IEnumerator PlayerDelayedInit()
+    {
+        yield return null;
+
+
+        currentCreatureType = GetCreatureTypeInstance();
+
+        currentHP = data.maxLife;
+
+        agent.speed = data.speed;
+
+        animator.enabled = true;
+        animator.runtimeAnimatorController = data.animator;
+
+        spriteRenderer.sprite = data.sprite;
+        
+        this.name = data.name;
+        agent.enabled = true;
+        agent.isStopped = false;
+        yield break;
+    }
     private IEnumerator DelayedInit()
     {
         yield return null;
@@ -118,6 +151,7 @@ public class CreatureController : MonoBehaviour
         CurrentTileCheck();
         //CheckCurrentRoom();
         StartAllCoroutine();
+        
         yield break;
     }
 
@@ -131,6 +165,9 @@ public class CreatureController : MonoBehaviour
                 return new LezardType(this);
             case CreatureData.CreatureTypeEnum.Champi:
                 return new ChampiType(this);
+            case CreatureData.CreatureTypeEnum.Avatar:
+                return new AvatarType(this);
+
             default:
                 return null;
         }
@@ -138,36 +175,90 @@ public class CreatureController : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (coroutineDelay >= 0)
+
+        if (isPlayer)
         {
-            coroutineDelay -= Time.deltaTime;
+            if (!casting)
+            {
+                animator.SetBool("Casting", false);
+                if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+                {
+                    moveDirection = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+                    moved = 0.2f;
+                }
+                else
+                {
+                    moveDirection = Vector2.zero;
+                    if (moved >= 0)
+                        moved -= Time.deltaTime;
+                }
+
+                if (moveDirection.magnitude > 1f)
+                {
+                    moveDirection.Normalize();
+                }
+
+                if (moveDirection != Vector2.zero)
+                {
+                    transform.Translate(moveDirection * data.speed * Time.deltaTime, Space.World);
+                }
+            }
+            else if (casting)
+            {
+                animator.SetBool("Casting", true);
+            }
+
+            if (moved > 0)
+            {
+                animator.SetBool("isWalking", true);
+            }
+            else
+                animator.SetBool("isWalking", false);
+
+                if (Input.GetAxis("Horizontal") > 0.1f)
+                {
+                    spriteRenderer.flipX = false; // facing right
+                }
+                else if (Input.GetAxis("Horizontal") < -0.1f)
+                {
+                    spriteRenderer.flipX = true; // facing left
+                }
+
         }
 
-        // chnange sprite orientation based on movement direction
-        if (agent.velocity.x > 0.1f)
+
+
+
+
+
+        if (!isPlayer)
         {
-            spriteRenderer.flipX = false; // facing right
-        }
-        else if (agent.velocity.x < -0.1f)
-        {
-            spriteRenderer.flipX = true; // facing left
-        }
-
-        if (agent.velocity.magnitude > 0.1f)
-        {
-            animator.SetBool("isWalking", true);
-        }
-        else
-        {
-            animator.SetBool("isWalking", false);
-
-            
-        }
-
-        
+            if (coroutineDelay >= 0)
+            {
+                coroutineDelay -= Time.deltaTime;
+            }
 
 
-        //CurrentTileCheck();
+            if (agent.velocity.x > 0.1f)
+            {
+                spriteRenderer.flipX = false; // facing right
+            }
+            else if (agent.velocity.x < -0.1f)
+            {
+                spriteRenderer.flipX = true; // facing left
+            }
+
+            if (agent.velocity.magnitude > 0.1f)
+            {
+                animator.SetBool("isWalking", true);
+            }
+            else
+            {
+                animator.SetBool("isWalking", false);
+
+
+            }
+            //CurrentTileCheck();
 
             if (agent != null && agent.enabled && agent.isOnNavMesh)
             {
@@ -180,10 +271,26 @@ public class CreatureController : MonoBehaviour
                     attackTimer -= Time.deltaTime;
                 }
             }
-            
-        
 
+            if (agent.velocity.magnitude < 0.1f && !sleeping && !checkedStuck)
+            {
+                StartCoroutine(CheckStuck());
+            }
+        }
 
+    }
+
+    private IEnumerator CheckStuck()
+    {
+         checkedStuck = true;
+        yield return new WaitForSeconds(0.5f);
+       
+        if (agent.velocity.magnitude < 0.1f && !sleeping)
+        {
+            agent.ResetPath();
+        }
+        yield return new WaitForSeconds(0.5f);
+        checkedStuck = false;
     }
 
     void FixedUpdate()
@@ -231,33 +338,68 @@ public class CreatureController : MonoBehaviour
         agent.SetDestination(destination);
     }
 
-    public void OnHit(CreatureController attacker, int damage)
+    public void OnHit(CreatureController attacker, int damage, bool spell = false)
     {
+        /*
+    if (attacker == null) Debug.LogError("OnHit: attacker is null!");
+    if (currentFaction == null) Debug.LogError("OnHit: currentFaction is null!");
+    if (animator == null) Debug.LogError("OnHit: animator is null!");
+    if (spriteRenderer == null) Debug.LogError("OnHit: spriteRenderer is null!");
+    if (data == null) Debug.LogError("OnHit: data is null!");
+    */
         currentHP -= damage;
-        if (currentHP <= 0)
+        if (attacker != null && !spell)
         {
-            currentCreatureType.OnDeath(attacker);
+            if (currentHP <= 0)
+            {
+                currentCreatureType.OnDeath(attacker);
+            }
+            else if (currentHP < data.maxLife / 4 && !isPlayer)
+            {
+                creatureAI.attacker = attacker;
+                creatureAI.SwitchState(new StateFlee(creatureAI, attacker));
+            }
+            else if (currentHP > data.maxLife / 4 && !isPlayer)
+            {
+                creatureAI.target = attacker;
+                creatureAI.SwitchState(new StateAttack(creatureAI, attacker));
+            }
         }
-        else if (currentHP < data.maxLife / 4)
-        {
 
-            // Change color to red
-            creatureAI.attacker = attacker;
-            creatureAI.SwitchState(new StateFlee(creatureAI, attacker));
-        }
-        else
+        else if (spell)
         {
-            // Change color to yellow
-            creatureAI.target = attacker;
-            creatureAI.SwitchState(new StateAttack(creatureAI, attacker));
+            if (currentHP <= 0)
+            {
+                currentCreatureType.OnDeath(null, spell);
+            }
+            
+            if (currentHP < data.maxLife / 4 && ManaCore.Instance.avatarController != null)
+            {
+                creatureAI.attacker = ManaCore.Instance.avatarController;
+                creatureAI.SwitchState(new StateFlee(creatureAI, attacker));
+
+            }
+            else if (currentHP > data.maxLife / 4 && !isPlayer)
+            {
+                creatureAI.target = ManaCore.Instance.avatarController;
+                creatureAI.SwitchState(new StateAttack(creatureAI, attacker));
+            }
         }
 
-        if (sleeping)
+        if (sleeping && !spell)
         {
             sleeping = false;
             animator.SetBool("Sleep", false);
             agent.isStopped = false;
-            creatureAI.SwitchState(new StateAttack(creatureAI,attacker));
+            creatureAI.SwitchState(new StateAttack(creatureAI, attacker));
+        }
+        else if (sleeping && spell && ManaCore.Instance.avatarController != null)
+        {
+            sleeping = false;
+            animator.SetBool("Sleep", false);
+            agent.isStopped = false;
+            creatureAI.target = ManaCore.Instance.avatarController;
+            creatureAI.currentState = new StateAttack(creatureAI, ManaCore.Instance.avatarController);
         }
     }
 
@@ -841,20 +983,30 @@ public class CreatureController : MonoBehaviour
                 }
             }*/
             agent.isStopped = true;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
+            if (currentHP < data.maxEnergy)
             currentEnergy += 1;
+            if(currentHP < data.maxLife)
             currentHP += 1;
             if (currentHungerState == hungerState.Normal)
             {
-                currentHP += 2;
+                if (currentHP < data.maxLife)
+                {
+                    currentHP += 2;
+                }
+                if (currentHP < data.maxEnergy)
                 currentEnergy += 1;
             }
             if (currentHungerState == hungerState.Full)
             {
-                currentHP += 2;
+                if (currentHP < data.maxLife)
+                {
+                    currentHP += 2;
+                }
+                if (currentHP < data.maxEnergy)
                 currentEnergy += 2;
             }
-            if (currentEnergy >= data.maxEnergy - 1 && currentHP >= data.maxLife - 1)
+            if (currentEnergy >= data.maxEnergy - 10 && currentHP >= data.maxLife - 10)
             
             {
                 currentEnergy = data.maxEnergy;

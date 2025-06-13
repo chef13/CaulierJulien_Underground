@@ -7,7 +7,7 @@ public class SpellSummon : SpellTarget
     {
     }
 
-      public override IEnumerator CastingSpell()
+      public override IEnumerator CastingSpell(Spell spell)
     {
         yield break;
     }

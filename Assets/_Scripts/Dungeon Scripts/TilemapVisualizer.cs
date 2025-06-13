@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
-[SerializeField]public class TilemapVisualizer : MonoBehaviour
+[SerializeField] public class TilemapVisualizer : MonoBehaviour
 {
     static public TilemapVisualizer Instance;
     [SerializeField]
     public Tilemap floorTilemap, wallTilemap, waterTilemap, natureTilemap;
     [SerializeField]
-    public TileBase floorTile, wallTop, wallSideRight, wallSiderLeft, wallBottom, wallFull, 
-        wallInnerCornerDownLeft, wallInnerCornerDownRight, 
+    public TileBase floorTile, wallTop, wallSideRight, wallSiderLeft, wallBottom, wallFull,
+        wallInnerCornerDownLeft, wallInnerCornerDownRight,
         wallDiagonalCornerDownRight, wallDiagonalCornerDownLeft, wallDiagonalCornerUpRight, wallDiagonalCornerUpLeft,
         water,
-        natureTile, natureTop, natureSideRight, natureSiderLeft, natureBottom, natureFull, 
-        natureInnerCornerDownLeft, natureInnerCornerDownRight, 
+        natureTile, natureTop, natureSideRight, natureSiderLeft, natureBottom, natureFull,
+        natureInnerCornerDownLeft, natureInnerCornerDownRight,
         natureDiagonalCornerDownRight, natureDiagonalCornerDownLeft, natureDiagonalCornerUpRight, natureDiagonalCornerUpLeft;
 
     void Start()
@@ -33,20 +33,20 @@ using System.Linq;
         PaintTiles(floorPositions, floorTilemap, floorTile);
     }
 
-    public void PaintWaterTiles(IEnumerable<Vector2Int> floorPositions,IEnumerable<Vector2Int> waterPositions)
+    public void PaintWaterTiles(IEnumerable<Vector2Int> floorPositions, IEnumerable<Vector2Int> waterPositions)
     {
         var waterPositionsSet = new HashSet<Vector2Int>(waterPositions);
         foreach (var position in floorPositions)
         {
-             if (waterPositionsSet.Contains(position))
-             {
-                 PaintTiles(waterPositions, waterTilemap, water);
-             }
+            if (waterPositionsSet.Contains(position))
+            {
+                PaintTiles(waterPositions, waterTilemap, water);
+            }
         }
-        
+
     }
 
-        public void PaintWaterTiles2(Dictionary<Vector3Int, TileInfo> dungeonMap)
+    public void PaintWaterTiles2(Dictionary<Vector3Int, TileInfo> dungeonMap)
     {
         var waterPositions = dungeonMap
             .Where(kvp => kvp.Value.isFloor && kvp.Value.isWater)
@@ -55,7 +55,7 @@ using System.Linq;
         PaintTiles(waterPositions, waterTilemap, water);
     }
 
-        public void PaintNatureTiles(IEnumerable<Vector2Int> naturePositions)
+    public void PaintNatureTiles(IEnumerable<Vector2Int> naturePositions)
     {
         PaintTiles(naturePositions, natureTilemap, natureTile);
     }
@@ -79,6 +79,17 @@ using System.Linq;
         {
             PaintSingleTile(tilemap, tile, position);
         }
+    }
+
+    public static void eraseTile(Tilemap tilemap, Vector2Int position)
+    {
+        tilemap.SetTile((Vector3Int)position, null);
+    }
+
+    public static void drawTile(Tilemap tilemap, Vector2Int position, TileBase tilebase)
+    {
+        tilemap.SetTile((Vector3Int)position, tilebase);
+
     }
     
     public void EraseWallTile(Vector2Int position)

@@ -172,7 +172,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 96
         width: 32
         height: 32
       alignment: 0
@@ -194,7 +194,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 32
-        y: 0
+        y: 96
         width: 32
         height: 32
       alignment: 0
@@ -216,7 +216,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 64
-        y: 0
+        y: 96
         width: 32
         height: 32
       alignment: 0
@@ -238,7 +238,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 96
-        y: 0
+        y: 96
         width: 32
         height: 32
       alignment: 0
@@ -259,8 +259,8 @@ TextureImporter:
       name: avatar-Sheet_4
       rect:
         serializedVersion: 2
-        x: 128
-        y: 0
+        x: 0
+        y: 64
         width: 32
         height: 32
       alignment: 0
@@ -281,8 +281,8 @@ TextureImporter:
       name: avatar-Sheet_5
       rect:
         serializedVersion: 2
-        x: 160
-        y: 0
+        x: 32
+        y: 64
         width: 32
         height: 32
       alignment: 0
@@ -303,8 +303,8 @@ TextureImporter:
       name: avatar-Sheet_6
       rect:
         serializedVersion: 2
-        x: 192
-        y: 0
+        x: 64
+        y: 64
         width: 32
         height: 32
       alignment: 0
@@ -325,8 +325,8 @@ TextureImporter:
       name: avatar-Sheet_7
       rect:
         serializedVersion: 2
-        x: 224
-        y: 0
+        x: 96
+        y: 64
         width: 32
         height: 32
       alignment: 0
@@ -347,8 +347,8 @@ TextureImporter:
       name: avatar-Sheet_8
       rect:
         serializedVersion: 2
-        x: 256
-        y: 0
+        x: 0
+        y: 32
         width: 32
         height: 32
       alignment: 0
@@ -369,8 +369,8 @@ TextureImporter:
       name: avatar-Sheet_9
       rect:
         serializedVersion: 2
-        x: 288
-        y: 0
+        x: 32
+        y: 32
         width: 32
         height: 32
       alignment: 0
@@ -391,8 +391,8 @@ TextureImporter:
       name: avatar-Sheet_10
       rect:
         serializedVersion: 2
-        x: 320
-        y: 0
+        x: 64
+        y: 32
         width: 32
         height: 32
       alignment: 0
@@ -413,8 +413,8 @@ TextureImporter:
       name: avatar-Sheet_11
       rect:
         serializedVersion: 2
-        x: 352
-        y: 0
+        x: 96
+        y: 32
         width: 32
         height: 32
       alignment: 0
@@ -435,7 +435,7 @@ TextureImporter:
       name: avatar-Sheet_12
       rect:
         serializedVersion: 2
-        x: 384
+        x: 0
         y: 0
         width: 32
         height: 32
@@ -457,7 +457,7 @@ TextureImporter:
       name: avatar-Sheet_13
       rect:
         serializedVersion: 2
-        x: 416
+        x: 32
         y: 0
         width: 32
         height: 32
@@ -479,7 +479,7 @@ TextureImporter:
       name: avatar-Sheet_14
       rect:
         serializedVersion: 2
-        x: 448
+        x: 64
         y: 0
         width: 32
         height: 32
@@ -511,7 +511,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":15.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       avatar-Sheet_0: 8830610038209505478
       avatar-Sheet_1: 967127586069163517

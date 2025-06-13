@@ -39,4 +39,10 @@ public class SpellEffectList : ScriptableObject
     public SpellEffectSO whiteDungeon;
     public SpellEffectSO blackDungeon;
 
+    public SpellEffectSO blueRoomRitual;
+    public SpellEffectSO brownRoomRitual;
+    public SpellEffectSO greenRoomRitual;
+    public SpellEffectSO whiteRoomRitual;
+    public SpellEffectSO blackRoomRitual;
+
 }

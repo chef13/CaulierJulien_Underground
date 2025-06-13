@@ -1,12 +1,7 @@
 
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
-using UnityEngine.AI;
-
-public abstract class BlopType : CreatureType
+public class BlopType : CreatureType
 {
     //public new List<Coroutine> GoalsCoroutines = new List<Coroutine>();
 

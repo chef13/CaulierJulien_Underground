@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 550f742243f8397428d0f6260c148771, type: 3}
+  m_Name: Blue Room Effect SO
+  m_EditorClassIdentifier: 
+  manacost: 10
+  description: 
+  spellName: 
+  icon: {fileID: -2650797669552332235, guid: c85f53f5d29fb4b43b63df40d2ea6ab7, type: 3}

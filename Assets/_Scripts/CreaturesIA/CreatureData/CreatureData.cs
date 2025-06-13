@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Animations;
+﻿
+using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CreatureData", menuName = "CreatureData")]
@@ -8,8 +7,8 @@ public class CreatureData : ScriptableObject
 {
     public string creatureName;
     public Sprite sprite, deadsprite, skeletonSprite;
-    public AnimatorController animator;
-    public enum CreatureTypeEnum { Goblin, Lezard, Human, Champi, Blop, Skeleton }
+    public RuntimeAnimatorController animator;
+    public enum CreatureTypeEnum { Goblin, Lezard, Human, Champi, Blop, Skeleton, Avatar }
     public CreatureTypeEnum CreatureType;
     public int maxLife, maxEnergy, maxHunger, attackPower, detectionRange;
     public float attackRange, attackSpeed, speed;

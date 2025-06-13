@@ -1,19 +1,26 @@
-using Mono.Cecil.Cil;
+
 using Unity.VisualScripting;
 using UnityEngine;
 using System.Collections;
 public abstract class SpellTarget
 {
+    SpellBuilder spellBook = SpellBuilder.Instance;
     public enum SpellTargets
     {
         tile,
         Room,
         Creature,
-        Faction,
         Beam,
-        Dungeon
+    }
+
+    public enum SpellTargets_Ritual
+    {
+        Faction,
+        Dungeon,
+        RoomRitual
     }
     public SpellTargets spellTarget;
+    public SpellTargets_Ritual spellTargetRitual;
     public Spell spell;
     public SpellTarget(Spell spell)
     {
@@ -63,25 +70,42 @@ public abstract class SpellTarget
         {
             case Spell.SpellTargets.Tile:
                 spellTarget = SpellTargets.tile;
+                new SpellOnTile(spell);
                 break;
             case Spell.SpellTargets.Room:
                 spellTarget = SpellTargets.Room;
+                new SpellOnRoom(spell);
                 break;
             case Spell.SpellTargets.Creature:
                 spellTarget = SpellTargets.Creature;
-                break;
-            case Spell.SpellTargets.Faction:
-                spellTarget = SpellTargets.Faction;
+                new SpellOnCreature(spell);
                 break;
             case Spell.SpellTargets.Beam:
                 spellTarget = SpellTargets.Beam;
+                new SpellBeam(spell);
                 break;
-            case Spell.SpellTargets.Dungeon:
-                spellTarget = SpellTargets.Dungeon;
+        }
+    }
+
+    public void SwitchTargetRitual(Spell spell)
+    {
+        switch (spell.spellTargetRitual)
+        {
+            case Spell.SpellTargets_Ritual.Faction:
+                spellTargetRitual = SpellTargets_Ritual.Faction;
+                new SpellOnFaction(spell);
+                break;
+            case Spell.SpellTargets_Ritual.Dungeon:
+                spellTargetRitual = SpellTargets_Ritual.Dungeon;
+                new SpellOnDungeon(spell);
+                break;
+            case Spell.SpellTargets_Ritual.RoomRitual:
+                spellTargetRitual = SpellTargets_Ritual.RoomRitual;
+                new SpellOnRoomRitual(spell);
                 break;
         }
     }
     
-    public abstract IEnumerator CastingSpell();
+    public abstract IEnumerator CastingSpell(Spell spell);
     
 }

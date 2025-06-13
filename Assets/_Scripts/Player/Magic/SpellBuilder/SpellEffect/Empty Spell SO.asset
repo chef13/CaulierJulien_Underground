@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cd040e7daa39234099aa191219a267b, type: 3}
+  m_Name: Empty Spell SO
+  m_EditorClassIdentifier: 
+  effectName: 
+  icon: {fileID: 6701807026480723599, guid: ca74cdf3f3245b84ab76aec6148be8fe, type: 3}

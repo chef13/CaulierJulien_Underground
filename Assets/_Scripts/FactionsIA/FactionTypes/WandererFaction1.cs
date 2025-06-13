@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor.Rendering;
+
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -44,7 +44,13 @@ public class WandererFaction : FactionType
 
     protected override void CheckGoals()
     {
-       
+               if (faction.currentHQ.Count != 0)
+        {
+            if (checkDungeonRelationshipCoroutine == null)
+            {
+                checkDungeonRelationshipCoroutine = faction.StartCoroutine(CheckDungeonRelationshipCoroutine());
+            }
+        }
 
     }
 

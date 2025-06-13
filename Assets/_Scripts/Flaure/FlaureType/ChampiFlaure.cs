@@ -22,19 +22,19 @@ public class ChampiFlaure : FlaureType
   {
 
   }
-  
-    public override void Update()
+
+  public override void Update()
   {
     if (flaure.coroutineDelay >= 0)
-        {
-            flaure.coroutineDelay -= Time.deltaTime;
-        }
+    {
+      flaure.coroutineDelay -= Time.deltaTime;
+    }
 
   }
-    public override void Growing()
+  public override void Growing()
 
   {
-    flaure.currentGrowthTime++;
+    flaure.currentGrowthTime+= 2 * flaure.flaureSpawner.growthFactor;
     List<TileInfo> waterTiles = new List<TileInfo>();
     for (int dx = -flaure.flaureData.range; dx <= flaure.flaureData.range; dx++)
     {
@@ -71,8 +71,8 @@ public class ChampiFlaure : FlaureType
         Expand();
       }
     }
-  }      
-public override IEnumerator Grow()
+  }
+  public override IEnumerator Grow()
   {
     flaure.currentGrowthTime++;
     List<TileInfo> waterTiles = new List<TileInfo>();
@@ -121,11 +121,7 @@ public override IEnumerator Grow()
     int randomSpawn = Random.Range(0, 20);
     if (randomSpawn < flaure.flaureData.spawnChance)
     {
-      Vector3 spawnPosition = new Vector2(flaure.currentTile.position.x, flaure.currentTile.position.y);
-     // Debug.Log("Spawning creature at " + spawnPosition + " with prefab " + flaure.flaureSpawner.champiPrefab + " and faction " + flaure.flaureSpawner.wandererFaction);
-      CreatureSpawner.Instance.StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPosition, flaure.flaureSpawner.champiPrefab, flaure.flaureSpawner.wandererFaction));
-     // Debug.Log("succes " + spawnPosition);
-      Eaten();
+      TurnLivingCreature(flaure.flaureSpawner.wandererFaction);
       return;
     }
     TileInfo selectedTile = null;
@@ -167,12 +163,22 @@ public override IEnumerator Grow()
         return;
       }
     }
-    
-    Vector3 spawnPostion = selectedTile.position + new Vector3(Random.Range(0.1f,0.9f),Random.Range(0.1f,0.9f), 0);
+
+    Vector3 spawnPostion = selectedTile.position + new Vector3(Random.Range(0.1f, 0.9f), Random.Range(0.1f, 0.9f), 0);
     flaure.flaureSpawner.spawnQueue.Enqueue((selectedTile, flaure.flaureData, spawnPostion));
 
-          
-        
+
+
+  }
+
+  public override void TurnLivingCreature(FactionBehaviour faction)
+  {
+
+      Vector3 spawnPosition = new Vector2(flaure.currentTile.position.x, flaure.currentTile.position.y);
+      // Debug.Log("Spawning creature at " + spawnPosition + " with prefab " + flaure.flaureSpawner.champiPrefab + " and faction " + flaure.flaureSpawner.wandererFaction);
+      CreatureSpawner.Instance.StartCoroutine(CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPosition, flaure.flaureSpawner.champiPrefab, faction));
+      // Debug.Log("succes " + spawnPosition);
+      Eaten(); 
   }
    
 }

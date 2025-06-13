@@ -1,43 +1,113 @@
 using UnityEngine;
 using System.Collections;
 using Unity.VisualScripting;
+using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
-{/*
-    public GameObject mobPrefab;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+{
+    public Canvas fadeInCanvas;
+    public GameObject panel; // Use GameObject if you want to reference a UI panel prefab or object
+    public TMP_Text textIntro;
+    public Canvas menuCanvas;
+    public Camera mainCamera;
+    public static GameManager Instance;
     void Start()
     {
-        //StartCoroutine(SpawnTraversingMobs());
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        fadeInCanvas.enabled = true;
+        StartCoroutine(TextIntro());
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
-        {Vector2 moussePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (BlopSpawner.Instance != null)
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (menuCanvas.enabled)
             {
-                BlopSpawner.Instance.SpawnBlop(moussePosition);
+                menuCanvas.enabled = false;
+                Time.timeScale = 1f; // Resume the game
             }
             else
             {
-                Debug.LogWarning("BlopSpawner.Instance is null!");
+                menuCanvas.enabled = true;
+                Time.timeScale = 0f; // Pause the game
             }
-            
         }
+
+
     }
 
-    public IEnumerator SpawnTraversingMobs()
+
+    public IEnumerator TextIntro()
     {
-        
-            
-            Vector3 spawnPosition = roomGenerator.spawnPoints[Random.Range(0, roomGenerator.deadEndsBorders.Count)].transform.position;
-            GameObject mob = Instantiate(mobPrefab, spawnPosition, Quaternion.identity);
-            Debug.Log("Spawned mob at: " + spawnPosition + "at spawnPoint: " + roomGenerator.spawnPoints[Random.Range(0, roomGenerator.deadEndsBorders.Count)].transform.position);
-            yield return new WaitForSeconds(5f); // Attendre 1 seconde entre chaque spawn
-            StartCoroutine(SpawnTraversingMobs());
-            
+        Color c = textIntro.color;
+        c.a = 0f;
+        textIntro.color = c;
+        while (c.a < 1f)
+        {
+            c.a += Time.deltaTime * 0.5f;
+            textIntro.color = c;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(4f); // Wait for 2 seconds before starting the fade-in
+
+        yield return new WaitUntil(() => ManaCore.Instance != null);
+        mainCamera.transform.position = ManaCore.Instance.transform.position + new Vector3(0f, 0f, -10f);
+        StartCoroutine(FadeIn());
+        yield break;
     }
-*/
+
+    public IEnumerator FadeIn()
+    {
+        Color p = panel.GetComponent<Image>().color;
+        Color c = textIntro.color;
+        c.a = 1f;
+        p.a = 1f;
+        panel.GetComponent<Image>().color = p;
+        textIntro.color = c;
+        while (p.a > 0f)
+        {
+            p.a -= Time.deltaTime * 0.2f;
+            c.a -= Time.deltaTime;
+            panel.GetComponent<Image>().color = p;
+            textIntro.color = c;
+            yield return null;
+        }
+        fadeInCanvas.enabled = false;
+        yield break;
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public void ResumeGame()
+    {
+        menuCanvas.enabled = false;
+        Time.timeScale = 1f; // Resume the game
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; // Resume the game
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    public void LooseGame()
+    {
+        Time.timeScale = 1f; // Resume the game
+        UnityEngine.SceneManagement.SceneManager.LoadScene("EcranTitre");
+    }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using Random = UnityEngine.Random;
 using Unity.VisualScripting;
 using System.Collections;
+using System;
 public class FactionBehaviour : MonoBehaviour
 {
 
@@ -11,7 +12,13 @@ public class FactionBehaviour : MonoBehaviour
     public List<CreatureController> membersWander = new List<CreatureController>();
     public List<CreatureController> membersRecoltFood = new List<CreatureController>();
     public List<CreatureController> membersFindHQ = new List<CreatureController>();
+    public List<CreatureController> membersAttackCore = new List<CreatureController>();
+    public List<CreatureController> membersChangeFaction = new List<CreatureController>();
+    public List<CreatureController> membersEscort = new List<CreatureController>();
 
+     public List<CreatureController> gobelins = new List<CreatureController>();
+    public List<CreatureController> Lezards = new List<CreatureController>();
+    public List<CreatureController> Champs = new List<CreatureController>();
 
     public FactionData factionData;
     //public CreatureSpawner creatureSpawner;
@@ -23,9 +30,9 @@ public class FactionBehaviour : MonoBehaviour
     public List<CreatureController> members = new List<CreatureController>();
     public Dictionary<Vector3Int, TileInfo> knownTilesDict = new Dictionary<Vector3Int, TileInfo>();
     public Dictionary<Vector2Int, RoomInfo> knownRoomsDict = new Dictionary<Vector2Int, RoomInfo>();
-    public Dictionary<FactionBehaviour, FactionRelationship> knownFactions = new Dictionary<FactionBehaviour, FactionRelationship>();
+    [Range(-10, 10)]
+    public int dungeonFav;
     [SerializeField] public List<RoomInfo> currentHQ = new List<RoomInfo>();
-    public enum FactionRelationship { Enemy = -10, Hostile = -5, Neutral = 0, Friendly = 5, Ally = 10 }
     public GameObject prefabCreature;
     private Coroutine mainGoalsCoroutine, checkFoodForNewMembersCoroutine;
 
@@ -54,6 +61,8 @@ public class FactionBehaviour : MonoBehaviour
                 return new LezardFaction(this);
             case FactionData.FactionTypeEnum.Wanderer:
                 return new WandererFaction(this);
+            case FactionData.FactionTypeEnum.Dungeon:
+                return new DungeonFaction(this);
             default:
                 return null;
         }
@@ -75,11 +84,12 @@ public class FactionBehaviour : MonoBehaviour
     {
         // Wait until factionData is set by the spawner
         while (factionData == null)
-            yield return null; // Wait one frame
+            yield return new WaitForEndOfFrame(); // Wait one frame
 
         // Now safe to use factionData
         currentFactionType = GetFactionTypeInstance();
         factionName = factionData.factionName;
+        if (prefabCreature == null && factionData.prefabCreature.Length > 0)
         prefabCreature = factionData.prefabCreature[0];
         SwitchType(currentFactionType);
 
@@ -123,16 +133,6 @@ public class FactionBehaviour : MonoBehaviour
         creatureGO.SetActive(true);
     }*/
 
-    public void RegisterKnownFaction(FactionBehaviour otherFaction, FactionRelationship relationship)
-    {
-        if (otherFaction == this) return; // Don't register self
-        if (!knownFactions.ContainsKey(otherFaction))
-            knownFactions.Add(otherFaction, relationship);
-        else
-            knownFactions[otherFaction] = relationship;
-    }
-
-
 
 
     private void StartAllCoroutines()
@@ -150,7 +150,7 @@ public class FactionBehaviour : MonoBehaviour
     {
         while (true)
         {
-            if (foodResources > members.Count * 30)
+            if (foodResources > members.Count * 30 && currentHQ.Count > 0 && prefabCreature != null)
             {
                 foodResources /= 2;
                 RoomInfo randomHQroom = currentHQ[Random.Range(0, currentHQ.Count)];

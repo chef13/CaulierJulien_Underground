@@ -16,10 +16,13 @@ public class FlaureSpawner : MonoBehaviour
     public static FlaureSpawner instance;
     public GameObject champiPrefab;
     public FactionBehaviour wandererFaction;
+    public FactionBehaviour dungeonFaction;
     public List<FlaureBehaviour> flaureBehaviours = new List<FlaureBehaviour>();
     public Queue<(TileInfo, FlaureData, Vector3)> spawnQueue = new Queue<(TileInfo, FlaureData, Vector3)>();
     public FlaureData champiData, fleureData, joncData, bushData;
     [SerializeField] private GameObject flaurePrefab;
+
+    public int growthFactor = 0;
 
     private bool init;
     // Start is called once before the first execution of Update after the MonoBehaviour is created

@@ -174,6 +174,40 @@ namespace NavMeshPlus.Components
 
         public void BuildNavMesh()
         {
+            StartCoroutine(BuildNavMeshNextFrame());
+            /*using var builderState = new NavMeshBuilderState() { };
+
+            var sources = CollectSources(builderState);
+
+            // Use unscaled bounds - this differs in behaviour from e.g. collider components.
+            // But is similar to reflection probe - and since navmesh data has no scaling support - it is the right choice here.
+            var sourcesBounds = new Bounds(m_Center, Abs(m_Size));
+            if (m_CollectObjects == CollectObjects.All || m_CollectObjects == CollectObjects.Children)
+            {
+                sourcesBounds = CalculateWorldBounds(sources);
+            }
+            builderState.worldBounds = sourcesBounds;
+            for (int i = 0; i < NevMeshExtensions.Count; ++i)
+            {
+                NevMeshExtensions[i].PostCollectSources(this, sources, builderState);
+            }
+            var data = NavMeshBuilder.BuildNavMeshData(GetBuildSettings(),
+                    sources, sourcesBounds, transform.position, transform.rotation);
+
+            if (data != null)
+            {
+                data.name = gameObject.name;
+                RemoveData();
+                m_NavMeshData = data;
+                if (isActiveAndEnabled)
+                    AddData();
+            }*/
+        }
+
+        private System.Collections.IEnumerator BuildNavMeshNextFrame()
+        {
+            yield return new WaitForEndOfFrame();
+
             using var builderState = new NavMeshBuilderState() { };
 
             var sources = CollectSources(builderState);
@@ -201,6 +235,8 @@ namespace NavMeshPlus.Components
                 if (isActiveAndEnabled)
                     AddData();
             }
+
+            yield break;
         }
 
         // Source: https://github.com/Unity-Technologies/NavMeshComponents/issues/97#issuecomment-528692289

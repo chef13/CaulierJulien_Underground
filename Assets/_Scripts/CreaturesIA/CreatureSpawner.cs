@@ -4,9 +4,13 @@ using Random = UnityEngine.Random;
 using Unity.VisualScripting;
 using System.Collections;
 using UnityEngine.AI;
+using UnityEngine.Events;
 public class CreatureSpawner : MonoBehaviour
 {
     public static CreatureSpawner Instance;
+
+    public UnityEvent CreatureDeath;
+    public UnityEvent CreatureSpawned;
     
     public List<GameObject> creaturesGarbage = new List<GameObject>(); 
     public List<CreatureController> livingCreatures = new List<CreatureController>();
@@ -46,6 +50,7 @@ public class CreatureSpawner : MonoBehaviour
             faction.members.Add(controller); // optional: track units
             yield return new WaitForSeconds(0.1f); // wait a bit to ensure the creature is fully initialized
             creatureGO.SetActive(true);
+            
         }
         else
         {
@@ -61,6 +66,7 @@ public class CreatureSpawner : MonoBehaviour
             faction.members.Add(controller); // optional: track units
             yield return new WaitForSeconds(0.1f); // wait a bit to ensure the creature is fully initialized
             creatureGO.SetActive(true);
+            
         }
     }
 }
