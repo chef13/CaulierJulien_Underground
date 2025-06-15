@@ -82,7 +82,23 @@ public class SpellBlack : SpellColor
     }
 
     public override void EffectOnAlliedCreature(CreatureController creature)    {    }
-    public override void EffectOnEnnemisCreature(CreatureController creature)    {    }
+    public override void EffectOnEnnemisCreature(CreatureController creature)
+    {  
+        if (ManaCore.Instance.currentAvatar != null)
+        {
+            
+                var attacker = ManaCore.currentAvatar.GetComponent<CreatureController>();
+                creature.OnHit(attacker, spell.spellPower * 10, false);
+                ManaCore.GainMana(spell.spellPower * 5);
+            }
+            else
+            {
+                creature.OnHit(null, spell.spellPower * 10, false);
+                ManaCore.GainMana(spell.spellPower * 5);
+            }
+            creature.currentFaction.dungeonFav--;
+        
+      }
     public override void EffectOnFaction(FactionBehaviour faction, float duration)
     {
         spell.SpellEffectCoroutine = spell.StartCoroutine(Sacrifying(faction, duration));

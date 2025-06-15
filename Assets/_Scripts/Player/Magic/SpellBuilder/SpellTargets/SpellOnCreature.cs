@@ -53,9 +53,9 @@ public class SpellOnCreature : SpellTarget
                     }
                 }
             }
-            for (int h = -spell.spellRange; h <= spell.spellRange; h++)
+            for (int h = -spell.spellRange -1; h <= spell.spellRange +1; h++)
             {
-                for (int v = -spell.spellRange; v <= spell.spellRange; v++)
+                for (int v = -spell.spellRange -1; v <= spell.spellRange +1; v++)
                 {
                     Vector3Int offset = new Vector3Int(h, v, 0);
                     Vector3Int position = tile.position + offset;
@@ -63,7 +63,7 @@ public class SpellOnCreature : SpellTarget
                     {
                         foreach (var creature in tile.creatures)
                         {
-                            if (creature != null && !CreaturesInRange.Contains(creature))
+                            if (!creature.isDead && !CreaturesInRange.Contains(creature))
                             {
                                 CreaturesInRange.Add(creature);
                             }

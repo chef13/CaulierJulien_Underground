@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System.Diagnostics;
 
 public class StatePatrol : CreatureState
 {
@@ -17,17 +18,25 @@ public class StatePatrol : CreatureState
 
     public override void Enter()
     {
-        patrolQueue.Clear();
-        patrolQueueHQ.Clear();
-
-       
+        patrolQueue = new Queue<Vector2>();
+        patrolQueueHQ = new Queue<Vector2>();
         RoomInfo closerHQ = GetCloserHQ();
+
+        currentHQpatrol = closerHQ;
+
         GetPatrolAroundHQ(closerHQ);
 
-        if (patrolQueue.Count == 0)
-            patrolQueue.Enqueue(Controller.currentRoom.tileCenter); // fallback
+
 
         Controller.SetDestination(patrolQueue.Dequeue());
+    }
+    
+    public override void Exit()
+    {
+        patrolQueue.Clear();
+        patrolQueueHQ.Clear();
+        currentHQpatrol = null;
+        Controller.SetDestination(Controller.transform.position); // Stop moving
     }
 
     public override void Update()
@@ -38,6 +47,12 @@ public class StatePatrol : CreatureState
             if (patrolQueue.Count > 0)
             {
                 Controller.SetDestination(patrolQueue.Dequeue());
+                return;
+            }
+
+            if (Controller.currentFaction.currentHQ.Count == 0)
+            {
+                creature.SwitchState(new StateIdle(creature));
                 return;
             }
 
@@ -61,8 +76,8 @@ public class StatePatrol : CreatureState
             }
 
 
-            
-            
+
+
         }
 
     }
@@ -81,17 +96,33 @@ public class StatePatrol : CreatureState
 
     public void GetPatrolAroundHQ(RoomInfo HQ)
     {
-        
-        if (HQ == null || HQ.connectedRooms == null)
-        return;
+        bool foundNewHQ = false;
 
-            for (int i = 0; i < HQ.connectedRooms.Count; i++)
+        if (HQ == null || HQ.connectedRooms == null)
+            return;
+
+        if (Controller.currentFaction.currentHQ.Count == 0)
         {
-            Vector2 pos = HQ.connectedRooms[i].tileCenter;
-            if (!patrolQueue.Contains(pos))
-            {
-                patrolQueue.Enqueue(pos);
-            }
+            currentHQpatrol = Controller.currentFaction.currentHQ[0];
+            return;
+        }
+        RoomInfo randomHQPick = null;
+        if (Controller.currentFaction.currentHQ.Count > 1)
+        {
+            randomHQPick = Controller.currentFaction.currentHQ[Random.Range(0, Controller.currentFaction.currentHQ.Count)];
+        }
+        
+
+        if (HQ != randomHQPick)
+        {
+            currentHQpatrol = randomHQPick;
+            GetPatrolAroundHQ(randomHQPick);
+            foundNewHQ = true;
+        }
+
+        if (!foundNewHQ)
+        {
+            GetPatrolAroundHQ(currentHQpatrol);
         }
         
     }

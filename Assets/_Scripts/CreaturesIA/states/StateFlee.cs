@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Numerics;
 using Vector2 = UnityEngine.Vector2;
 
 public class StateFlee : CreatureState
@@ -19,6 +18,14 @@ public class StateFlee : CreatureState
         Controller.SetDestination(destination);
     }
 
+    public override void Exit()
+    {
+        // Optionally reset any fleeing state or properties here
+        attacker = null;
+        Controller.SetDestination(Controller.transform.position); // Stop fleeing
+        creature.SwitchState(new StateIdle(creature)); // Switch to idle state after fleeing
+    }
+
     public override void Update()
     {
         if (!Controller.hasDestination)
@@ -29,20 +36,23 @@ public class StateFlee : CreatureState
                 if (Controller.currentFaction.currentHQ.Count > 0)
                 {
                     RoomInfo posHQ = GetCloserHQ();
-                    Controller.SetDestination(posHQ.tileCenter);
-
+                    float distance = Vector3.Distance(Controller.transform.position, new Vector3(posHQ.tileCenter.x, posHQ.tileCenter.y, 0f));
+                    if (distance < 50f)
+                    {
+                        // If already close to HQ, just stay there
+                        Controller.SetDestination(posHQ.tileCenter);
+                        return;
+                    }
                 }
-                else
-                {
+
                     Vector2 retreatPos = FindRetreatPosition(attacker);
                     Vector2 away = ((Vector2)creature.transform.position - retreatPos).normalized;
                     Vector2 destination = (Vector2)creature.transform.position + away * fleeDistance;
                     Controller.SetDestination(destination);
-                }
             }
             else
             {
-                    creature.SwitchState(new StateIdle(creature));
+                Exit();
             }
         }
     }

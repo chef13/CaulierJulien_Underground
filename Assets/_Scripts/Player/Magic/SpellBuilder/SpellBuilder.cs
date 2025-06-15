@@ -11,7 +11,6 @@ public class SpellBuilder : MonoBehaviour
 {
     public static SpellBuilder Instance;
     public Canvas SpellBook;
-    public bool isSpellBookOpen = false;
     public GameObject spellPrefab;
     public SpellColor spellColor;
     public SpellTarget spellTarget;
@@ -890,10 +889,4 @@ currentSelectedSlotObject = null;
         RitualOnFactionCanvas.gameObject.SetActive(true);
     }
 
-
-
-    public void BoolBookOpen()
-    {
-       isSpellBookOpen = !isSpellBookOpen;
-    }
 }
