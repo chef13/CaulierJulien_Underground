@@ -26,7 +26,8 @@ public class AvatarGenerator : MonoBehaviour
 
     public SpellEffectSO effect;
     public ManaCore manaCore;
-    public Coroutine changeAvatarCoroutine;
+    public Coroutine changeAvatarCoroutine, avatarSummonCoroutine;
+
 
     public Button blueButton, greenButton, blackButton, whiteButton, brownButton, summondButton;
     private List<Button> colorButtons = new List<Button>();

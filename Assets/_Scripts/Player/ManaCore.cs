@@ -167,7 +167,7 @@ public class ManaCore : MonoBehaviour
         }
     }
 
-    public void summonAvatar(GameObject avatar, float summoningTime)
+   /* public void summonAvatar(GameObject avatar, float summoningTime)
     {
         if (summonAvatarCoroutine != null)
         {
@@ -215,7 +215,7 @@ public class ManaCore : MonoBehaviour
 
         }
         yield break;
-    }
+    }*/
 
     private void CreatureSpawninDG()
     {

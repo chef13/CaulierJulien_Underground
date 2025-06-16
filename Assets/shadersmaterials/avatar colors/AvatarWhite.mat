@@ -45,12 +45,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _dissolveAmount: 0.2
+    - _dissolveAmount: 1.1
     - _outlineTickness: 0.042
     m_Colors:
-    - _ColorClair: {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 1}
+    - _ColorClair: {r: 1, g: 1, b: 1, a: 1}
     - _ColorDisolve: {r: 4, g: 4, b: 4, a: 1}
-    - _ColorEffect: {r: 10.680627, g: 10.680627, b: 10.680627, a: 1}
+    - _ColorEffect: {r: 16.738644, g: 16.738644, b: 16.738644, a: 1}
     - _ColorFonce: {r: 0.15471691, g: 0.15006867, b: 0.1468351, a: 1}
     - _ColorLiner: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

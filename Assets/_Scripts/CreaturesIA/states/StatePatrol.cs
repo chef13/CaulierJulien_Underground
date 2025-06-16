@@ -28,7 +28,7 @@ public class StatePatrol : CreatureState
 
 
 
-        Controller.SetDestination(patrolQueue.Dequeue());
+       //Controller.SetDestination(patrolQueue.Dequeue());
     }
     
     public override void Exit()

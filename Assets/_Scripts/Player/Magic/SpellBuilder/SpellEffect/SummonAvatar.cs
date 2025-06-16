@@ -5,6 +5,7 @@ using UnityEngine.AI;
 using UnityEngine.Tilemaps;
 using System.Collections;
 using UnityEngine.Rendering.Universal;
+using DG.Tweening;
 
 [CreateAssetMenu(menuName = "Magic/Effects/SummnAvatar")]
 public class SummnAvatar : SpellEffectSO
@@ -24,7 +25,9 @@ public class SummnAvatar : SpellEffectSO
         var manaCore = ManaCore.Instance;
 
         Debug.Log("🧙 Summoning avatar...");
-        ManaCore.Instance.summonAvatar(avatarPrefab, summoningTime);
+        AvatarGenerator.Instance.avatarSummonCoroutine = AvatarGenerator.Instance.StartCoroutine(
+            this.SummoningAvatar(avatarPrefab, summoningTime, caster)
+        ); // Set the current spell for the avatar generator
 
     }
     
@@ -37,8 +40,8 @@ public class SummnAvatar : SpellEffectSO
 
             var spawnPos = manaCore.transform.position + Vector3.right; // Spawn beside caster
             //spawnPos.z = 0f; // Ensure the avatar is on the same plane
-            //manaCore.currentAvatar = Instantiate(avatar, spawnPos, Quaternion.identity);
-            CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPos, avatar, manaCore.dungeonFaction);
+            manaCore.currentAvatar = Instantiate(avatar, spawnPos, Quaternion.identity);
+            //CreatureSpawner.Instance.SpawnCreatureInRoom(spawnPos, avatar, manaCore.dungeonFaction);
             manaCore.SetControlledAvatar(manaCore.currentAvatar); // Optional link for spellcasting
             GameObject currentAvatar = manaCore.currentAvatar;
 
@@ -86,6 +89,12 @@ public class SummnAvatar : SpellEffectSO
 
 
             yield return new WaitForEndOfFrame(); // Optional: delay before starting the dissolve effect
+
+            material.DOFloat(1.1f, "_dissolveAmount", 0f); // Start with dissolve effect
+
+            material.DOFloat(0f, "_dissolveAmount", summoningTime).SetEase(Ease.InOutQuad); // Dissolve over the summoning time
+
+            /*
             float elapsedTime = 0f;
             while (elapsedTime < summoningTime)
             {
@@ -97,6 +106,7 @@ public class SummnAvatar : SpellEffectSO
 
             // Ensure final state
             material.SetFloat("_dissolveAmount", 0f);
+            */
 
             manaCore.summonAvatarCoroutine = null; // Reset coroutine reference
             break; // Exit the loop after summoning
